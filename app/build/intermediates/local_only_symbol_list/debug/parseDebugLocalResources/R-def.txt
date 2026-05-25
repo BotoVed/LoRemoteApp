@@ -1,0 +1,14 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color selected
+color white
+id btnAll
+id btnConnect
+id btnDisconnect
+id btnPing
+id btnScan
+id deviceList
+id statusText
+layout activity_main
+string app_name
