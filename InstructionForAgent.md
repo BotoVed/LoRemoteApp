@@ -177,7 +177,7 @@ appcompat: 1.6.1, material: 1.11.0
 | Nordic API | v2.7.4 требует BleManagerCallbacks интерфейс |
 | T1000-E не виден в скане | Закрыть Meshtastic app — BLE занят |
 
-## Статус v0.2.3 ✅
+## Статус v0.3.0 ✅
 
 - [x] BLE сканирование + фильтрация Meshtastic устройств
 - [x] Автоподключение к последнему устройству (SharedPreferences)
@@ -187,11 +187,15 @@ appcompat: 1.6.1, material: 1.11.0
 - [x] PING доходит до T114, плагин получает
 - [x] MessagePack encode/decode
 - [x] DeliveryQueue (6 попыток)
+- [x] Foreground Service — BleService (LifecycleService + START_STICKY)
+- [x] Ping loop — keepalive каждые 60 сек в фоне
+- [x] Уведомления: статус соединения + тревога (tp:3 BS)
+- [x] MainActivity bindService + BroadcastReceiver
+- [x] AndroidManifest: FOREGROUND_SERVICE, POST_NOTIFICATIONS
 
 ## TODO (следующие шаги)
 
-1. **Foreground Service** — BleService.kt, переделать MainActivity на bindService ← **СЛЕДУЮЩИЙ**
-2. **PONG от T114** — проверить что плагин отвечает на PING
-3. **Полный UI** — зоны, карточки устройств (на основе LORA_CONFIG)
-4. **Авторизация** — SHA-256 пароль, несколько пользователей
-5. **Алармы** — уведомления при tp:3 с BS датчиками
+1. **PONG от T114** — проверить что плагин отвечает на PING
+2. **Полный UI** — зоны, карточки устройств (на основе LORA_CONFIG)
+3. **Авторизация** — SHA-256 пароль, несколько пользователей
+4. **Полноценные алармы** — звуковые уведомления, badge, vibration
