@@ -3,19 +3,27 @@ package com.loremote.app.ui
   import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanResult
+import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.loremote.app.ble.BleScanner
+import com.loremote.app.ble.BleService
 import com.loremote.app.ble.BleState
-import com.loremote.app.ble.LoRemoteBleManager
 import com.loremote.app.ble.GATEWAY_NODE_NUM
 import com.loremote.app.ble.LOREMOTE_PORT
 import com.loremote.app.databinding.ActivityMainBinding
@@ -28,8 +36,8 @@ class MainActivity : AppCompatActivity() {
 
     private val TAG = "MainActivity"
     private lateinit var binding: ActivityMainBinding
-    private lateinit var scanner: BleScanner
-    private lateinit var bleManager: LoRemoteBleManager
+    private var bleService: BleService? = null
+    private var serviceBound = false
 
     private val deviceList = mutableListOf<ScanResult>()
     private lateinit var deviceAdapter: ArrayAdapter<String>
@@ -38,13 +46,9 @@ class MainActivity : AppCompatActivity() {
 
     private val logLines = mutableListOf<String>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        scanner = BleScanner(this)
-        bleManager = LoRemoteBleManager(this) { bytes ->
+    private val packetReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context, intent: Intent) {
+            val bytes = intent.getByteArrayExtra(BleService.EXTRA_BYTES) ?: return
             runOnUiThread {
                 try {
                     val map = Protocol.decode(bytes)
@@ -55,19 +59,44 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
 
-        // Автоподключение к последнему устройству
-        tryAutoConnect()
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+            bleService = (binder as BleService.LocalBinder).getService()
+            serviceBound = true
+            observeBleState()
+            lifecycleScope.launch {
+                bleService!!.scanner.results.collect { results ->
+                    updateDeviceList(results)
+                }
+            }
+        }
+        override fun onServiceDisconnected(name: ComponentName) {
+            serviceBound = false
+            bleService = null
+        }
+    }
 
-        // Adapter для списка устройств
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         deviceAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf())
         binding.lvDevices.adapter = deviceAdapter
 
-        // Выбор устройства тапом
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 2)
+            }
+        }
+
         binding.lvDevices.setOnItemClickListener { _, view, position, _ ->
             selectedIndex = position
             selectedDevice = deviceList.getOrNull(position)
-            // Подсветить выбранное
             for (i in 0 until binding.lvDevices.childCount) {
                 binding.lvDevices.getChildAt(i)?.setBackgroundColor(
                     if (i == position) 0xFF2A2A2A.toInt() else android.graphics.Color.TRANSPARENT
@@ -77,9 +106,72 @@ class MainActivity : AppCompatActivity() {
             addLog("Selected: ${d?.device?.name ?: "Unknown"} (${d?.device?.address})")
         }
 
-        // Статус BLE
+        binding.btnScan.setOnClickListener { checkPermissionsAndScan() }
+
+        binding.btnConnect.setOnClickListener {
+            val device = selectedDevice ?: run {
+                Toast.makeText(this, "Выберите устройство из списка", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            scannerStop()
+            addLog("Connecting to ${device.device.name}...")
+            bleService?.bleManager?.connectTo(device.device)
+        }
+
+        binding.btnPing.setOnClickListener { sendPacket(Protocol.ping()) }
+        binding.btnPingBroadcast.setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    val bytes = Protocol.encode(Protocol.ping())
+                    bleService?.bleManager?.sendLoRemoteBroadcast(bytes)
+                    addLog("TX→ broadcast tp:6 (${bytes.size}b)")
+                } catch (e: Exception) {
+                    addLog("TX→ ERROR: ${e.message}")
+                }
+            }
+        }
+        binding.btnAll.setOnClickListener { sendPacket(Protocol.requestAll()) }
+        binding.btnDisc.setOnClickListener {
+            bleService?.bleManager?.disconnect()?.enqueue()
+            addLog("Disconnecting...")
+        }
+        binding.btnSendTest.setOnClickListener { sendTestPacket() }
+        binding.btnSendText.setOnClickListener { sendTextPacket() }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val intent = Intent(this, BleService::class.java)
+        ContextCompat.startForegroundService(this, intent)
+        bindService(intent, serviceConnection, BIND_AUTO_CREATE)
+        registerReceiver(
+            packetReceiver,
+            IntentFilter(BleService.ACTION_PACKET),
+            RECEIVER_NOT_EXPORTED
+        )
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (serviceBound) {
+            unbindService(serviceConnection)
+            serviceBound = false
+        }
+        unregisterReceiver(packetReceiver)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scannerStop()
+    }
+
+    private fun scannerStop() {
+        bleService?.scanner?.stop()
+    }
+
+    private fun observeBleState() {
         lifecycleScope.launch {
-            bleManager.state.collect { state ->
+            bleService?.bleManager?.state?.collect { state ->
                 val txt = when (state) {
                     is BleState.Disconnected -> "○ Disconnected"
                     is BleState.Connecting   -> "○ Connecting..."
@@ -97,60 +189,24 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
 
-        // Обновление списка устройств
-        lifecycleScope.launch {
-            scanner.results.collect { results ->
-                deviceList.clear()
-                deviceList.addAll(results)
-                deviceAdapter.clear()
-                deviceAdapter.addAll(results.map { r ->
-                    val name = r.device.name ?: "Unknown"
-                    "$name  ${r.device.address}  ${r.rssi}dBm"
-                })
-                deviceAdapter.notifyDataSetChanged()
-            }
-        }
-
-        // Кнопки
-        binding.btnScan.setOnClickListener { checkPermissionsAndScan() }
-
-        binding.btnConnect.setOnClickListener {
-            val device = selectedDevice ?: run {
-                Toast.makeText(this, "Выберите устройство из списка", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            scanner.stop()
-            addLog("Connecting to ${device.device.name}...")
-            bleManager.connectTo(device.device)
-        }
-
-        binding.btnPing.setOnClickListener { sendPacket(Protocol.ping()) }
-        binding.btnPingBroadcast.setOnClickListener {
-            lifecycleScope.launch {
-                try {
-                    val bytes = Protocol.encode(Protocol.ping())
-                    bleManager.sendLoRemoteBroadcast(bytes)
-                    addLog("TX→ broadcast tp:6 (${bytes.size}b)")
-                } catch (e: Exception) {
-                    addLog("TX→ ERROR: ${e.message}")
-                }
-            }
-        }
-        binding.btnAll.setOnClickListener { sendPacket(Protocol.requestAll()) }
-        binding.btnDisc.setOnClickListener {
-            bleManager.disconnect().enqueue()
-            addLog("Disconnecting...")
-        }
-        binding.btnSendTest.setOnClickListener { sendTestPacket() }
-        binding.btnSendText.setOnClickListener { sendTextPacket() }
+    private fun updateDeviceList(results: List<ScanResult>) {
+        deviceList.clear()
+        deviceList.addAll(results)
+        deviceAdapter.clear()
+        deviceAdapter.addAll(results.map { r ->
+            val name = r.device.name ?: "Unknown"
+            "$name  ${r.device.address}  ${r.rssi}dBm"
+        })
+        deviceAdapter.notifyDataSetChanged()
     }
 
     private fun sendPacket(packet: OutPacket) {
         lifecycleScope.launch {
             try {
                 val bytes = Protocol.encode(packet)
-                bleManager.sendLoRemote(bytes)
+                bleService?.bleManager?.sendLoRemote(bytes)
                 addLog("TX tp:${packet.tp} (${bytes.size}b)")
             } catch (e: Exception) {
                 addLog("TX ERROR: ${e.message}")
@@ -181,7 +237,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val bytes = Protocol.encode(Protocol.ping())
-                bleManager.sendLoRemotePacket(bytes, GATEWAY_NODE_NUM, 256)
+                bleService?.bleManager?.sendLoRemotePacket(bytes, GATEWAY_NODE_NUM, 256)
                 addLog("TX→TEST tp:6 (${bytes.size}b)")
             } catch (e: Exception) {
                 addLog("TX→TEST ERROR: ${e.message}")
@@ -189,38 +245,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-      private fun sendTextPacket() {
+    private fun sendTextPacket() {
         lifecycleScope.launch {
             try {
                 val textBytes = "hello".toByteArray()
-                bleManager.sendLoRemotePacket(textBytes, GATEWAY_NODE_NUM, 1)
+                bleService?.bleManager?.sendLoRemotePacket(textBytes, GATEWAY_NODE_NUM, 1)
                 addLog("TX→TEXT hello (${textBytes.size}b)")
             } catch (e: Exception) {
                 addLog("TX→TEXT ERROR: ${e.message}")
-            }
-        }
-    }
-
-    private fun tryAutoConnect() {
-        val prefs = getSharedPreferences("loremote", Context.MODE_PRIVATE)
-        val lastMac = prefs.getString("last_device_mac", null)
-        val lastName = prefs.getString("last_device_name", null)
-
-        if (lastMac != null && lastName != null) {
-            addLog("Last device: $lastName ($lastMac)")
-            val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-            if (bluetoothAdapter?.isEnabled == true) {
-                try {
-                    val device = bluetoothAdapter.getRemoteDevice(lastMac)
-                    Log.i(TAG, "Auto-connecting to $lastName ($lastMac)")
-                    binding.tvStatus.text = "Reconnecting to $lastName..."
-                    bleManager.connectTo(device)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Auto-connect failed: ${e.message}")
-                    addLog("Auto-connect failed: ${e.message}")
-                }
-            } else {
-                addLog("BLE is off — cannot auto-connect to $lastName")
             }
         }
     }
@@ -235,7 +267,7 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }
         if (missing.isEmpty()) {
-            scanner.start()
+            bleService?.scanner?.start()
             addLog("Scanning...")
         } else {
             ActivityCompat.requestPermissions(this, missing.toTypedArray(), 1)
@@ -244,13 +276,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(req: Int, perms: Array<String>, results: IntArray) {
         super.onRequestPermissionsResult(req, perms, results)
-        if (results.all { it == PackageManager.PERMISSION_GRANTED }) scanner.start()
-        else Toast.makeText(this, "BLE permissions required", Toast.LENGTH_LONG).show()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        scanner.stop()
-        bleManager.disconnect().enqueue()
+        if (results.all { it == PackageManager.PERMISSION_GRANTED }) {
+            bleService?.scanner?.start()
+        } else {
+            Toast.makeText(this, "BLE permissions required", Toast.LENGTH_LONG).show()
+        }
     }
 }
