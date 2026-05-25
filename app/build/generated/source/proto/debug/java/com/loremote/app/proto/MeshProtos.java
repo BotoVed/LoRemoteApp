@@ -9,39 +9,1078 @@ public final class MeshProtos {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistryLite registry) {
   }
+  public interface DataOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:meshtastic.Data)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>int32 portnum = 1;</code>
+     * @return The portnum.
+     */
+    int getPortnum();
+
+    /**
+     * <code>bytes payload = 2;</code>
+     * @return The payload.
+     */
+    com.google.protobuf.ByteString getPayload();
+  }
+  /**
+   * Protobuf type {@code meshtastic.Data}
+   */
+  public  static final class Data extends
+      com.google.protobuf.GeneratedMessageLite<
+          Data, Data.Builder> implements
+      // @@protoc_insertion_point(message_implements:meshtastic.Data)
+      DataOrBuilder {
+    private Data() {
+      payload_ = com.google.protobuf.ByteString.EMPTY;
+    }
+    public static final int PORTNUM_FIELD_NUMBER = 1;
+    private int portnum_;
+    /**
+     * <code>int32 portnum = 1;</code>
+     * @return The portnum.
+     */
+    @java.lang.Override
+    public int getPortnum() {
+      return portnum_;
+    }
+    /**
+     * <code>int32 portnum = 1;</code>
+     * @param value The portnum to set.
+     */
+    private void setPortnum(int value) {
+      
+      portnum_ = value;
+    }
+    /**
+     * <code>int32 portnum = 1;</code>
+     */
+    private void clearPortnum() {
+
+      portnum_ = 0;
+    }
+
+    public static final int PAYLOAD_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString payload_;
+    /**
+     * <code>bytes payload = 2;</code>
+     * @return The payload.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString getPayload() {
+      return payload_;
+    }
+    /**
+     * <code>bytes payload = 2;</code>
+     * @param value The payload to set.
+     */
+    private void setPayload(com.google.protobuf.ByteString value) {
+      java.lang.Class<?> valueClass = value.getClass();
+  
+      payload_ = value;
+    }
+    /**
+     * <code>bytes payload = 2;</code>
+     */
+    private void clearPayload() {
+
+      payload_ = getDefaultInstance().getPayload();
+    }
+
+    public static com.loremote.app.proto.MeshProtos.Data parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static com.loremote.app.proto.MeshProtos.Data parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static com.loremote.app.proto.MeshProtos.Data parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static com.loremote.app.proto.MeshProtos.Data parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static com.loremote.app.proto.MeshProtos.Data parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static com.loremote.app.proto.MeshProtos.Data parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static com.loremote.app.proto.MeshProtos.Data parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static com.loremote.app.proto.MeshProtos.Data parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static com.loremote.app.proto.MeshProtos.Data parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static com.loremote.app.proto.MeshProtos.Data parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static com.loremote.app.proto.MeshProtos.Data parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static com.loremote.app.proto.MeshProtos.Data parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(com.loremote.app.proto.MeshProtos.Data prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * Protobuf type {@code meshtastic.Data}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          com.loremote.app.proto.MeshProtos.Data, Builder> implements
+        // @@protoc_insertion_point(builder_implements:meshtastic.Data)
+        com.loremote.app.proto.MeshProtos.DataOrBuilder {
+      // Construct using com.loremote.app.proto.MeshProtos.Data.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>int32 portnum = 1;</code>
+       * @return The portnum.
+       */
+      @java.lang.Override
+      public int getPortnum() {
+        return instance.getPortnum();
+      }
+      /**
+       * <code>int32 portnum = 1;</code>
+       * @param value The portnum to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPortnum(int value) {
+        copyOnWrite();
+        instance.setPortnum(value);
+        return this;
+      }
+      /**
+       * <code>int32 portnum = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPortnum() {
+        copyOnWrite();
+        instance.clearPortnum();
+        return this;
+      }
+
+      /**
+       * <code>bytes payload = 2;</code>
+       * @return The payload.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString getPayload() {
+        return instance.getPayload();
+      }
+      /**
+       * <code>bytes payload = 2;</code>
+       * @param value The payload to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPayload(com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setPayload(value);
+        return this;
+      }
+      /**
+       * <code>bytes payload = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPayload() {
+        copyOnWrite();
+        instance.clearPayload();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:meshtastic.Data)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"unchecked", "fallthrough"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new com.loremote.app.proto.MeshProtos.Data();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "portnum_",
+              "payload_",
+            };
+            java.lang.String info =
+                "\u0000\u0002\u0000\u0000\u0001\u0002\u0002\u0000\u0000\u0000\u0001\u0004\u0002\n" +
+                "";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        // fall through
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<com.loremote.app.proto.MeshProtos.Data> parser = PARSER;
+          if (parser == null) {
+            synchronized (com.loremote.app.proto.MeshProtos.Data.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<com.loremote.app.proto.MeshProtos.Data>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+      }
+      case GET_MEMOIZED_IS_INITIALIZED: {
+        return (byte) 1;
+      }
+      case SET_MEMOIZED_IS_INITIALIZED: {
+        return null;
+      }
+      }
+      throw new UnsupportedOperationException();
+    }
+
+
+    // @@protoc_insertion_point(class_scope:meshtastic.Data)
+    private static final com.loremote.app.proto.MeshProtos.Data DEFAULT_INSTANCE;
+    static {
+      Data defaultInstance = new Data();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        Data.class, defaultInstance);
+    }
+
+    public static com.loremote.app.proto.MeshProtos.Data getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<Data> PARSER;
+
+    public static com.google.protobuf.Parser<Data> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface MeshPacketOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:meshtastic.MeshPacket)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>uint32 from = 1;</code>
+     * @return The from.
+     */
+    int getFrom();
+
+    /**
+     * <code>uint32 to = 2;</code>
+     * @return The to.
+     */
+    int getTo();
+
+    /**
+     * <code>.meshtastic.Data decoded = 3;</code>
+     * @return Whether the decoded field is set.
+     */
+    boolean hasDecoded();
+    /**
+     * <code>.meshtastic.Data decoded = 3;</code>
+     * @return The decoded.
+     */
+    com.loremote.app.proto.MeshProtos.Data getDecoded();
+
+    /**
+     * <code>uint32 id = 9;</code>
+     * @return The id.
+     */
+    int getId();
+
+    /**
+     * <code>uint32 rx_time = 11;</code>
+     * @return The rxTime.
+     */
+    int getRxTime();
+
+    /**
+     * <code>float rx_snr = 13;</code>
+     * @return The rxSnr.
+     */
+    float getRxSnr();
+
+    /**
+     * <code>int32 rx_rssi = 14;</code>
+     * @return The rxRssi.
+     */
+    int getRxRssi();
+
+    /**
+     * <code>uint32 hop_limit = 10;</code>
+     * @return The hopLimit.
+     */
+    int getHopLimit();
+  }
+  /**
+   * Protobuf type {@code meshtastic.MeshPacket}
+   */
+  public  static final class MeshPacket extends
+      com.google.protobuf.GeneratedMessageLite<
+          MeshPacket, MeshPacket.Builder> implements
+      // @@protoc_insertion_point(message_implements:meshtastic.MeshPacket)
+      MeshPacketOrBuilder {
+    private MeshPacket() {
+    }
+    private int bitField0_;
+    public static final int FROM_FIELD_NUMBER = 1;
+    private int from_;
+    /**
+     * <code>uint32 from = 1;</code>
+     * @return The from.
+     */
+    @java.lang.Override
+    public int getFrom() {
+      return from_;
+    }
+    /**
+     * <code>uint32 from = 1;</code>
+     * @param value The from to set.
+     */
+    private void setFrom(int value) {
+      
+      from_ = value;
+    }
+    /**
+     * <code>uint32 from = 1;</code>
+     */
+    private void clearFrom() {
+
+      from_ = 0;
+    }
+
+    public static final int TO_FIELD_NUMBER = 2;
+    private int to_;
+    /**
+     * <code>uint32 to = 2;</code>
+     * @return The to.
+     */
+    @java.lang.Override
+    public int getTo() {
+      return to_;
+    }
+    /**
+     * <code>uint32 to = 2;</code>
+     * @param value The to to set.
+     */
+    private void setTo(int value) {
+      
+      to_ = value;
+    }
+    /**
+     * <code>uint32 to = 2;</code>
+     */
+    private void clearTo() {
+
+      to_ = 0;
+    }
+
+    public static final int DECODED_FIELD_NUMBER = 3;
+    private com.loremote.app.proto.MeshProtos.Data decoded_;
+    /**
+     * <code>.meshtastic.Data decoded = 3;</code>
+     */
+    @java.lang.Override
+    public boolean hasDecoded() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.meshtastic.Data decoded = 3;</code>
+     */
+    @java.lang.Override
+    public com.loremote.app.proto.MeshProtos.Data getDecoded() {
+      return decoded_ == null ? com.loremote.app.proto.MeshProtos.Data.getDefaultInstance() : decoded_;
+    }
+    /**
+     * <code>.meshtastic.Data decoded = 3;</code>
+     */
+    private void setDecoded(com.loremote.app.proto.MeshProtos.Data value) {
+      value.getClass();
+  decoded_ = value;
+      bitField0_ |= 0x00000001;
+      }
+    /**
+     * <code>.meshtastic.Data decoded = 3;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality"})
+    private void mergeDecoded(com.loremote.app.proto.MeshProtos.Data value) {
+      value.getClass();
+  if (decoded_ != null &&
+          decoded_ != com.loremote.app.proto.MeshProtos.Data.getDefaultInstance()) {
+        decoded_ =
+          com.loremote.app.proto.MeshProtos.Data.newBuilder(decoded_).mergeFrom(value).buildPartial();
+      } else {
+        decoded_ = value;
+      }
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.meshtastic.Data decoded = 3;</code>
+     */
+    private void clearDecoded() {  decoded_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+    }
+
+    public static final int ID_FIELD_NUMBER = 9;
+    private int id_;
+    /**
+     * <code>uint32 id = 9;</code>
+     * @return The id.
+     */
+    @java.lang.Override
+    public int getId() {
+      return id_;
+    }
+    /**
+     * <code>uint32 id = 9;</code>
+     * @param value The id to set.
+     */
+    private void setId(int value) {
+      
+      id_ = value;
+    }
+    /**
+     * <code>uint32 id = 9;</code>
+     */
+    private void clearId() {
+
+      id_ = 0;
+    }
+
+    public static final int RX_TIME_FIELD_NUMBER = 11;
+    private int rxTime_;
+    /**
+     * <code>uint32 rx_time = 11;</code>
+     * @return The rxTime.
+     */
+    @java.lang.Override
+    public int getRxTime() {
+      return rxTime_;
+    }
+    /**
+     * <code>uint32 rx_time = 11;</code>
+     * @param value The rxTime to set.
+     */
+    private void setRxTime(int value) {
+      
+      rxTime_ = value;
+    }
+    /**
+     * <code>uint32 rx_time = 11;</code>
+     */
+    private void clearRxTime() {
+
+      rxTime_ = 0;
+    }
+
+    public static final int RX_SNR_FIELD_NUMBER = 13;
+    private float rxSnr_;
+    /**
+     * <code>float rx_snr = 13;</code>
+     * @return The rxSnr.
+     */
+    @java.lang.Override
+    public float getRxSnr() {
+      return rxSnr_;
+    }
+    /**
+     * <code>float rx_snr = 13;</code>
+     * @param value The rxSnr to set.
+     */
+    private void setRxSnr(float value) {
+      
+      rxSnr_ = value;
+    }
+    /**
+     * <code>float rx_snr = 13;</code>
+     */
+    private void clearRxSnr() {
+
+      rxSnr_ = 0F;
+    }
+
+    public static final int RX_RSSI_FIELD_NUMBER = 14;
+    private int rxRssi_;
+    /**
+     * <code>int32 rx_rssi = 14;</code>
+     * @return The rxRssi.
+     */
+    @java.lang.Override
+    public int getRxRssi() {
+      return rxRssi_;
+    }
+    /**
+     * <code>int32 rx_rssi = 14;</code>
+     * @param value The rxRssi to set.
+     */
+    private void setRxRssi(int value) {
+      
+      rxRssi_ = value;
+    }
+    /**
+     * <code>int32 rx_rssi = 14;</code>
+     */
+    private void clearRxRssi() {
+
+      rxRssi_ = 0;
+    }
+
+    public static final int HOP_LIMIT_FIELD_NUMBER = 10;
+    private int hopLimit_;
+    /**
+     * <code>uint32 hop_limit = 10;</code>
+     * @return The hopLimit.
+     */
+    @java.lang.Override
+    public int getHopLimit() {
+      return hopLimit_;
+    }
+    /**
+     * <code>uint32 hop_limit = 10;</code>
+     * @param value The hopLimit to set.
+     */
+    private void setHopLimit(int value) {
+      
+      hopLimit_ = value;
+    }
+    /**
+     * <code>uint32 hop_limit = 10;</code>
+     */
+    private void clearHopLimit() {
+
+      hopLimit_ = 0;
+    }
+
+    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static com.loremote.app.proto.MeshProtos.MeshPacket parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static com.loremote.app.proto.MeshProtos.MeshPacket parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(com.loremote.app.proto.MeshProtos.MeshPacket prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * Protobuf type {@code meshtastic.MeshPacket}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          com.loremote.app.proto.MeshProtos.MeshPacket, Builder> implements
+        // @@protoc_insertion_point(builder_implements:meshtastic.MeshPacket)
+        com.loremote.app.proto.MeshProtos.MeshPacketOrBuilder {
+      // Construct using com.loremote.app.proto.MeshProtos.MeshPacket.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>uint32 from = 1;</code>
+       * @return The from.
+       */
+      @java.lang.Override
+      public int getFrom() {
+        return instance.getFrom();
+      }
+      /**
+       * <code>uint32 from = 1;</code>
+       * @param value The from to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFrom(int value) {
+        copyOnWrite();
+        instance.setFrom(value);
+        return this;
+      }
+      /**
+       * <code>uint32 from = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearFrom() {
+        copyOnWrite();
+        instance.clearFrom();
+        return this;
+      }
+
+      /**
+       * <code>uint32 to = 2;</code>
+       * @return The to.
+       */
+      @java.lang.Override
+      public int getTo() {
+        return instance.getTo();
+      }
+      /**
+       * <code>uint32 to = 2;</code>
+       * @param value The to to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTo(int value) {
+        copyOnWrite();
+        instance.setTo(value);
+        return this;
+      }
+      /**
+       * <code>uint32 to = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearTo() {
+        copyOnWrite();
+        instance.clearTo();
+        return this;
+      }
+
+      /**
+       * <code>.meshtastic.Data decoded = 3;</code>
+       */
+      @java.lang.Override
+      public boolean hasDecoded() {
+        return instance.hasDecoded();
+      }
+      /**
+       * <code>.meshtastic.Data decoded = 3;</code>
+       */
+      @java.lang.Override
+      public com.loremote.app.proto.MeshProtos.Data getDecoded() {
+        return instance.getDecoded();
+      }
+      /**
+       * <code>.meshtastic.Data decoded = 3;</code>
+       */
+      public Builder setDecoded(com.loremote.app.proto.MeshProtos.Data value) {
+        copyOnWrite();
+        instance.setDecoded(value);
+        return this;
+        }
+      /**
+       * <code>.meshtastic.Data decoded = 3;</code>
+       */
+      public Builder setDecoded(
+          com.loremote.app.proto.MeshProtos.Data.Builder builderForValue) {
+        copyOnWrite();
+        instance.setDecoded(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.meshtastic.Data decoded = 3;</code>
+       */
+      public Builder mergeDecoded(com.loremote.app.proto.MeshProtos.Data value) {
+        copyOnWrite();
+        instance.mergeDecoded(value);
+        return this;
+      }
+      /**
+       * <code>.meshtastic.Data decoded = 3;</code>
+       */
+      public Builder clearDecoded() {  copyOnWrite();
+        instance.clearDecoded();
+        return this;
+      }
+
+      /**
+       * <code>uint32 id = 9;</code>
+       * @return The id.
+       */
+      @java.lang.Override
+      public int getId() {
+        return instance.getId();
+      }
+      /**
+       * <code>uint32 id = 9;</code>
+       * @param value The id to set.
+       * @return This builder for chaining.
+       */
+      public Builder setId(int value) {
+        copyOnWrite();
+        instance.setId(value);
+        return this;
+      }
+      /**
+       * <code>uint32 id = 9;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearId() {
+        copyOnWrite();
+        instance.clearId();
+        return this;
+      }
+
+      /**
+       * <code>uint32 rx_time = 11;</code>
+       * @return The rxTime.
+       */
+      @java.lang.Override
+      public int getRxTime() {
+        return instance.getRxTime();
+      }
+      /**
+       * <code>uint32 rx_time = 11;</code>
+       * @param value The rxTime to set.
+       * @return This builder for chaining.
+       */
+      public Builder setRxTime(int value) {
+        copyOnWrite();
+        instance.setRxTime(value);
+        return this;
+      }
+      /**
+       * <code>uint32 rx_time = 11;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearRxTime() {
+        copyOnWrite();
+        instance.clearRxTime();
+        return this;
+      }
+
+      /**
+       * <code>float rx_snr = 13;</code>
+       * @return The rxSnr.
+       */
+      @java.lang.Override
+      public float getRxSnr() {
+        return instance.getRxSnr();
+      }
+      /**
+       * <code>float rx_snr = 13;</code>
+       * @param value The rxSnr to set.
+       * @return This builder for chaining.
+       */
+      public Builder setRxSnr(float value) {
+        copyOnWrite();
+        instance.setRxSnr(value);
+        return this;
+      }
+      /**
+       * <code>float rx_snr = 13;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearRxSnr() {
+        copyOnWrite();
+        instance.clearRxSnr();
+        return this;
+      }
+
+      /**
+       * <code>int32 rx_rssi = 14;</code>
+       * @return The rxRssi.
+       */
+      @java.lang.Override
+      public int getRxRssi() {
+        return instance.getRxRssi();
+      }
+      /**
+       * <code>int32 rx_rssi = 14;</code>
+       * @param value The rxRssi to set.
+       * @return This builder for chaining.
+       */
+      public Builder setRxRssi(int value) {
+        copyOnWrite();
+        instance.setRxRssi(value);
+        return this;
+      }
+      /**
+       * <code>int32 rx_rssi = 14;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearRxRssi() {
+        copyOnWrite();
+        instance.clearRxRssi();
+        return this;
+      }
+
+      /**
+       * <code>uint32 hop_limit = 10;</code>
+       * @return The hopLimit.
+       */
+      @java.lang.Override
+      public int getHopLimit() {
+        return instance.getHopLimit();
+      }
+      /**
+       * <code>uint32 hop_limit = 10;</code>
+       * @param value The hopLimit to set.
+       * @return This builder for chaining.
+       */
+      public Builder setHopLimit(int value) {
+        copyOnWrite();
+        instance.setHopLimit(value);
+        return this;
+      }
+      /**
+       * <code>uint32 hop_limit = 10;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearHopLimit() {
+        copyOnWrite();
+        instance.clearHopLimit();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:meshtastic.MeshPacket)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"unchecked", "fallthrough"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new com.loremote.app.proto.MeshProtos.MeshPacket();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "from_",
+              "to_",
+              "decoded_",
+              "id_",
+              "hopLimit_",
+              "rxTime_",
+              "rxSnr_",
+              "rxRssi_",
+            };
+            java.lang.String info =
+                "\u0000\b\u0000\u0001\u0001\u000e\b\u0000\u0000\u0000\u0001\u000b\u0002\u000b\u0003" +
+                "\u1009\u0000\t\u000b\n\u000b\u000b\u000b\r\u0001\u000e\u0004";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        // fall through
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<com.loremote.app.proto.MeshProtos.MeshPacket> parser = PARSER;
+          if (parser == null) {
+            synchronized (com.loremote.app.proto.MeshProtos.MeshPacket.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<com.loremote.app.proto.MeshProtos.MeshPacket>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+      }
+      case GET_MEMOIZED_IS_INITIALIZED: {
+        return (byte) 1;
+      }
+      case SET_MEMOIZED_IS_INITIALIZED: {
+        return null;
+      }
+      }
+      throw new UnsupportedOperationException();
+    }
+
+
+    // @@protoc_insertion_point(class_scope:meshtastic.MeshPacket)
+    private static final com.loremote.app.proto.MeshProtos.MeshPacket DEFAULT_INSTANCE;
+    static {
+      MeshPacket defaultInstance = new MeshPacket();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        MeshPacket.class, defaultInstance);
+    }
+
+    public static com.loremote.app.proto.MeshProtos.MeshPacket getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<MeshPacket> PARSER;
+
+    public static com.google.protobuf.Parser<MeshPacket> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
   public interface FromRadioOrBuilder extends
       // @@protoc_insertion_point(interface_extends:meshtastic.FromRadio)
       com.google.protobuf.MessageLiteOrBuilder {
 
     /**
-     * <code>uint32 ack_req = 1;</code>
-     * @return Whether the ackReq field is set.
+     * <code>.meshtastic.MeshPacket packet = 2;</code>
+     * @return Whether the packet field is set.
      */
-    boolean hasAckReq();
+    boolean hasPacket();
     /**
-     * <code>uint32 ack_req = 1;</code>
-     * @return The ackReq.
+     * <code>.meshtastic.MeshPacket packet = 2;</code>
+     * @return The packet.
      */
-    int getAckReq();
+    com.loremote.app.proto.MeshProtos.MeshPacket getPacket();
 
     /**
-     * <code>.meshtastic.MeshPacket decoded = 2;</code>
-     * @return Whether the decoded field is set.
+     * <code>.meshtastic.MyNodeInfo my_info = 3;</code>
+     * @return Whether the myInfo field is set.
      */
-    boolean hasDecoded();
+    boolean hasMyInfo();
     /**
-     * <code>.meshtastic.MeshPacket decoded = 2;</code>
-     * @return The decoded.
+     * <code>.meshtastic.MyNodeInfo my_info = 3;</code>
+     * @return The myInfo.
      */
-    com.loremote.app.proto.MeshProtos.MeshPacket getDecoded();
+    com.loremote.app.proto.MeshProtos.MyNodeInfo getMyInfo();
 
     /**
-     * <code>uint32 config_complete_id = 3;</code>
+     * <code>.meshtastic.NodeInfo node_info = 4;</code>
+     * @return Whether the nodeInfo field is set.
+     */
+    boolean hasNodeInfo();
+    /**
+     * <code>.meshtastic.NodeInfo node_info = 4;</code>
+     * @return The nodeInfo.
+     */
+    com.loremote.app.proto.MeshProtos.NodeInfo getNodeInfo();
+
+    /**
+     * <code>uint32 config_complete_id = 6;</code>
      * @return Whether the configCompleteId field is set.
      */
     boolean hasConfigCompleteId();
     /**
-     * <code>uint32 config_complete_id = 3;</code>
+     * <code>uint32 config_complete_id = 6;</code>
      * @return The configCompleteId.
      */
     int getConfigCompleteId();
@@ -61,9 +1100,10 @@ public final class MeshProtos {
     private int payloadVariantCase_ = 0;
     private java.lang.Object payloadVariant_;
     public enum PayloadVariantCase {
-      ACK_REQ(1),
-      DECODED(2),
-      CONFIG_COMPLETE_ID(3),
+      PACKET(2),
+      MY_INFO(3),
+      NODE_INFO(4),
+      CONFIG_COMPLETE_ID(6),
       PAYLOADVARIANT_NOT_SET(0);
       private final int value;
       private PayloadVariantCase(int value) {
@@ -79,9 +1119,10 @@ public final class MeshProtos {
 
       public static PayloadVariantCase forNumber(int value) {
         switch (value) {
-          case 1: return ACK_REQ;
-          case 2: return DECODED;
-          case 3: return CONFIG_COMPLETE_ID;
+          case 2: return PACKET;
+          case 3: return MY_INFO;
+          case 4: return NODE_INFO;
+          case 6: return CONFIG_COMPLETE_ID;
           case 0: return PAYLOADVARIANT_NOT_SET;
           default: return null;
         }
@@ -103,74 +1144,36 @@ public final class MeshProtos {
       payloadVariant_ = null;
     }
 
-    public static final int ACK_REQ_FIELD_NUMBER = 1;
+    public static final int PACKET_FIELD_NUMBER = 2;
     /**
-     * <code>uint32 ack_req = 1;</code>
-     * @return Whether the ackReq field is set.
+     * <code>.meshtastic.MeshPacket packet = 2;</code>
      */
     @java.lang.Override
-    public boolean hasAckReq() {
-      return payloadVariantCase_ == 1;
-    }
-    /**
-     * <code>uint32 ack_req = 1;</code>
-     * @return The ackReq.
-     */
-    @java.lang.Override
-    public int getAckReq() {
-      if (payloadVariantCase_ == 1) {
-        return (java.lang.Integer) payloadVariant_;
-      }
-      return 0;
-    }
-    /**
-     * <code>uint32 ack_req = 1;</code>
-     * @param value The ackReq to set.
-     */
-    private void setAckReq(int value) {
-      payloadVariantCase_ = 1;
-      payloadVariant_ = value;
-    }
-    /**
-     * <code>uint32 ack_req = 1;</code>
-     */
-    private void clearAckReq() {
-      if (payloadVariantCase_ == 1) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static final int DECODED_FIELD_NUMBER = 2;
-    /**
-     * <code>.meshtastic.MeshPacket decoded = 2;</code>
-     */
-    @java.lang.Override
-    public boolean hasDecoded() {
+    public boolean hasPacket() {
       return payloadVariantCase_ == 2;
     }
     /**
-     * <code>.meshtastic.MeshPacket decoded = 2;</code>
+     * <code>.meshtastic.MeshPacket packet = 2;</code>
      */
     @java.lang.Override
-    public com.loremote.app.proto.MeshProtos.MeshPacket getDecoded() {
+    public com.loremote.app.proto.MeshProtos.MeshPacket getPacket() {
       if (payloadVariantCase_ == 2) {
          return (com.loremote.app.proto.MeshProtos.MeshPacket) payloadVariant_;
       }
       return com.loremote.app.proto.MeshProtos.MeshPacket.getDefaultInstance();
     }
     /**
-     * <code>.meshtastic.MeshPacket decoded = 2;</code>
+     * <code>.meshtastic.MeshPacket packet = 2;</code>
      */
-    private void setDecoded(com.loremote.app.proto.MeshProtos.MeshPacket value) {
+    private void setPacket(com.loremote.app.proto.MeshProtos.MeshPacket value) {
       value.getClass();
   payloadVariant_ = value;
       payloadVariantCase_ = 2;
     }
     /**
-     * <code>.meshtastic.MeshPacket decoded = 2;</code>
+     * <code>.meshtastic.MeshPacket packet = 2;</code>
      */
-    private void mergeDecoded(com.loremote.app.proto.MeshProtos.MeshPacket value) {
+    private void mergePacket(com.loremote.app.proto.MeshProtos.MeshPacket value) {
       value.getClass();
   if (payloadVariantCase_ == 2 &&
           payloadVariant_ != com.loremote.app.proto.MeshProtos.MeshPacket.getDefaultInstance()) {
@@ -182,48 +1185,148 @@ public final class MeshProtos {
       payloadVariantCase_ = 2;
     }
     /**
-     * <code>.meshtastic.MeshPacket decoded = 2;</code>
+     * <code>.meshtastic.MeshPacket packet = 2;</code>
      */
-    private void clearDecoded() {
+    private void clearPacket() {
       if (payloadVariantCase_ == 2) {
         payloadVariantCase_ = 0;
         payloadVariant_ = null;
       }
     }
 
-    public static final int CONFIG_COMPLETE_ID_FIELD_NUMBER = 3;
+    public static final int MY_INFO_FIELD_NUMBER = 3;
     /**
-     * <code>uint32 config_complete_id = 3;</code>
+     * <code>.meshtastic.MyNodeInfo my_info = 3;</code>
+     */
+    @java.lang.Override
+    public boolean hasMyInfo() {
+      return payloadVariantCase_ == 3;
+    }
+    /**
+     * <code>.meshtastic.MyNodeInfo my_info = 3;</code>
+     */
+    @java.lang.Override
+    public com.loremote.app.proto.MeshProtos.MyNodeInfo getMyInfo() {
+      if (payloadVariantCase_ == 3) {
+         return (com.loremote.app.proto.MeshProtos.MyNodeInfo) payloadVariant_;
+      }
+      return com.loremote.app.proto.MeshProtos.MyNodeInfo.getDefaultInstance();
+    }
+    /**
+     * <code>.meshtastic.MyNodeInfo my_info = 3;</code>
+     */
+    private void setMyInfo(com.loremote.app.proto.MeshProtos.MyNodeInfo value) {
+      value.getClass();
+  payloadVariant_ = value;
+      payloadVariantCase_ = 3;
+    }
+    /**
+     * <code>.meshtastic.MyNodeInfo my_info = 3;</code>
+     */
+    private void mergeMyInfo(com.loremote.app.proto.MeshProtos.MyNodeInfo value) {
+      value.getClass();
+  if (payloadVariantCase_ == 3 &&
+          payloadVariant_ != com.loremote.app.proto.MeshProtos.MyNodeInfo.getDefaultInstance()) {
+        payloadVariant_ = com.loremote.app.proto.MeshProtos.MyNodeInfo.newBuilder((com.loremote.app.proto.MeshProtos.MyNodeInfo) payloadVariant_)
+            .mergeFrom(value).buildPartial();
+      } else {
+        payloadVariant_ = value;
+      }
+      payloadVariantCase_ = 3;
+    }
+    /**
+     * <code>.meshtastic.MyNodeInfo my_info = 3;</code>
+     */
+    private void clearMyInfo() {
+      if (payloadVariantCase_ == 3) {
+        payloadVariantCase_ = 0;
+        payloadVariant_ = null;
+      }
+    }
+
+    public static final int NODE_INFO_FIELD_NUMBER = 4;
+    /**
+     * <code>.meshtastic.NodeInfo node_info = 4;</code>
+     */
+    @java.lang.Override
+    public boolean hasNodeInfo() {
+      return payloadVariantCase_ == 4;
+    }
+    /**
+     * <code>.meshtastic.NodeInfo node_info = 4;</code>
+     */
+    @java.lang.Override
+    public com.loremote.app.proto.MeshProtos.NodeInfo getNodeInfo() {
+      if (payloadVariantCase_ == 4) {
+         return (com.loremote.app.proto.MeshProtos.NodeInfo) payloadVariant_;
+      }
+      return com.loremote.app.proto.MeshProtos.NodeInfo.getDefaultInstance();
+    }
+    /**
+     * <code>.meshtastic.NodeInfo node_info = 4;</code>
+     */
+    private void setNodeInfo(com.loremote.app.proto.MeshProtos.NodeInfo value) {
+      value.getClass();
+  payloadVariant_ = value;
+      payloadVariantCase_ = 4;
+    }
+    /**
+     * <code>.meshtastic.NodeInfo node_info = 4;</code>
+     */
+    private void mergeNodeInfo(com.loremote.app.proto.MeshProtos.NodeInfo value) {
+      value.getClass();
+  if (payloadVariantCase_ == 4 &&
+          payloadVariant_ != com.loremote.app.proto.MeshProtos.NodeInfo.getDefaultInstance()) {
+        payloadVariant_ = com.loremote.app.proto.MeshProtos.NodeInfo.newBuilder((com.loremote.app.proto.MeshProtos.NodeInfo) payloadVariant_)
+            .mergeFrom(value).buildPartial();
+      } else {
+        payloadVariant_ = value;
+      }
+      payloadVariantCase_ = 4;
+    }
+    /**
+     * <code>.meshtastic.NodeInfo node_info = 4;</code>
+     */
+    private void clearNodeInfo() {
+      if (payloadVariantCase_ == 4) {
+        payloadVariantCase_ = 0;
+        payloadVariant_ = null;
+      }
+    }
+
+    public static final int CONFIG_COMPLETE_ID_FIELD_NUMBER = 6;
+    /**
+     * <code>uint32 config_complete_id = 6;</code>
      * @return Whether the configCompleteId field is set.
      */
     @java.lang.Override
     public boolean hasConfigCompleteId() {
-      return payloadVariantCase_ == 3;
+      return payloadVariantCase_ == 6;
     }
     /**
-     * <code>uint32 config_complete_id = 3;</code>
+     * <code>uint32 config_complete_id = 6;</code>
      * @return The configCompleteId.
      */
     @java.lang.Override
     public int getConfigCompleteId() {
-      if (payloadVariantCase_ == 3) {
+      if (payloadVariantCase_ == 6) {
         return (java.lang.Integer) payloadVariant_;
       }
       return 0;
     }
     /**
-     * <code>uint32 config_complete_id = 3;</code>
+     * <code>uint32 config_complete_id = 6;</code>
      * @param value The configCompleteId to set.
      */
     private void setConfigCompleteId(int value) {
-      payloadVariantCase_ = 3;
+      payloadVariantCase_ = 6;
       payloadVariant_ = value;
     }
     /**
-     * <code>uint32 config_complete_id = 3;</code>
+     * <code>uint32 config_complete_id = 6;</code>
      */
     private void clearConfigCompleteId() {
-      if (payloadVariantCase_ == 3) {
+      if (payloadVariantCase_ == 6) {
         payloadVariantCase_ = 0;
         payloadVariant_ = null;
       }
@@ -339,91 +1442,151 @@ public final class MeshProtos {
 
 
       /**
-       * <code>uint32 ack_req = 1;</code>
-       * @return Whether the ackReq field is set.
+       * <code>.meshtastic.MeshPacket packet = 2;</code>
        */
       @java.lang.Override
-      public boolean hasAckReq() {
-        return instance.hasAckReq();
+      public boolean hasPacket() {
+        return instance.hasPacket();
       }
       /**
-       * <code>uint32 ack_req = 1;</code>
-       * @return The ackReq.
+       * <code>.meshtastic.MeshPacket packet = 2;</code>
        */
       @java.lang.Override
-      public int getAckReq() {
-        return instance.getAckReq();
+      public com.loremote.app.proto.MeshProtos.MeshPacket getPacket() {
+        return instance.getPacket();
       }
       /**
-       * <code>uint32 ack_req = 1;</code>
-       * @param value The ackReq to set.
-       * @return This builder for chaining.
+       * <code>.meshtastic.MeshPacket packet = 2;</code>
        */
-      public Builder setAckReq(int value) {
+      public Builder setPacket(com.loremote.app.proto.MeshProtos.MeshPacket value) {
         copyOnWrite();
-        instance.setAckReq(value);
+        instance.setPacket(value);
         return this;
       }
       /**
-       * <code>uint32 ack_req = 1;</code>
-       * @return This builder for chaining.
+       * <code>.meshtastic.MeshPacket packet = 2;</code>
        */
-      public Builder clearAckReq() {
-        copyOnWrite();
-        instance.clearAckReq();
-        return this;
-      }
-
-      /**
-       * <code>.meshtastic.MeshPacket decoded = 2;</code>
-       */
-      @java.lang.Override
-      public boolean hasDecoded() {
-        return instance.hasDecoded();
-      }
-      /**
-       * <code>.meshtastic.MeshPacket decoded = 2;</code>
-       */
-      @java.lang.Override
-      public com.loremote.app.proto.MeshProtos.MeshPacket getDecoded() {
-        return instance.getDecoded();
-      }
-      /**
-       * <code>.meshtastic.MeshPacket decoded = 2;</code>
-       */
-      public Builder setDecoded(com.loremote.app.proto.MeshProtos.MeshPacket value) {
-        copyOnWrite();
-        instance.setDecoded(value);
-        return this;
-      }
-      /**
-       * <code>.meshtastic.MeshPacket decoded = 2;</code>
-       */
-      public Builder setDecoded(
+      public Builder setPacket(
           com.loremote.app.proto.MeshProtos.MeshPacket.Builder builderForValue) {
         copyOnWrite();
-        instance.setDecoded(builderForValue.build());
+        instance.setPacket(builderForValue.build());
         return this;
       }
       /**
-       * <code>.meshtastic.MeshPacket decoded = 2;</code>
+       * <code>.meshtastic.MeshPacket packet = 2;</code>
        */
-      public Builder mergeDecoded(com.loremote.app.proto.MeshProtos.MeshPacket value) {
+      public Builder mergePacket(com.loremote.app.proto.MeshProtos.MeshPacket value) {
         copyOnWrite();
-        instance.mergeDecoded(value);
+        instance.mergePacket(value);
         return this;
       }
       /**
-       * <code>.meshtastic.MeshPacket decoded = 2;</code>
+       * <code>.meshtastic.MeshPacket packet = 2;</code>
        */
-      public Builder clearDecoded() {
+      public Builder clearPacket() {
         copyOnWrite();
-        instance.clearDecoded();
+        instance.clearPacket();
         return this;
       }
 
       /**
-       * <code>uint32 config_complete_id = 3;</code>
+       * <code>.meshtastic.MyNodeInfo my_info = 3;</code>
+       */
+      @java.lang.Override
+      public boolean hasMyInfo() {
+        return instance.hasMyInfo();
+      }
+      /**
+       * <code>.meshtastic.MyNodeInfo my_info = 3;</code>
+       */
+      @java.lang.Override
+      public com.loremote.app.proto.MeshProtos.MyNodeInfo getMyInfo() {
+        return instance.getMyInfo();
+      }
+      /**
+       * <code>.meshtastic.MyNodeInfo my_info = 3;</code>
+       */
+      public Builder setMyInfo(com.loremote.app.proto.MeshProtos.MyNodeInfo value) {
+        copyOnWrite();
+        instance.setMyInfo(value);
+        return this;
+      }
+      /**
+       * <code>.meshtastic.MyNodeInfo my_info = 3;</code>
+       */
+      public Builder setMyInfo(
+          com.loremote.app.proto.MeshProtos.MyNodeInfo.Builder builderForValue) {
+        copyOnWrite();
+        instance.setMyInfo(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.meshtastic.MyNodeInfo my_info = 3;</code>
+       */
+      public Builder mergeMyInfo(com.loremote.app.proto.MeshProtos.MyNodeInfo value) {
+        copyOnWrite();
+        instance.mergeMyInfo(value);
+        return this;
+      }
+      /**
+       * <code>.meshtastic.MyNodeInfo my_info = 3;</code>
+       */
+      public Builder clearMyInfo() {
+        copyOnWrite();
+        instance.clearMyInfo();
+        return this;
+      }
+
+      /**
+       * <code>.meshtastic.NodeInfo node_info = 4;</code>
+       */
+      @java.lang.Override
+      public boolean hasNodeInfo() {
+        return instance.hasNodeInfo();
+      }
+      /**
+       * <code>.meshtastic.NodeInfo node_info = 4;</code>
+       */
+      @java.lang.Override
+      public com.loremote.app.proto.MeshProtos.NodeInfo getNodeInfo() {
+        return instance.getNodeInfo();
+      }
+      /**
+       * <code>.meshtastic.NodeInfo node_info = 4;</code>
+       */
+      public Builder setNodeInfo(com.loremote.app.proto.MeshProtos.NodeInfo value) {
+        copyOnWrite();
+        instance.setNodeInfo(value);
+        return this;
+      }
+      /**
+       * <code>.meshtastic.NodeInfo node_info = 4;</code>
+       */
+      public Builder setNodeInfo(
+          com.loremote.app.proto.MeshProtos.NodeInfo.Builder builderForValue) {
+        copyOnWrite();
+        instance.setNodeInfo(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.meshtastic.NodeInfo node_info = 4;</code>
+       */
+      public Builder mergeNodeInfo(com.loremote.app.proto.MeshProtos.NodeInfo value) {
+        copyOnWrite();
+        instance.mergeNodeInfo(value);
+        return this;
+      }
+      /**
+       * <code>.meshtastic.NodeInfo node_info = 4;</code>
+       */
+      public Builder clearNodeInfo() {
+        copyOnWrite();
+        instance.clearNodeInfo();
+        return this;
+      }
+
+      /**
+       * <code>uint32 config_complete_id = 6;</code>
        * @return Whether the configCompleteId field is set.
        */
       @java.lang.Override
@@ -431,7 +1594,7 @@ public final class MeshProtos {
         return instance.hasConfigCompleteId();
       }
       /**
-       * <code>uint32 config_complete_id = 3;</code>
+       * <code>uint32 config_complete_id = 6;</code>
        * @return The configCompleteId.
        */
       @java.lang.Override
@@ -439,7 +1602,7 @@ public final class MeshProtos {
         return instance.getConfigCompleteId();
       }
       /**
-       * <code>uint32 config_complete_id = 3;</code>
+       * <code>uint32 config_complete_id = 6;</code>
        * @param value The configCompleteId to set.
        * @return This builder for chaining.
        */
@@ -449,7 +1612,7 @@ public final class MeshProtos {
         return this;
       }
       /**
-       * <code>uint32 config_complete_id = 3;</code>
+       * <code>uint32 config_complete_id = 6;</code>
        * @return This builder for chaining.
        */
       public Builder clearConfigCompleteId() {
@@ -477,10 +1640,12 @@ public final class MeshProtos {
               "payloadVariant_",
               "payloadVariantCase_",
               com.loremote.app.proto.MeshProtos.MeshPacket.class,
+              com.loremote.app.proto.MeshProtos.MyNodeInfo.class,
+              com.loremote.app.proto.MeshProtos.NodeInfo.class,
             };
             java.lang.String info =
-                "\u0000\u0003\u0001\u0000\u0001\u0003\u0003\u0000\u0000\u0000\u0001>\u0000\u0002<" +
-                "\u0000\u0003>\u0000";
+                "\u0000\u0004\u0001\u0000\u0002\u0006\u0004\u0000\u0000\u0000\u0002<\u0000\u0003<" +
+                "\u0000\u0004<\u0000\u0006>\u0000";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         // fall through
@@ -974,781 +2139,96 @@ public final class MeshProtos {
     }
   }
 
-  public interface MeshPacketOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:meshtastic.MeshPacket)
+  public interface MyNodeInfoOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:meshtastic.MyNodeInfo)
       com.google.protobuf.MessageLiteOrBuilder {
 
     /**
-     * <code>uint32 to = 1;</code>
-     * @return Whether the to field is set.
+     * <code>uint32 my_node_num = 1;</code>
+     * @return The myNodeNum.
      */
-    boolean hasTo();
-    /**
-     * <code>uint32 to = 1;</code>
-     * @return The to.
-     */
-    int getTo();
-
-    /**
-     * <code>uint32 from = 2;</code>
-     * @return Whether the from field is set.
-     */
-    boolean hasFrom();
-    /**
-     * <code>uint32 from = 2;</code>
-     * @return The from.
-     */
-    int getFrom();
-
-    /**
-     * <code>uint32 id = 4;</code>
-     * @return Whether the id field is set.
-     */
-    boolean hasId();
-    /**
-     * <code>uint32 id = 4;</code>
-     * @return The id.
-     */
-    int getId();
-
-    /**
-     * <code>uint32 rx_time = 5;</code>
-     * @return Whether the rxTime field is set.
-     */
-    boolean hasRxTime();
-    /**
-     * <code>uint32 rx_time = 5;</code>
-     * @return The rxTime.
-     */
-    int getRxTime();
-
-    /**
-     * <code>uint32 rx_rssi = 15;</code>
-     * @return Whether the rxRssi field is set.
-     */
-    boolean hasRxRssi();
-    /**
-     * <code>uint32 rx_rssi = 15;</code>
-     * @return The rxRssi.
-     */
-    int getRxRssi();
-
-    /**
-     * <code>uint32 rx_rssi_db = 16;</code>
-     * @return Whether the rxRssiDb field is set.
-     */
-    boolean hasRxRssiDb();
-    /**
-     * <code>uint32 rx_rssi_db = 16;</code>
-     * @return The rxRssiDb.
-     */
-    int getRxRssiDb();
-
-    /**
-     * <code>uint32 rx_snr = 17;</code>
-     * @return Whether the rxSnr field is set.
-     */
-    boolean hasRxSnr();
-    /**
-     * <code>uint32 rx_snr = 17;</code>
-     * @return The rxSnr.
-     */
-    int getRxSnr();
-
-    /**
-     * <code>uint32 hop_limit = 19;</code>
-     * @return Whether the hopLimit field is set.
-     */
-    boolean hasHopLimit();
-    /**
-     * <code>uint32 hop_limit = 19;</code>
-     * @return The hopLimit.
-     */
-    int getHopLimit();
-
-    /**
-     * <code>uint32 hop_start = 20;</code>
-     * @return Whether the hopStart field is set.
-     */
-    boolean hasHopStart();
-    /**
-     * <code>uint32 hop_start = 20;</code>
-     * @return The hopStart.
-     */
-    int getHopStart();
-
-    /**
-     * <code>.meshtastic.DecodedPacket decoded = 22;</code>
-     * @return Whether the decoded field is set.
-     */
-    boolean hasDecoded();
-    /**
-     * <code>.meshtastic.DecodedPacket decoded = 22;</code>
-     * @return The decoded.
-     */
-    com.loremote.app.proto.MeshProtos.DecodedPacket getDecoded();
-
-    /**
-     * <code>uint32 portnum = 23;</code>
-     * @return Whether the portnum field is set.
-     */
-    boolean hasPortnum();
-    /**
-     * <code>uint32 portnum = 23;</code>
-     * @return The portnum.
-     */
-    int getPortnum();
-
-    /**
-     * <code>bytes payload = 24;</code>
-     * @return Whether the payload field is set.
-     */
-    boolean hasPayload();
-    /**
-     * <code>bytes payload = 24;</code>
-     * @return The payload.
-     */
-    com.google.protobuf.ByteString getPayload();
-
-    /**
-     * <code>uint32 rx_lqi = 26;</code>
-     * @return Whether the rxLqi field is set.
-     */
-    boolean hasRxLqi();
-    /**
-     * <code>uint32 rx_lqi = 26;</code>
-     * @return The rxLqi.
-     */
-    int getRxLqi();
-
-    public com.loremote.app.proto.MeshProtos.MeshPacket.PayloadVariantCase getPayloadVariantCase();
+    int getMyNodeNum();
   }
   /**
-   * Protobuf type {@code meshtastic.MeshPacket}
+   * Protobuf type {@code meshtastic.MyNodeInfo}
    */
-  public  static final class MeshPacket extends
+  public  static final class MyNodeInfo extends
       com.google.protobuf.GeneratedMessageLite<
-          MeshPacket, MeshPacket.Builder> implements
-      // @@protoc_insertion_point(message_implements:meshtastic.MeshPacket)
-      MeshPacketOrBuilder {
-    private MeshPacket() {
+          MyNodeInfo, MyNodeInfo.Builder> implements
+      // @@protoc_insertion_point(message_implements:meshtastic.MyNodeInfo)
+      MyNodeInfoOrBuilder {
+    private MyNodeInfo() {
     }
-    private int payloadVariantCase_ = 0;
-    private java.lang.Object payloadVariant_;
-    public enum PayloadVariantCase {
-      TO(1),
-      FROM(2),
-      ID(4),
-      RX_TIME(5),
-      RX_RSSI(15),
-      RX_RSSI_DB(16),
-      RX_SNR(17),
-      HOP_LIMIT(19),
-      HOP_START(20),
-      DECODED(22),
-      PORTNUM(23),
-      PAYLOAD(24),
-      RX_LQI(26),
-      PAYLOADVARIANT_NOT_SET(0);
-      private final int value;
-      private PayloadVariantCase(int value) {
-        this.value = value;
-      }
-      /**
-       * @deprecated Use {@link #forNumber(int)} instead.
-       */
-      @java.lang.Deprecated
-      public static PayloadVariantCase valueOf(int value) {
-        return forNumber(value);
-      }
-
-      public static PayloadVariantCase forNumber(int value) {
-        switch (value) {
-          case 1: return TO;
-          case 2: return FROM;
-          case 4: return ID;
-          case 5: return RX_TIME;
-          case 15: return RX_RSSI;
-          case 16: return RX_RSSI_DB;
-          case 17: return RX_SNR;
-          case 19: return HOP_LIMIT;
-          case 20: return HOP_START;
-          case 22: return DECODED;
-          case 23: return PORTNUM;
-          case 24: return PAYLOAD;
-          case 26: return RX_LQI;
-          case 0: return PAYLOADVARIANT_NOT_SET;
-          default: return null;
-        }
-      }
-      public int getNumber() {
-        return this.value;
-      }
-    };
-
+    public static final int MY_NODE_NUM_FIELD_NUMBER = 1;
+    private int myNodeNum_;
+    /**
+     * <code>uint32 my_node_num = 1;</code>
+     * @return The myNodeNum.
+     */
     @java.lang.Override
-    public PayloadVariantCase
-    getPayloadVariantCase() {
-      return PayloadVariantCase.forNumber(
-          payloadVariantCase_);
+    public int getMyNodeNum() {
+      return myNodeNum_;
+    }
+    /**
+     * <code>uint32 my_node_num = 1;</code>
+     * @param value The myNodeNum to set.
+     */
+    private void setMyNodeNum(int value) {
+      
+      myNodeNum_ = value;
+    }
+    /**
+     * <code>uint32 my_node_num = 1;</code>
+     */
+    private void clearMyNodeNum() {
+
+      myNodeNum_ = 0;
     }
 
-    private void clearPayloadVariant() {
-      payloadVariantCase_ = 0;
-      payloadVariant_ = null;
-    }
-
-    public static final int TO_FIELD_NUMBER = 1;
-    /**
-     * <code>uint32 to = 1;</code>
-     * @return Whether the to field is set.
-     */
-    @java.lang.Override
-    public boolean hasTo() {
-      return payloadVariantCase_ == 1;
-    }
-    /**
-     * <code>uint32 to = 1;</code>
-     * @return The to.
-     */
-    @java.lang.Override
-    public int getTo() {
-      if (payloadVariantCase_ == 1) {
-        return (java.lang.Integer) payloadVariant_;
-      }
-      return 0;
-    }
-    /**
-     * <code>uint32 to = 1;</code>
-     * @param value The to to set.
-     */
-    private void setTo(int value) {
-      payloadVariantCase_ = 1;
-      payloadVariant_ = value;
-    }
-    /**
-     * <code>uint32 to = 1;</code>
-     */
-    private void clearTo() {
-      if (payloadVariantCase_ == 1) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static final int FROM_FIELD_NUMBER = 2;
-    /**
-     * <code>uint32 from = 2;</code>
-     * @return Whether the from field is set.
-     */
-    @java.lang.Override
-    public boolean hasFrom() {
-      return payloadVariantCase_ == 2;
-    }
-    /**
-     * <code>uint32 from = 2;</code>
-     * @return The from.
-     */
-    @java.lang.Override
-    public int getFrom() {
-      if (payloadVariantCase_ == 2) {
-        return (java.lang.Integer) payloadVariant_;
-      }
-      return 0;
-    }
-    /**
-     * <code>uint32 from = 2;</code>
-     * @param value The from to set.
-     */
-    private void setFrom(int value) {
-      payloadVariantCase_ = 2;
-      payloadVariant_ = value;
-    }
-    /**
-     * <code>uint32 from = 2;</code>
-     */
-    private void clearFrom() {
-      if (payloadVariantCase_ == 2) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static final int ID_FIELD_NUMBER = 4;
-    /**
-     * <code>uint32 id = 4;</code>
-     * @return Whether the id field is set.
-     */
-    @java.lang.Override
-    public boolean hasId() {
-      return payloadVariantCase_ == 4;
-    }
-    /**
-     * <code>uint32 id = 4;</code>
-     * @return The id.
-     */
-    @java.lang.Override
-    public int getId() {
-      if (payloadVariantCase_ == 4) {
-        return (java.lang.Integer) payloadVariant_;
-      }
-      return 0;
-    }
-    /**
-     * <code>uint32 id = 4;</code>
-     * @param value The id to set.
-     */
-    private void setId(int value) {
-      payloadVariantCase_ = 4;
-      payloadVariant_ = value;
-    }
-    /**
-     * <code>uint32 id = 4;</code>
-     */
-    private void clearId() {
-      if (payloadVariantCase_ == 4) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static final int RX_TIME_FIELD_NUMBER = 5;
-    /**
-     * <code>uint32 rx_time = 5;</code>
-     * @return Whether the rxTime field is set.
-     */
-    @java.lang.Override
-    public boolean hasRxTime() {
-      return payloadVariantCase_ == 5;
-    }
-    /**
-     * <code>uint32 rx_time = 5;</code>
-     * @return The rxTime.
-     */
-    @java.lang.Override
-    public int getRxTime() {
-      if (payloadVariantCase_ == 5) {
-        return (java.lang.Integer) payloadVariant_;
-      }
-      return 0;
-    }
-    /**
-     * <code>uint32 rx_time = 5;</code>
-     * @param value The rxTime to set.
-     */
-    private void setRxTime(int value) {
-      payloadVariantCase_ = 5;
-      payloadVariant_ = value;
-    }
-    /**
-     * <code>uint32 rx_time = 5;</code>
-     */
-    private void clearRxTime() {
-      if (payloadVariantCase_ == 5) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static final int RX_RSSI_FIELD_NUMBER = 15;
-    /**
-     * <code>uint32 rx_rssi = 15;</code>
-     * @return Whether the rxRssi field is set.
-     */
-    @java.lang.Override
-    public boolean hasRxRssi() {
-      return payloadVariantCase_ == 15;
-    }
-    /**
-     * <code>uint32 rx_rssi = 15;</code>
-     * @return The rxRssi.
-     */
-    @java.lang.Override
-    public int getRxRssi() {
-      if (payloadVariantCase_ == 15) {
-        return (java.lang.Integer) payloadVariant_;
-      }
-      return 0;
-    }
-    /**
-     * <code>uint32 rx_rssi = 15;</code>
-     * @param value The rxRssi to set.
-     */
-    private void setRxRssi(int value) {
-      payloadVariantCase_ = 15;
-      payloadVariant_ = value;
-    }
-    /**
-     * <code>uint32 rx_rssi = 15;</code>
-     */
-    private void clearRxRssi() {
-      if (payloadVariantCase_ == 15) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static final int RX_RSSI_DB_FIELD_NUMBER = 16;
-    /**
-     * <code>uint32 rx_rssi_db = 16;</code>
-     * @return Whether the rxRssiDb field is set.
-     */
-    @java.lang.Override
-    public boolean hasRxRssiDb() {
-      return payloadVariantCase_ == 16;
-    }
-    /**
-     * <code>uint32 rx_rssi_db = 16;</code>
-     * @return The rxRssiDb.
-     */
-    @java.lang.Override
-    public int getRxRssiDb() {
-      if (payloadVariantCase_ == 16) {
-        return (java.lang.Integer) payloadVariant_;
-      }
-      return 0;
-    }
-    /**
-     * <code>uint32 rx_rssi_db = 16;</code>
-     * @param value The rxRssiDb to set.
-     */
-    private void setRxRssiDb(int value) {
-      payloadVariantCase_ = 16;
-      payloadVariant_ = value;
-    }
-    /**
-     * <code>uint32 rx_rssi_db = 16;</code>
-     */
-    private void clearRxRssiDb() {
-      if (payloadVariantCase_ == 16) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static final int RX_SNR_FIELD_NUMBER = 17;
-    /**
-     * <code>uint32 rx_snr = 17;</code>
-     * @return Whether the rxSnr field is set.
-     */
-    @java.lang.Override
-    public boolean hasRxSnr() {
-      return payloadVariantCase_ == 17;
-    }
-    /**
-     * <code>uint32 rx_snr = 17;</code>
-     * @return The rxSnr.
-     */
-    @java.lang.Override
-    public int getRxSnr() {
-      if (payloadVariantCase_ == 17) {
-        return (java.lang.Integer) payloadVariant_;
-      }
-      return 0;
-    }
-    /**
-     * <code>uint32 rx_snr = 17;</code>
-     * @param value The rxSnr to set.
-     */
-    private void setRxSnr(int value) {
-      payloadVariantCase_ = 17;
-      payloadVariant_ = value;
-    }
-    /**
-     * <code>uint32 rx_snr = 17;</code>
-     */
-    private void clearRxSnr() {
-      if (payloadVariantCase_ == 17) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static final int HOP_LIMIT_FIELD_NUMBER = 19;
-    /**
-     * <code>uint32 hop_limit = 19;</code>
-     * @return Whether the hopLimit field is set.
-     */
-    @java.lang.Override
-    public boolean hasHopLimit() {
-      return payloadVariantCase_ == 19;
-    }
-    /**
-     * <code>uint32 hop_limit = 19;</code>
-     * @return The hopLimit.
-     */
-    @java.lang.Override
-    public int getHopLimit() {
-      if (payloadVariantCase_ == 19) {
-        return (java.lang.Integer) payloadVariant_;
-      }
-      return 0;
-    }
-    /**
-     * <code>uint32 hop_limit = 19;</code>
-     * @param value The hopLimit to set.
-     */
-    private void setHopLimit(int value) {
-      payloadVariantCase_ = 19;
-      payloadVariant_ = value;
-    }
-    /**
-     * <code>uint32 hop_limit = 19;</code>
-     */
-    private void clearHopLimit() {
-      if (payloadVariantCase_ == 19) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static final int HOP_START_FIELD_NUMBER = 20;
-    /**
-     * <code>uint32 hop_start = 20;</code>
-     * @return Whether the hopStart field is set.
-     */
-    @java.lang.Override
-    public boolean hasHopStart() {
-      return payloadVariantCase_ == 20;
-    }
-    /**
-     * <code>uint32 hop_start = 20;</code>
-     * @return The hopStart.
-     */
-    @java.lang.Override
-    public int getHopStart() {
-      if (payloadVariantCase_ == 20) {
-        return (java.lang.Integer) payloadVariant_;
-      }
-      return 0;
-    }
-    /**
-     * <code>uint32 hop_start = 20;</code>
-     * @param value The hopStart to set.
-     */
-    private void setHopStart(int value) {
-      payloadVariantCase_ = 20;
-      payloadVariant_ = value;
-    }
-    /**
-     * <code>uint32 hop_start = 20;</code>
-     */
-    private void clearHopStart() {
-      if (payloadVariantCase_ == 20) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static final int DECODED_FIELD_NUMBER = 22;
-    /**
-     * <code>.meshtastic.DecodedPacket decoded = 22;</code>
-     */
-    @java.lang.Override
-    public boolean hasDecoded() {
-      return payloadVariantCase_ == 22;
-    }
-    /**
-     * <code>.meshtastic.DecodedPacket decoded = 22;</code>
-     */
-    @java.lang.Override
-    public com.loremote.app.proto.MeshProtos.DecodedPacket getDecoded() {
-      if (payloadVariantCase_ == 22) {
-         return (com.loremote.app.proto.MeshProtos.DecodedPacket) payloadVariant_;
-      }
-      return com.loremote.app.proto.MeshProtos.DecodedPacket.getDefaultInstance();
-    }
-    /**
-     * <code>.meshtastic.DecodedPacket decoded = 22;</code>
-     */
-    private void setDecoded(com.loremote.app.proto.MeshProtos.DecodedPacket value) {
-      value.getClass();
-  payloadVariant_ = value;
-      payloadVariantCase_ = 22;
-    }
-    /**
-     * <code>.meshtastic.DecodedPacket decoded = 22;</code>
-     */
-    private void mergeDecoded(com.loremote.app.proto.MeshProtos.DecodedPacket value) {
-      value.getClass();
-  if (payloadVariantCase_ == 22 &&
-          payloadVariant_ != com.loremote.app.proto.MeshProtos.DecodedPacket.getDefaultInstance()) {
-        payloadVariant_ = com.loremote.app.proto.MeshProtos.DecodedPacket.newBuilder((com.loremote.app.proto.MeshProtos.DecodedPacket) payloadVariant_)
-            .mergeFrom(value).buildPartial();
-      } else {
-        payloadVariant_ = value;
-      }
-      payloadVariantCase_ = 22;
-    }
-    /**
-     * <code>.meshtastic.DecodedPacket decoded = 22;</code>
-     */
-    private void clearDecoded() {
-      if (payloadVariantCase_ == 22) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static final int PORTNUM_FIELD_NUMBER = 23;
-    /**
-     * <code>uint32 portnum = 23;</code>
-     * @return Whether the portnum field is set.
-     */
-    @java.lang.Override
-    public boolean hasPortnum() {
-      return payloadVariantCase_ == 23;
-    }
-    /**
-     * <code>uint32 portnum = 23;</code>
-     * @return The portnum.
-     */
-    @java.lang.Override
-    public int getPortnum() {
-      if (payloadVariantCase_ == 23) {
-        return (java.lang.Integer) payloadVariant_;
-      }
-      return 0;
-    }
-    /**
-     * <code>uint32 portnum = 23;</code>
-     * @param value The portnum to set.
-     */
-    private void setPortnum(int value) {
-      payloadVariantCase_ = 23;
-      payloadVariant_ = value;
-    }
-    /**
-     * <code>uint32 portnum = 23;</code>
-     */
-    private void clearPortnum() {
-      if (payloadVariantCase_ == 23) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static final int PAYLOAD_FIELD_NUMBER = 24;
-    /**
-     * <code>bytes payload = 24;</code>
-     * @return Whether the payload field is set.
-     */
-    @java.lang.Override
-    public boolean hasPayload() {
-      return payloadVariantCase_ == 24;
-    }
-    /**
-     * <code>bytes payload = 24;</code>
-     * @return The payload.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString getPayload() {
-      if (payloadVariantCase_ == 24) {
-        return (com.google.protobuf.ByteString) payloadVariant_;
-      }
-      return com.google.protobuf.ByteString.EMPTY;
-    }
-    /**
-     * <code>bytes payload = 24;</code>
-     * @param value The payload to set.
-     */
-    private void setPayload(com.google.protobuf.ByteString value) {
-      java.lang.Class<?> valueClass = value.getClass();
-  payloadVariantCase_ = 24;
-      payloadVariant_ = value;
-    }
-    /**
-     * <code>bytes payload = 24;</code>
-     */
-    private void clearPayload() {
-      if (payloadVariantCase_ == 24) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static final int RX_LQI_FIELD_NUMBER = 26;
-    /**
-     * <code>uint32 rx_lqi = 26;</code>
-     * @return Whether the rxLqi field is set.
-     */
-    @java.lang.Override
-    public boolean hasRxLqi() {
-      return payloadVariantCase_ == 26;
-    }
-    /**
-     * <code>uint32 rx_lqi = 26;</code>
-     * @return The rxLqi.
-     */
-    @java.lang.Override
-    public int getRxLqi() {
-      if (payloadVariantCase_ == 26) {
-        return (java.lang.Integer) payloadVariant_;
-      }
-      return 0;
-    }
-    /**
-     * <code>uint32 rx_lqi = 26;</code>
-     * @param value The rxLqi to set.
-     */
-    private void setRxLqi(int value) {
-      payloadVariantCase_ = 26;
-      payloadVariant_ = value;
-    }
-    /**
-     * <code>uint32 rx_lqi = 26;</code>
-     */
-    private void clearRxLqi() {
-      if (payloadVariantCase_ == 26) {
-        payloadVariantCase_ = 0;
-        payloadVariant_ = null;
-      }
-    }
-
-    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.MyNodeInfo parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.MyNodeInfo parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.MyNodeInfo parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.MyNodeInfo parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(byte[] data)
+    public static com.loremote.app.proto.MeshProtos.MyNodeInfo parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.MyNodeInfo parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(java.io.InputStream input)
+    public static com.loremote.app.proto.MeshProtos.MyNodeInfo parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input);
     }
-    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.MyNodeInfo parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1756,24 +2236,24 @@ public final class MeshProtos {
           DEFAULT_INSTANCE, input, extensionRegistry);
     }
 
-    public static com.loremote.app.proto.MeshProtos.MeshPacket parseDelimitedFrom(java.io.InputStream input)
+    public static com.loremote.app.proto.MeshProtos.MyNodeInfo parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return parseDelimitedFrom(DEFAULT_INSTANCE, input);
     }
 
-    public static com.loremote.app.proto.MeshProtos.MeshPacket parseDelimitedFrom(
+    public static com.loremote.app.proto.MeshProtos.MyNodeInfo parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
     }
-    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.MyNodeInfo parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input);
     }
-    public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.MyNodeInfo parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1784,517 +2264,53 @@ public final class MeshProtos {
     public static Builder newBuilder() {
       return (Builder) DEFAULT_INSTANCE.createBuilder();
     }
-    public static Builder newBuilder(com.loremote.app.proto.MeshProtos.MeshPacket prototype) {
+    public static Builder newBuilder(com.loremote.app.proto.MeshProtos.MyNodeInfo prototype) {
       return DEFAULT_INSTANCE.createBuilder(prototype);
     }
 
     /**
-     * Protobuf type {@code meshtastic.MeshPacket}
+     * Protobuf type {@code meshtastic.MyNodeInfo}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageLite.Builder<
-          com.loremote.app.proto.MeshProtos.MeshPacket, Builder> implements
-        // @@protoc_insertion_point(builder_implements:meshtastic.MeshPacket)
-        com.loremote.app.proto.MeshProtos.MeshPacketOrBuilder {
-      // Construct using com.loremote.app.proto.MeshProtos.MeshPacket.newBuilder()
+          com.loremote.app.proto.MeshProtos.MyNodeInfo, Builder> implements
+        // @@protoc_insertion_point(builder_implements:meshtastic.MyNodeInfo)
+        com.loremote.app.proto.MeshProtos.MyNodeInfoOrBuilder {
+      // Construct using com.loremote.app.proto.MeshProtos.MyNodeInfo.newBuilder()
       private Builder() {
         super(DEFAULT_INSTANCE);
       }
 
-      @java.lang.Override
-      public PayloadVariantCase
-          getPayloadVariantCase() {
-        return instance.getPayloadVariantCase();
-      }
-
-      public Builder clearPayloadVariant() {
-        copyOnWrite();
-        instance.clearPayloadVariant();
-        return this;
-      }
-
 
       /**
-       * <code>uint32 to = 1;</code>
-       * @return Whether the to field is set.
+       * <code>uint32 my_node_num = 1;</code>
+       * @return The myNodeNum.
        */
       @java.lang.Override
-      public boolean hasTo() {
-        return instance.hasTo();
+      public int getMyNodeNum() {
+        return instance.getMyNodeNum();
       }
       /**
-       * <code>uint32 to = 1;</code>
-       * @return The to.
-       */
-      @java.lang.Override
-      public int getTo() {
-        return instance.getTo();
-      }
-      /**
-       * <code>uint32 to = 1;</code>
-       * @param value The to to set.
+       * <code>uint32 my_node_num = 1;</code>
+       * @param value The myNodeNum to set.
        * @return This builder for chaining.
        */
-      public Builder setTo(int value) {
+      public Builder setMyNodeNum(int value) {
         copyOnWrite();
-        instance.setTo(value);
+        instance.setMyNodeNum(value);
         return this;
       }
       /**
-       * <code>uint32 to = 1;</code>
+       * <code>uint32 my_node_num = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearTo() {
+      public Builder clearMyNodeNum() {
         copyOnWrite();
-        instance.clearTo();
+        instance.clearMyNodeNum();
         return this;
       }
 
-      /**
-       * <code>uint32 from = 2;</code>
-       * @return Whether the from field is set.
-       */
-      @java.lang.Override
-      public boolean hasFrom() {
-        return instance.hasFrom();
-      }
-      /**
-       * <code>uint32 from = 2;</code>
-       * @return The from.
-       */
-      @java.lang.Override
-      public int getFrom() {
-        return instance.getFrom();
-      }
-      /**
-       * <code>uint32 from = 2;</code>
-       * @param value The from to set.
-       * @return This builder for chaining.
-       */
-      public Builder setFrom(int value) {
-        copyOnWrite();
-        instance.setFrom(value);
-        return this;
-      }
-      /**
-       * <code>uint32 from = 2;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearFrom() {
-        copyOnWrite();
-        instance.clearFrom();
-        return this;
-      }
-
-      /**
-       * <code>uint32 id = 4;</code>
-       * @return Whether the id field is set.
-       */
-      @java.lang.Override
-      public boolean hasId() {
-        return instance.hasId();
-      }
-      /**
-       * <code>uint32 id = 4;</code>
-       * @return The id.
-       */
-      @java.lang.Override
-      public int getId() {
-        return instance.getId();
-      }
-      /**
-       * <code>uint32 id = 4;</code>
-       * @param value The id to set.
-       * @return This builder for chaining.
-       */
-      public Builder setId(int value) {
-        copyOnWrite();
-        instance.setId(value);
-        return this;
-      }
-      /**
-       * <code>uint32 id = 4;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearId() {
-        copyOnWrite();
-        instance.clearId();
-        return this;
-      }
-
-      /**
-       * <code>uint32 rx_time = 5;</code>
-       * @return Whether the rxTime field is set.
-       */
-      @java.lang.Override
-      public boolean hasRxTime() {
-        return instance.hasRxTime();
-      }
-      /**
-       * <code>uint32 rx_time = 5;</code>
-       * @return The rxTime.
-       */
-      @java.lang.Override
-      public int getRxTime() {
-        return instance.getRxTime();
-      }
-      /**
-       * <code>uint32 rx_time = 5;</code>
-       * @param value The rxTime to set.
-       * @return This builder for chaining.
-       */
-      public Builder setRxTime(int value) {
-        copyOnWrite();
-        instance.setRxTime(value);
-        return this;
-      }
-      /**
-       * <code>uint32 rx_time = 5;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearRxTime() {
-        copyOnWrite();
-        instance.clearRxTime();
-        return this;
-      }
-
-      /**
-       * <code>uint32 rx_rssi = 15;</code>
-       * @return Whether the rxRssi field is set.
-       */
-      @java.lang.Override
-      public boolean hasRxRssi() {
-        return instance.hasRxRssi();
-      }
-      /**
-       * <code>uint32 rx_rssi = 15;</code>
-       * @return The rxRssi.
-       */
-      @java.lang.Override
-      public int getRxRssi() {
-        return instance.getRxRssi();
-      }
-      /**
-       * <code>uint32 rx_rssi = 15;</code>
-       * @param value The rxRssi to set.
-       * @return This builder for chaining.
-       */
-      public Builder setRxRssi(int value) {
-        copyOnWrite();
-        instance.setRxRssi(value);
-        return this;
-      }
-      /**
-       * <code>uint32 rx_rssi = 15;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearRxRssi() {
-        copyOnWrite();
-        instance.clearRxRssi();
-        return this;
-      }
-
-      /**
-       * <code>uint32 rx_rssi_db = 16;</code>
-       * @return Whether the rxRssiDb field is set.
-       */
-      @java.lang.Override
-      public boolean hasRxRssiDb() {
-        return instance.hasRxRssiDb();
-      }
-      /**
-       * <code>uint32 rx_rssi_db = 16;</code>
-       * @return The rxRssiDb.
-       */
-      @java.lang.Override
-      public int getRxRssiDb() {
-        return instance.getRxRssiDb();
-      }
-      /**
-       * <code>uint32 rx_rssi_db = 16;</code>
-       * @param value The rxRssiDb to set.
-       * @return This builder for chaining.
-       */
-      public Builder setRxRssiDb(int value) {
-        copyOnWrite();
-        instance.setRxRssiDb(value);
-        return this;
-      }
-      /**
-       * <code>uint32 rx_rssi_db = 16;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearRxRssiDb() {
-        copyOnWrite();
-        instance.clearRxRssiDb();
-        return this;
-      }
-
-      /**
-       * <code>uint32 rx_snr = 17;</code>
-       * @return Whether the rxSnr field is set.
-       */
-      @java.lang.Override
-      public boolean hasRxSnr() {
-        return instance.hasRxSnr();
-      }
-      /**
-       * <code>uint32 rx_snr = 17;</code>
-       * @return The rxSnr.
-       */
-      @java.lang.Override
-      public int getRxSnr() {
-        return instance.getRxSnr();
-      }
-      /**
-       * <code>uint32 rx_snr = 17;</code>
-       * @param value The rxSnr to set.
-       * @return This builder for chaining.
-       */
-      public Builder setRxSnr(int value) {
-        copyOnWrite();
-        instance.setRxSnr(value);
-        return this;
-      }
-      /**
-       * <code>uint32 rx_snr = 17;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearRxSnr() {
-        copyOnWrite();
-        instance.clearRxSnr();
-        return this;
-      }
-
-      /**
-       * <code>uint32 hop_limit = 19;</code>
-       * @return Whether the hopLimit field is set.
-       */
-      @java.lang.Override
-      public boolean hasHopLimit() {
-        return instance.hasHopLimit();
-      }
-      /**
-       * <code>uint32 hop_limit = 19;</code>
-       * @return The hopLimit.
-       */
-      @java.lang.Override
-      public int getHopLimit() {
-        return instance.getHopLimit();
-      }
-      /**
-       * <code>uint32 hop_limit = 19;</code>
-       * @param value The hopLimit to set.
-       * @return This builder for chaining.
-       */
-      public Builder setHopLimit(int value) {
-        copyOnWrite();
-        instance.setHopLimit(value);
-        return this;
-      }
-      /**
-       * <code>uint32 hop_limit = 19;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearHopLimit() {
-        copyOnWrite();
-        instance.clearHopLimit();
-        return this;
-      }
-
-      /**
-       * <code>uint32 hop_start = 20;</code>
-       * @return Whether the hopStart field is set.
-       */
-      @java.lang.Override
-      public boolean hasHopStart() {
-        return instance.hasHopStart();
-      }
-      /**
-       * <code>uint32 hop_start = 20;</code>
-       * @return The hopStart.
-       */
-      @java.lang.Override
-      public int getHopStart() {
-        return instance.getHopStart();
-      }
-      /**
-       * <code>uint32 hop_start = 20;</code>
-       * @param value The hopStart to set.
-       * @return This builder for chaining.
-       */
-      public Builder setHopStart(int value) {
-        copyOnWrite();
-        instance.setHopStart(value);
-        return this;
-      }
-      /**
-       * <code>uint32 hop_start = 20;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearHopStart() {
-        copyOnWrite();
-        instance.clearHopStart();
-        return this;
-      }
-
-      /**
-       * <code>.meshtastic.DecodedPacket decoded = 22;</code>
-       */
-      @java.lang.Override
-      public boolean hasDecoded() {
-        return instance.hasDecoded();
-      }
-      /**
-       * <code>.meshtastic.DecodedPacket decoded = 22;</code>
-       */
-      @java.lang.Override
-      public com.loremote.app.proto.MeshProtos.DecodedPacket getDecoded() {
-        return instance.getDecoded();
-      }
-      /**
-       * <code>.meshtastic.DecodedPacket decoded = 22;</code>
-       */
-      public Builder setDecoded(com.loremote.app.proto.MeshProtos.DecodedPacket value) {
-        copyOnWrite();
-        instance.setDecoded(value);
-        return this;
-      }
-      /**
-       * <code>.meshtastic.DecodedPacket decoded = 22;</code>
-       */
-      public Builder setDecoded(
-          com.loremote.app.proto.MeshProtos.DecodedPacket.Builder builderForValue) {
-        copyOnWrite();
-        instance.setDecoded(builderForValue.build());
-        return this;
-      }
-      /**
-       * <code>.meshtastic.DecodedPacket decoded = 22;</code>
-       */
-      public Builder mergeDecoded(com.loremote.app.proto.MeshProtos.DecodedPacket value) {
-        copyOnWrite();
-        instance.mergeDecoded(value);
-        return this;
-      }
-      /**
-       * <code>.meshtastic.DecodedPacket decoded = 22;</code>
-       */
-      public Builder clearDecoded() {
-        copyOnWrite();
-        instance.clearDecoded();
-        return this;
-      }
-
-      /**
-       * <code>uint32 portnum = 23;</code>
-       * @return Whether the portnum field is set.
-       */
-      @java.lang.Override
-      public boolean hasPortnum() {
-        return instance.hasPortnum();
-      }
-      /**
-       * <code>uint32 portnum = 23;</code>
-       * @return The portnum.
-       */
-      @java.lang.Override
-      public int getPortnum() {
-        return instance.getPortnum();
-      }
-      /**
-       * <code>uint32 portnum = 23;</code>
-       * @param value The portnum to set.
-       * @return This builder for chaining.
-       */
-      public Builder setPortnum(int value) {
-        copyOnWrite();
-        instance.setPortnum(value);
-        return this;
-      }
-      /**
-       * <code>uint32 portnum = 23;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearPortnum() {
-        copyOnWrite();
-        instance.clearPortnum();
-        return this;
-      }
-
-      /**
-       * <code>bytes payload = 24;</code>
-       * @return Whether the payload field is set.
-       */
-      @java.lang.Override
-      public boolean hasPayload() {
-        return instance.hasPayload();
-      }
-      /**
-       * <code>bytes payload = 24;</code>
-       * @return The payload.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString getPayload() {
-        return instance.getPayload();
-      }
-      /**
-       * <code>bytes payload = 24;</code>
-       * @param value The payload to set.
-       * @return This builder for chaining.
-       */
-      public Builder setPayload(com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setPayload(value);
-        return this;
-      }
-      /**
-       * <code>bytes payload = 24;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearPayload() {
-        copyOnWrite();
-        instance.clearPayload();
-        return this;
-      }
-
-      /**
-       * <code>uint32 rx_lqi = 26;</code>
-       * @return Whether the rxLqi field is set.
-       */
-      @java.lang.Override
-      public boolean hasRxLqi() {
-        return instance.hasRxLqi();
-      }
-      /**
-       * <code>uint32 rx_lqi = 26;</code>
-       * @return The rxLqi.
-       */
-      @java.lang.Override
-      public int getRxLqi() {
-        return instance.getRxLqi();
-      }
-      /**
-       * <code>uint32 rx_lqi = 26;</code>
-       * @param value The rxLqi to set.
-       * @return This builder for chaining.
-       */
-      public Builder setRxLqi(int value) {
-        copyOnWrite();
-        instance.setRxLqi(value);
-        return this;
-      }
-      /**
-       * <code>uint32 rx_lqi = 26;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearRxLqi() {
-        copyOnWrite();
-        instance.clearRxLqi();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:meshtastic.MeshPacket)
+      // @@protoc_insertion_point(builder_scope:meshtastic.MyNodeInfo)
     }
     @java.lang.Override
     @java.lang.SuppressWarnings({"unchecked", "fallthrough"})
@@ -2303,21 +2319,17 @@ public final class MeshProtos {
         java.lang.Object arg0, java.lang.Object arg1) {
       switch (method) {
         case NEW_MUTABLE_INSTANCE: {
-          return new com.loremote.app.proto.MeshProtos.MeshPacket();
+          return new com.loremote.app.proto.MeshProtos.MyNodeInfo();
         }
         case NEW_BUILDER: {
           return new Builder();
         }
         case BUILD_MESSAGE_INFO: {
             java.lang.Object[] objects = new java.lang.Object[] {
-              "payloadVariant_",
-              "payloadVariantCase_",
-              com.loremote.app.proto.MeshProtos.DecodedPacket.class,
+              "myNodeNum_",
             };
             java.lang.String info =
-                "\u0000\r\u0001\u0000\u0001\u001a\r\u0000\u0000\u0000\u0001>\u0000\u0002>\u0000\u0004" +
-                ">\u0000\u0005>\u0000\u000f>\u0000\u0010>\u0000\u0011>\u0000\u0013>\u0000\u0014>\u0000" +
-                "\u0016<\u0000\u0017>\u0000\u0018=\u0000\u001a>\u0000";
+                "\u0000\u0001\u0000\u0000\u0001\u0001\u0001\u0000\u0000\u0000\u0001\u000b";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         // fall through
@@ -2325,13 +2337,13 @@ public final class MeshProtos {
           return DEFAULT_INSTANCE;
         }
         case GET_PARSER: {
-          com.google.protobuf.Parser<com.loremote.app.proto.MeshProtos.MeshPacket> parser = PARSER;
+          com.google.protobuf.Parser<com.loremote.app.proto.MeshProtos.MyNodeInfo> parser = PARSER;
           if (parser == null) {
-            synchronized (com.loremote.app.proto.MeshProtos.MeshPacket.class) {
+            synchronized (com.loremote.app.proto.MeshProtos.MyNodeInfo.class) {
               parser = PARSER;
               if (parser == null) {
                 parser =
-                    new DefaultInstanceBasedParser<com.loremote.app.proto.MeshProtos.MeshPacket>(
+                    new DefaultInstanceBasedParser<com.loremote.app.proto.MeshProtos.MyNodeInfo>(
                         DEFAULT_INSTANCE);
                 PARSER = parser;
               }
@@ -2350,154 +2362,118 @@ public final class MeshProtos {
     }
 
 
-    // @@protoc_insertion_point(class_scope:meshtastic.MeshPacket)
-    private static final com.loremote.app.proto.MeshProtos.MeshPacket DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:meshtastic.MyNodeInfo)
+    private static final com.loremote.app.proto.MeshProtos.MyNodeInfo DEFAULT_INSTANCE;
     static {
-      MeshPacket defaultInstance = new MeshPacket();
+      MyNodeInfo defaultInstance = new MyNodeInfo();
       // New instances are implicitly immutable so no need to make
       // immutable.
       DEFAULT_INSTANCE = defaultInstance;
       com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
-        MeshPacket.class, defaultInstance);
+        MyNodeInfo.class, defaultInstance);
     }
 
-    public static com.loremote.app.proto.MeshProtos.MeshPacket getDefaultInstance() {
+    public static com.loremote.app.proto.MeshProtos.MyNodeInfo getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static volatile com.google.protobuf.Parser<MeshPacket> PARSER;
+    private static volatile com.google.protobuf.Parser<MyNodeInfo> PARSER;
 
-    public static com.google.protobuf.Parser<MeshPacket> parser() {
+    public static com.google.protobuf.Parser<MyNodeInfo> parser() {
       return DEFAULT_INSTANCE.getParserForType();
     }
   }
 
-  public interface DecodedPacketOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:meshtastic.DecodedPacket)
+  public interface NodeInfoOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:meshtastic.NodeInfo)
       com.google.protobuf.MessageLiteOrBuilder {
 
     /**
-     * <code>bytes portnum = 23;</code>
-     * @return The portnum.
+     * <code>uint32 num = 1;</code>
+     * @return The num.
      */
-    com.google.protobuf.ByteString getPortnum();
-
-    /**
-     * <code>bytes payload = 24;</code>
-     * @return The payload.
-     */
-    com.google.protobuf.ByteString getPayload();
+    int getNum();
   }
   /**
-   * Protobuf type {@code meshtastic.DecodedPacket}
+   * Protobuf type {@code meshtastic.NodeInfo}
    */
-  public  static final class DecodedPacket extends
+  public  static final class NodeInfo extends
       com.google.protobuf.GeneratedMessageLite<
-          DecodedPacket, DecodedPacket.Builder> implements
-      // @@protoc_insertion_point(message_implements:meshtastic.DecodedPacket)
-      DecodedPacketOrBuilder {
-    private DecodedPacket() {
-      portnum_ = com.google.protobuf.ByteString.EMPTY;
-      payload_ = com.google.protobuf.ByteString.EMPTY;
+          NodeInfo, NodeInfo.Builder> implements
+      // @@protoc_insertion_point(message_implements:meshtastic.NodeInfo)
+      NodeInfoOrBuilder {
+    private NodeInfo() {
     }
-    public static final int PORTNUM_FIELD_NUMBER = 23;
-    private com.google.protobuf.ByteString portnum_;
+    public static final int NUM_FIELD_NUMBER = 1;
+    private int num_;
     /**
-     * <code>bytes portnum = 23;</code>
-     * @return The portnum.
+     * <code>uint32 num = 1;</code>
+     * @return The num.
      */
     @java.lang.Override
-    public com.google.protobuf.ByteString getPortnum() {
-      return portnum_;
+    public int getNum() {
+      return num_;
     }
     /**
-     * <code>bytes portnum = 23;</code>
-     * @param value The portnum to set.
+     * <code>uint32 num = 1;</code>
+     * @param value The num to set.
      */
-    private void setPortnum(com.google.protobuf.ByteString value) {
-      java.lang.Class<?> valueClass = value.getClass();
-  
-      portnum_ = value;
+    private void setNum(int value) {
+      
+      num_ = value;
     }
     /**
-     * <code>bytes portnum = 23;</code>
+     * <code>uint32 num = 1;</code>
      */
-    private void clearPortnum() {
+    private void clearNum() {
 
-      portnum_ = getDefaultInstance().getPortnum();
-    }
-
-    public static final int PAYLOAD_FIELD_NUMBER = 24;
-    private com.google.protobuf.ByteString payload_;
-    /**
-     * <code>bytes payload = 24;</code>
-     * @return The payload.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString getPayload() {
-      return payload_;
-    }
-    /**
-     * <code>bytes payload = 24;</code>
-     * @param value The payload to set.
-     */
-    private void setPayload(com.google.protobuf.ByteString value) {
-      java.lang.Class<?> valueClass = value.getClass();
-  
-      payload_ = value;
-    }
-    /**
-     * <code>bytes payload = 24;</code>
-     */
-    private void clearPayload() {
-
-      payload_ = getDefaultInstance().getPayload();
+      num_ = 0;
     }
 
-    public static com.loremote.app.proto.MeshProtos.DecodedPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.NodeInfo parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static com.loremote.app.proto.MeshProtos.DecodedPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.NodeInfo parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static com.loremote.app.proto.MeshProtos.DecodedPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.NodeInfo parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static com.loremote.app.proto.MeshProtos.DecodedPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.NodeInfo parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static com.loremote.app.proto.MeshProtos.DecodedPacket parseFrom(byte[] data)
+    public static com.loremote.app.proto.MeshProtos.NodeInfo parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static com.loremote.app.proto.MeshProtos.DecodedPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.NodeInfo parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static com.loremote.app.proto.MeshProtos.DecodedPacket parseFrom(java.io.InputStream input)
+    public static com.loremote.app.proto.MeshProtos.NodeInfo parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input);
     }
-    public static com.loremote.app.proto.MeshProtos.DecodedPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.NodeInfo parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -2505,24 +2481,24 @@ public final class MeshProtos {
           DEFAULT_INSTANCE, input, extensionRegistry);
     }
 
-    public static com.loremote.app.proto.MeshProtos.DecodedPacket parseDelimitedFrom(java.io.InputStream input)
+    public static com.loremote.app.proto.MeshProtos.NodeInfo parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return parseDelimitedFrom(DEFAULT_INSTANCE, input);
     }
 
-    public static com.loremote.app.proto.MeshProtos.DecodedPacket parseDelimitedFrom(
+    public static com.loremote.app.proto.MeshProtos.NodeInfo parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
     }
-    public static com.loremote.app.proto.MeshProtos.DecodedPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.NodeInfo parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input);
     }
-    public static com.loremote.app.proto.MeshProtos.DecodedPacket parseFrom(
+    public static com.loremote.app.proto.MeshProtos.NodeInfo parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -2533,81 +2509,53 @@ public final class MeshProtos {
     public static Builder newBuilder() {
       return (Builder) DEFAULT_INSTANCE.createBuilder();
     }
-    public static Builder newBuilder(com.loremote.app.proto.MeshProtos.DecodedPacket prototype) {
+    public static Builder newBuilder(com.loremote.app.proto.MeshProtos.NodeInfo prototype) {
       return DEFAULT_INSTANCE.createBuilder(prototype);
     }
 
     /**
-     * Protobuf type {@code meshtastic.DecodedPacket}
+     * Protobuf type {@code meshtastic.NodeInfo}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageLite.Builder<
-          com.loremote.app.proto.MeshProtos.DecodedPacket, Builder> implements
-        // @@protoc_insertion_point(builder_implements:meshtastic.DecodedPacket)
-        com.loremote.app.proto.MeshProtos.DecodedPacketOrBuilder {
-      // Construct using com.loremote.app.proto.MeshProtos.DecodedPacket.newBuilder()
+          com.loremote.app.proto.MeshProtos.NodeInfo, Builder> implements
+        // @@protoc_insertion_point(builder_implements:meshtastic.NodeInfo)
+        com.loremote.app.proto.MeshProtos.NodeInfoOrBuilder {
+      // Construct using com.loremote.app.proto.MeshProtos.NodeInfo.newBuilder()
       private Builder() {
         super(DEFAULT_INSTANCE);
       }
 
 
       /**
-       * <code>bytes portnum = 23;</code>
-       * @return The portnum.
+       * <code>uint32 num = 1;</code>
+       * @return The num.
        */
       @java.lang.Override
-      public com.google.protobuf.ByteString getPortnum() {
-        return instance.getPortnum();
+      public int getNum() {
+        return instance.getNum();
       }
       /**
-       * <code>bytes portnum = 23;</code>
-       * @param value The portnum to set.
+       * <code>uint32 num = 1;</code>
+       * @param value The num to set.
        * @return This builder for chaining.
        */
-      public Builder setPortnum(com.google.protobuf.ByteString value) {
+      public Builder setNum(int value) {
         copyOnWrite();
-        instance.setPortnum(value);
+        instance.setNum(value);
         return this;
       }
       /**
-       * <code>bytes portnum = 23;</code>
+       * <code>uint32 num = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearPortnum() {
+      public Builder clearNum() {
         copyOnWrite();
-        instance.clearPortnum();
+        instance.clearNum();
         return this;
       }
 
-      /**
-       * <code>bytes payload = 24;</code>
-       * @return The payload.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString getPayload() {
-        return instance.getPayload();
-      }
-      /**
-       * <code>bytes payload = 24;</code>
-       * @param value The payload to set.
-       * @return This builder for chaining.
-       */
-      public Builder setPayload(com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setPayload(value);
-        return this;
-      }
-      /**
-       * <code>bytes payload = 24;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearPayload() {
-        copyOnWrite();
-        instance.clearPayload();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:meshtastic.DecodedPacket)
+      // @@protoc_insertion_point(builder_scope:meshtastic.NodeInfo)
     }
     @java.lang.Override
     @java.lang.SuppressWarnings({"unchecked", "fallthrough"})
@@ -2616,18 +2564,17 @@ public final class MeshProtos {
         java.lang.Object arg0, java.lang.Object arg1) {
       switch (method) {
         case NEW_MUTABLE_INSTANCE: {
-          return new com.loremote.app.proto.MeshProtos.DecodedPacket();
+          return new com.loremote.app.proto.MeshProtos.NodeInfo();
         }
         case NEW_BUILDER: {
           return new Builder();
         }
         case BUILD_MESSAGE_INFO: {
             java.lang.Object[] objects = new java.lang.Object[] {
-              "portnum_",
-              "payload_",
+              "num_",
             };
             java.lang.String info =
-                "\u0000\u0002\u0000\u0000\u0017\u0018\u0002\u0000\u0000\u0000\u0017\n\u0018\n";
+                "\u0000\u0001\u0000\u0000\u0001\u0001\u0001\u0000\u0000\u0000\u0001\u000b";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         // fall through
@@ -2635,13 +2582,13 @@ public final class MeshProtos {
           return DEFAULT_INSTANCE;
         }
         case GET_PARSER: {
-          com.google.protobuf.Parser<com.loremote.app.proto.MeshProtos.DecodedPacket> parser = PARSER;
+          com.google.protobuf.Parser<com.loremote.app.proto.MeshProtos.NodeInfo> parser = PARSER;
           if (parser == null) {
-            synchronized (com.loremote.app.proto.MeshProtos.DecodedPacket.class) {
+            synchronized (com.loremote.app.proto.MeshProtos.NodeInfo.class) {
               parser = PARSER;
               if (parser == null) {
                 parser =
-                    new DefaultInstanceBasedParser<com.loremote.app.proto.MeshProtos.DecodedPacket>(
+                    new DefaultInstanceBasedParser<com.loremote.app.proto.MeshProtos.NodeInfo>(
                         DEFAULT_INSTANCE);
                 PARSER = parser;
               }
@@ -2660,24 +2607,24 @@ public final class MeshProtos {
     }
 
 
-    // @@protoc_insertion_point(class_scope:meshtastic.DecodedPacket)
-    private static final com.loremote.app.proto.MeshProtos.DecodedPacket DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:meshtastic.NodeInfo)
+    private static final com.loremote.app.proto.MeshProtos.NodeInfo DEFAULT_INSTANCE;
     static {
-      DecodedPacket defaultInstance = new DecodedPacket();
+      NodeInfo defaultInstance = new NodeInfo();
       // New instances are implicitly immutable so no need to make
       // immutable.
       DEFAULT_INSTANCE = defaultInstance;
       com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
-        DecodedPacket.class, defaultInstance);
+        NodeInfo.class, defaultInstance);
     }
 
-    public static com.loremote.app.proto.MeshProtos.DecodedPacket getDefaultInstance() {
+    public static com.loremote.app.proto.MeshProtos.NodeInfo getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static volatile com.google.protobuf.Parser<DecodedPacket> PARSER;
+    private static volatile com.google.protobuf.Parser<NodeInfo> PARSER;
 
-    public static com.google.protobuf.Parser<DecodedPacket> parser() {
+    public static com.google.protobuf.Parser<NodeInfo> parser() {
       return DEFAULT_INSTANCE.getParserForType();
     }
   }

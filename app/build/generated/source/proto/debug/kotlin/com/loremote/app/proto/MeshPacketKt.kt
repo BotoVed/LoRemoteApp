@@ -28,31 +28,7 @@ public object MeshPacketKt {
     internal fun _build(): com.loremote.app.proto.MeshProtos.MeshPacket = _builder.build()
 
     /**
-     * <code>uint32 to = 1;</code>
-     */
-    public var to: kotlin.Int
-      @JvmName("getTo")
-      get() = _builder.getTo()
-      @JvmName("setTo")
-      set(value) {
-        _builder.setTo(value)
-      }
-    /**
-     * `uint32 to = 1;`
-     */
-    public fun clearTo() {
-      _builder.clearTo()
-    }
-    /**
-     * `uint32 to = 1;`
-     * @return Whether the to field is set.
-     */
-    public fun hasTo(): kotlin.Boolean {
-      return _builder.hasTo()
-    }
-
-    /**
-     * <code>uint32 from = 2;</code>
+     * <code>uint32 from = 1;</code>
      */
     public var from: kotlin.Int
       @JvmName("getFrom")
@@ -62,21 +38,55 @@ public object MeshPacketKt {
         _builder.setFrom(value)
       }
     /**
-     * `uint32 from = 2;`
+     * `uint32 from = 1;`
      */
     public fun clearFrom() {
       _builder.clearFrom()
     }
+
     /**
-     * `uint32 from = 2;`
-     * @return Whether the from field is set.
+     * <code>uint32 to = 2;</code>
      */
-    public fun hasFrom(): kotlin.Boolean {
-      return _builder.hasFrom()
+    public var to: kotlin.Int
+      @JvmName("getTo")
+      get() = _builder.getTo()
+      @JvmName("setTo")
+      set(value) {
+        _builder.setTo(value)
+      }
+    /**
+     * `uint32 to = 2;`
+     */
+    public fun clearTo() {
+      _builder.clearTo()
     }
 
     /**
-     * <code>uint32 id = 4;</code>
+     * `.meshtastic.Data decoded = 3;`
+     */
+    public var decoded: com.loremote.app.proto.MeshProtos.Data
+      @JvmName("getDecoded")
+      get() = _builder.getDecoded()
+      @JvmName("setDecoded")
+      set(value) {
+        _builder.setDecoded(value)
+      }
+    /**
+     * `.meshtastic.Data decoded = 3;`
+     */
+    public fun clearDecoded() {
+      _builder.clearDecoded()
+    }
+    /**
+     * `.meshtastic.Data decoded = 3;`
+     * @return Whether the decoded field is set.
+     */
+    public fun hasDecoded(): kotlin.Boolean {
+      return _builder.hasDecoded()
+    }
+
+    /**
+     * <code>uint32 id = 9;</code>
      */
     public var id: kotlin.Int
       @JvmName("getId")
@@ -86,21 +96,14 @@ public object MeshPacketKt {
         _builder.setId(value)
       }
     /**
-     * `uint32 id = 4;`
+     * `uint32 id = 9;`
      */
     public fun clearId() {
       _builder.clearId()
     }
-    /**
-     * `uint32 id = 4;`
-     * @return Whether the id field is set.
-     */
-    public fun hasId(): kotlin.Boolean {
-      return _builder.hasId()
-    }
 
     /**
-     * <code>uint32 rx_time = 5;</code>
+     * <code>uint32 rx_time = 11;</code>
      */
     public var rxTime: kotlin.Int
       @JvmName("getRxTime")
@@ -110,21 +113,31 @@ public object MeshPacketKt {
         _builder.setRxTime(value)
       }
     /**
-     * `uint32 rx_time = 5;`
+     * `uint32 rx_time = 11;`
      */
     public fun clearRxTime() {
       _builder.clearRxTime()
     }
+
     /**
-     * `uint32 rx_time = 5;`
-     * @return Whether the rxTime field is set.
+     * <code>float rx_snr = 13;</code>
      */
-    public fun hasRxTime(): kotlin.Boolean {
-      return _builder.hasRxTime()
+    public var rxSnr: kotlin.Float
+      @JvmName("getRxSnr")
+      get() = _builder.getRxSnr()
+      @JvmName("setRxSnr")
+      set(value) {
+        _builder.setRxSnr(value)
+      }
+    /**
+     * `float rx_snr = 13;`
+     */
+    public fun clearRxSnr() {
+      _builder.clearRxSnr()
     }
 
     /**
-     * <code>uint32 rx_rssi = 15;</code>
+     * <code>int32 rx_rssi = 14;</code>
      */
     public var rxRssi: kotlin.Int
       @JvmName("getRxRssi")
@@ -134,69 +147,14 @@ public object MeshPacketKt {
         _builder.setRxRssi(value)
       }
     /**
-     * `uint32 rx_rssi = 15;`
+     * `int32 rx_rssi = 14;`
      */
     public fun clearRxRssi() {
       _builder.clearRxRssi()
     }
-    /**
-     * `uint32 rx_rssi = 15;`
-     * @return Whether the rxRssi field is set.
-     */
-    public fun hasRxRssi(): kotlin.Boolean {
-      return _builder.hasRxRssi()
-    }
 
     /**
-     * <code>uint32 rx_rssi_db = 16;</code>
-     */
-    public var rxRssiDb: kotlin.Int
-      @JvmName("getRxRssiDb")
-      get() = _builder.getRxRssiDb()
-      @JvmName("setRxRssiDb")
-      set(value) {
-        _builder.setRxRssiDb(value)
-      }
-    /**
-     * `uint32 rx_rssi_db = 16;`
-     */
-    public fun clearRxRssiDb() {
-      _builder.clearRxRssiDb()
-    }
-    /**
-     * `uint32 rx_rssi_db = 16;`
-     * @return Whether the rxRssiDb field is set.
-     */
-    public fun hasRxRssiDb(): kotlin.Boolean {
-      return _builder.hasRxRssiDb()
-    }
-
-    /**
-     * <code>uint32 rx_snr = 17;</code>
-     */
-    public var rxSnr: kotlin.Int
-      @JvmName("getRxSnr")
-      get() = _builder.getRxSnr()
-      @JvmName("setRxSnr")
-      set(value) {
-        _builder.setRxSnr(value)
-      }
-    /**
-     * `uint32 rx_snr = 17;`
-     */
-    public fun clearRxSnr() {
-      _builder.clearRxSnr()
-    }
-    /**
-     * `uint32 rx_snr = 17;`
-     * @return Whether the rxSnr field is set.
-     */
-    public fun hasRxSnr(): kotlin.Boolean {
-      return _builder.hasRxSnr()
-    }
-
-    /**
-     * <code>uint32 hop_limit = 19;</code>
+     * <code>uint32 hop_limit = 10;</code>
      */
     public var hopLimit: kotlin.Int
       @JvmName("getHopLimit")
@@ -206,150 +164,16 @@ public object MeshPacketKt {
         _builder.setHopLimit(value)
       }
     /**
-     * `uint32 hop_limit = 19;`
+     * `uint32 hop_limit = 10;`
      */
     public fun clearHopLimit() {
       _builder.clearHopLimit()
-    }
-    /**
-     * `uint32 hop_limit = 19;`
-     * @return Whether the hopLimit field is set.
-     */
-    public fun hasHopLimit(): kotlin.Boolean {
-      return _builder.hasHopLimit()
-    }
-
-    /**
-     * <code>uint32 hop_start = 20;</code>
-     */
-    public var hopStart: kotlin.Int
-      @JvmName("getHopStart")
-      get() = _builder.getHopStart()
-      @JvmName("setHopStart")
-      set(value) {
-        _builder.setHopStart(value)
-      }
-    /**
-     * `uint32 hop_start = 20;`
-     */
-    public fun clearHopStart() {
-      _builder.clearHopStart()
-    }
-    /**
-     * `uint32 hop_start = 20;`
-     * @return Whether the hopStart field is set.
-     */
-    public fun hasHopStart(): kotlin.Boolean {
-      return _builder.hasHopStart()
-    }
-
-    /**
-     * `.meshtastic.DecodedPacket decoded = 22;`
-     */
-    public var decoded: com.loremote.app.proto.MeshProtos.DecodedPacket
-      @JvmName("getDecoded")
-      get() = _builder.getDecoded()
-      @JvmName("setDecoded")
-      set(value) {
-        _builder.setDecoded(value)
-      }
-    /**
-     * `.meshtastic.DecodedPacket decoded = 22;`
-     */
-    public fun clearDecoded() {
-      _builder.clearDecoded()
-    }
-    /**
-     * `.meshtastic.DecodedPacket decoded = 22;`
-     * @return Whether the decoded field is set.
-     */
-    public fun hasDecoded(): kotlin.Boolean {
-      return _builder.hasDecoded()
-    }
-
-    /**
-     * <code>uint32 portnum = 23;</code>
-     */
-    public var portnum: kotlin.Int
-      @JvmName("getPortnum")
-      get() = _builder.getPortnum()
-      @JvmName("setPortnum")
-      set(value) {
-        _builder.setPortnum(value)
-      }
-    /**
-     * `uint32 portnum = 23;`
-     */
-    public fun clearPortnum() {
-      _builder.clearPortnum()
-    }
-    /**
-     * `uint32 portnum = 23;`
-     * @return Whether the portnum field is set.
-     */
-    public fun hasPortnum(): kotlin.Boolean {
-      return _builder.hasPortnum()
-    }
-
-    /**
-     * <code>bytes payload = 24;</code>
-     */
-    public var payload: com.google.protobuf.ByteString
-      @JvmName("getPayload")
-      get() = _builder.getPayload()
-      @JvmName("setPayload")
-      set(value) {
-        _builder.setPayload(value)
-      }
-    /**
-     * `bytes payload = 24;`
-     */
-    public fun clearPayload() {
-      _builder.clearPayload()
-    }
-    /**
-     * `bytes payload = 24;`
-     * @return Whether the payload field is set.
-     */
-    public fun hasPayload(): kotlin.Boolean {
-      return _builder.hasPayload()
-    }
-
-    /**
-     * <code>uint32 rx_lqi = 26;</code>
-     */
-    public var rxLqi: kotlin.Int
-      @JvmName("getRxLqi")
-      get() = _builder.getRxLqi()
-      @JvmName("setRxLqi")
-      set(value) {
-        _builder.setRxLqi(value)
-      }
-    /**
-     * `uint32 rx_lqi = 26;`
-     */
-    public fun clearRxLqi() {
-      _builder.clearRxLqi()
-    }
-    /**
-     * `uint32 rx_lqi = 26;`
-     * @return Whether the rxLqi field is set.
-     */
-    public fun hasRxLqi(): kotlin.Boolean {
-      return _builder.hasRxLqi()
-    }
-    public val payloadVariantCase: com.loremote.app.proto.MeshProtos.MeshPacket.PayloadVariantCase
-      @JvmName("getPayloadVariantCase")
-      get() = _builder.getPayloadVariantCase()
-
-    public fun clearPayloadVariant() {
-      _builder.clearPayloadVariant()
     }
   }
 }
 public inline fun com.loremote.app.proto.MeshProtos.MeshPacket.copy(block: `com.loremote.app.proto`.MeshPacketKt.Dsl.() -> kotlin.Unit): com.loremote.app.proto.MeshProtos.MeshPacket =
   `com.loremote.app.proto`.MeshPacketKt.Dsl._create(this.toBuilder()).apply { block() }._build()
 
-public val com.loremote.app.proto.MeshProtos.MeshPacketOrBuilder.decodedOrNull: com.loremote.app.proto.MeshProtos.DecodedPacket?
+public val com.loremote.app.proto.MeshProtos.MeshPacketOrBuilder.decodedOrNull: com.loremote.app.proto.MeshProtos.Data?
   get() = if (hasDecoded()) getDecoded() else null
 

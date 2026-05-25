@@ -11,22 +11,24 @@ import kotlinx.coroutines.flow.StateFlow
 import no.nordicsemi.android.ble.BleManager
 import no.nordicsemi.android.ble.BleManagerCallbacks
 import no.nordicsemi.android.ble.ktx.suspend
+import com.loremote.app.proto.MeshProtos
 import java.util.UUID
 
-// ── Meshtastic BLE API UUIDs ──────────────────────────────────────────────
+// ── Meshtastic BLE UUIDs ─────────────────────────────────────────────────
 val MESH_SERVICE   = UUID.fromString("6ba1b218-15a8-461f-9fa8-5dcae273eafd")
 val MESH_TO_RADIO  = UUID.fromString("f75c76d2-129e-4dad-a1dd-7866124401e7")
 val MESH_FROM_RADIO= UUID.fromString("2c55e69e-4993-11ed-b878-0242ac120002")
 val MESH_FROM_NUM  = UUID.fromString("ed9da18c-a800-4f66-a670-aa7547e34453")
 
-// Meshtastic PRIVATE_APP port (наш протокол)
-const val LOREMOTE_PORT = 256
+// Constants
+const val LOREMOTE_PORT    = 256
+const val GATEWAY_NODE_NUM = 0x077ccb09  // T114 node ID = 125747977
 
 sealed class BleState {
     object Disconnected : BleState()
     object Connecting   : BleState()
-    object Handshake    : BleState()   // идёт Meshtastic handshake
-    object Ready        : BleState()   // готов к работе
+    object Handshake    : BleState()
+    object Ready        : BleState()
     data class Error(val message: String) : BleState()
 }
 
@@ -71,17 +73,14 @@ class LoRemoteBleManager(
         override fun initialize() {
             Log.i(TAG, "Initializing — requesting MTU 512")
 
-            // 1. Request MTU
             requestMtu(512).enqueue()
 
-            // 2. Subscribe to FromNum notifications
             setNotificationCallback(fromNumChar).with { _, _ ->
                 Log.d(TAG, "FromNum notify — reading FromRadio")
                 scope.launch { readFromRadioLoop() }
             }
             enableNotifications(fromNumChar).enqueue()
 
-            // 3. Send startConfig после небольшой задержки
             scope.launch {
                 delay(500)
                 sendStartConfig()
@@ -101,8 +100,6 @@ class LoRemoteBleManager(
         Log.i(TAG, "Sending startConfig...")
         _state.value = BleState.Handshake
 
-        // ToRadio protobuf: want_config_id = field 3, varint 0
-        // Manual encoding: tag = (3 << 3) | 0 = 0x18, value = 0x00
         val startConfigBytes = byteArrayOf(0x18.toByte(), 0x00)
 
         try {
@@ -119,7 +116,6 @@ class LoRemoteBleManager(
         }
     }
 
-    // Читаем FromRadio пока не вернёт пустой буфер
     private suspend fun readFromRadioLoop() {
         var emptyCount = 0
         while (emptyCount < 2) {
@@ -139,87 +135,97 @@ class LoRemoteBleManager(
                 break
             }
         }
-        // После пустого буфера — handshake завершён
         if (_state.value == BleState.Handshake) {
             Log.i(TAG, "Handshake complete — Ready!")
             _state.value = BleState.Ready
         }
     }
 
-    // Разбор FromRadio — извлекаем наши MessagePack пакеты
+    // Разбор FromRadio — парсим как FromRadio, достаем packet → decoded → portnum
     private fun handleFromRadio(bytes: ByteArray) {
-        // FromRadio protobuf: Decode, смотрим поле 2 (decoded)
-        // Внутри: portnum (field 23) и payload (field 24)
-        // Нас интересуют только portnum == 256 (PRIVATE_APP)
-
         Log.d(TAG, "FromRadio data: ${bytes.size} bytes, hex: ${bytes.toHex().take(80)}")
 
         try {
-            val decoded = bytes.unpackDecodedField()
-            if (decoded != null) {
-                Log.d(TAG, "Decoded field found: ${decoded.size} bytes")
-                // Это наш MessagePack пакет
-                onPacketReceived(decoded)
-            } else {
-                Log.w(TAG, "No decoded field in FromRadio")
+            val fromRadio = MeshProtos.FromRadio.parseFrom(bytes)
+
+            when (fromRadio.payloadVariantCase) {
+                MeshProtos.FromRadio.PayloadVariantCase.PACKET -> {
+                    val meshPacket = fromRadio.packet
+                    val portnum = meshPacket.decoded?.portnum ?: 0
+                    val rssi = meshPacket.rxRssi
+                    val snr = meshPacket.rxSnr
+
+                    Log.d(TAG, "MeshPacket from=${meshPacket.from} portnum=$portnum rssi=$rssi snr=$snr")
+
+                    if (portnum == 256) {
+                        val payload = meshPacket.decoded.payload.toByteArray()
+                        Log.i(TAG, "✓ LoRemote packet! payload=${payload.size}b")
+                        onPacketReceived(payload)
+                    } else {
+                        Log.d(TAG, "Other portnum=$portnum — skip")
+                    }
+                }
+
+                MeshProtos.FromRadio.PayloadVariantCase.CONFIG_COMPLETE_ID -> {
+                    Log.i(TAG, "Config complete id=${fromRadio.configCompleteId}")
+                    // Handshake завершён
+                    if (_state.value == BleState.Handshake) {
+                        _state.value = BleState.Ready
+                    }
+                }
+
+                MeshProtos.FromRadio.PayloadVariantCase.MY_INFO -> {
+                    Log.d(TAG, "FromRadio MY_INFO: nodeNum=${fromRadio.myInfo.myNodeNum}")
+                }
+
+                MeshProtos.FromRadio.PayloadVariantCase.NODE_INFO -> {
+                    Log.d(TAG, "FromRadio NODE_INFO: num=${fromRadio.nodeInfo.num}")
+                }
+
+                else -> {
+                    Log.d(TAG, "FromRadio other: ${fromRadio.payloadVariantCase}")
+                }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to parse FromRadio: ${e.message}")
-            // Передаём сырые байты как fallback
-            onPacketReceived(bytes)
+            Log.e(TAG, "FromRadio parse error: ${e.message} bytes=${bytes.toHex()}")
         }
     }
-
-    // Распаковываем из FromRadio protobuf поле decoded
-    private fun ByteArray.unpackDecodedField(): ByteArray? {
-        // FromRadio protobuf формат:
-        // field 2 (decoded) = (2 << 3) | 2 = 0x12
-        // тип: length-delimited (wire type 2)
-        // внутри: MeshPacket -> decoded (field 22) = (22 << 3) | 2 = 0x62
-        // внутри: payload (field 24) = (24 << 3) | 2 = 0x64
-
-        if (size < 2) return null
-
-        // Простой парсер: ищем tag 0x12 (field 2, length-delimited)
-        var i = 0
-        while (i < size - 1) {
-            val tag = this[i].toInt() and 0xFF
-            if (tag == 0x12) { // field 2, wire type 2
-                // size
-                if (i + 1 >= size) return null
-                val sizeByte = this[i + 1].toInt() and 0xFF
-                val dataLen = if (sizeByte and 0x80 != 0) {
-                    // Multi-byte length (unlikely for small packets)
-                    val first = sizeByte and 0x7F
-                    if (i + 2 >= size) return null
-                    val second = this[i + 2].toInt() and 0xFF
-                    (first shl 7) or second
-                } else {
-                    sizeByte
-                }
-                val dataStart = i + 2 + (if (sizeByte and 0x80 != 0) 1 else 0)
-                if (dataStart + dataLen <= size) {
-                    // Вложенные поля внутри decoded (MeshPacket)
-                    val inner = copyOfRange(dataStart, dataStart + dataLen)
-                    return inner.unpackDecodedField()
-                }
-                return null
-            }
-            i++
-        }
-        return null
-    }
-
-    private fun Int.toByte() = toByte()
 
     // ── Send ──────────────────────────────────────────────────────────────
+
+    private fun wrapInToRadio(
+        payload: ByteArray,
+        destNodeNum: Int = GATEWAY_NODE_NUM,
+        portnum: Int = LOREMOTE_PORT
+    ): ByteArray {
+        val data = MeshProtos.Data.newBuilder()
+            .setPortnum(portnum)
+            .setPayload(com.google.protobuf.ByteString.copyFrom(payload))
+            .build()
+
+        val meshPacket = MeshProtos.MeshPacket.newBuilder()
+            .setTo(destNodeNum)
+            .setDecoded(data)
+            .build()
+
+        val toRadio = MeshProtos.ToRadio.newBuilder()
+            .setPacket(meshPacket)
+            .build()
+
+        return toRadio.toByteArray()
+    }
+
+    suspend fun sendLoRemote(msgpackBytes: ByteArray, destNode: Int = GATEWAY_NODE_NUM) {
+        val toRadioBytes = wrapInToRadio(msgpackBytes, destNode)
+        send(toRadioBytes)
+        Log.i(TAG, "Sent LoRemote packet: msgpack=${msgpackBytes.size}b wrapped=${toRadioBytes.size}b")
+    }
 
     suspend fun send(data: ByteArray) {
         val char = toRadioChar ?: run {
             Log.e(TAG, "toRadioChar is null")
             return
         }
-        // Фрагментация по MTU
         val chunkSize = (mtu - 3).coerceAtLeast(20)
         var offset = 0
         while (offset < data.size) {
@@ -250,7 +256,6 @@ class LoRemoteBleManager(
     }
     override fun onDeviceConnected(device: BluetoothDevice) {
         Log.i(TAG, "Connected: ${device.name}")
-        // state будет обновлён после handshake
     }
     override fun onDeviceReady(device: BluetoothDevice) {
         Log.i(TAG, "Device ready: ${device.name}")

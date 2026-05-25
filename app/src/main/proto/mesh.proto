@@ -4,40 +4,42 @@ option java_package = "com.loremote.app.proto";
 option java_outer_classname = "MeshProtos";
 option optimize_for = LITE_RUNTIME;
 
+message Data {
+  int32 portnum  = 1;
+  bytes payload  = 2;
+}
+
+message MeshPacket {
+  uint32 from      = 1;
+  uint32 to        = 2;
+  Data   decoded   = 3;
+  uint32 id        = 9;
+  uint32 rx_time   = 11;
+  float  rx_snr    = 13;
+  int32  rx_rssi   = 14;
+  uint32 hop_limit = 10;
+}
+
 message FromRadio {
   oneof payload_variant {
-    uint32 ack_req = 1;
-    MeshPacket decoded = 2;
-    uint32 config_complete_id = 3;
+    MeshPacket packet         = 2;
+    MyNodeInfo my_info        = 3;
+    NodeInfo node_info        = 4;
+    uint32 config_complete_id = 6;
   }
 }
 
 message ToRadio {
   oneof payload_variant {
-    MeshPacket packet = 1;
-    uint32 want_config_id = 3;
+    MeshPacket packet       = 1;
+    uint32 want_config_id   = 3;
   }
 }
 
-message MeshPacket {
-  oneof payload_variant {
-    uint32 to = 1;
-    uint32 from = 2;
-    uint32 id = 4;
-    uint32 rx_time = 5;
-    uint32 rx_rssi = 15;
-    uint32 rx_rssi_db = 16;
-    uint32 rx_snr = 17;
-    uint32 hop_limit = 19;
-    uint32 hop_start = 20;
-    DecodedPacket decoded = 22;
-    uint32 portnum = 23;
-    bytes payload = 24;
-    uint32 rx_lqi = 26;
-  }
+message MyNodeInfo {
+  uint32 my_node_num = 1;
 }
 
-message DecodedPacket {
-  bytes portnum = 23;
-  bytes payload = 24;
+message NodeInfo {
+  uint32 num = 1;
 }

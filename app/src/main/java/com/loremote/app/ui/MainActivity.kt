@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val bytes = Protocol.encode(packet)
-                bleManager.send(bytes)
+                bleManager.sendLoRemote(bytes)
                 addLog("TX tp:${packet.tp} (${bytes.size}b)")
             } catch (e: Exception) {
                 addLog("TX ERROR: ${e.message}")

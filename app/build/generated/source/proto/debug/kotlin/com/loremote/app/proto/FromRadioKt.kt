@@ -28,55 +28,79 @@ public object FromRadioKt {
     internal fun _build(): com.loremote.app.proto.MeshProtos.FromRadio = _builder.build()
 
     /**
-     * <code>uint32 ack_req = 1;</code>
+     * `.meshtastic.MeshPacket packet = 2;`
      */
-    public var ackReq: kotlin.Int
-      @JvmName("getAckReq")
-      get() = _builder.getAckReq()
-      @JvmName("setAckReq")
+    public var packet: com.loremote.app.proto.MeshProtos.MeshPacket
+      @JvmName("getPacket")
+      get() = _builder.getPacket()
+      @JvmName("setPacket")
       set(value) {
-        _builder.setAckReq(value)
+        _builder.setPacket(value)
       }
     /**
-     * `uint32 ack_req = 1;`
+     * `.meshtastic.MeshPacket packet = 2;`
      */
-    public fun clearAckReq() {
-      _builder.clearAckReq()
+    public fun clearPacket() {
+      _builder.clearPacket()
     }
     /**
-     * `uint32 ack_req = 1;`
-     * @return Whether the ackReq field is set.
+     * `.meshtastic.MeshPacket packet = 2;`
+     * @return Whether the packet field is set.
      */
-    public fun hasAckReq(): kotlin.Boolean {
-      return _builder.hasAckReq()
+    public fun hasPacket(): kotlin.Boolean {
+      return _builder.hasPacket()
     }
 
     /**
-     * `.meshtastic.MeshPacket decoded = 2;`
+     * `.meshtastic.MyNodeInfo my_info = 3;`
      */
-    public var decoded: com.loremote.app.proto.MeshProtos.MeshPacket
-      @JvmName("getDecoded")
-      get() = _builder.getDecoded()
-      @JvmName("setDecoded")
+    public var myInfo: com.loremote.app.proto.MeshProtos.MyNodeInfo
+      @JvmName("getMyInfo")
+      get() = _builder.getMyInfo()
+      @JvmName("setMyInfo")
       set(value) {
-        _builder.setDecoded(value)
+        _builder.setMyInfo(value)
       }
     /**
-     * `.meshtastic.MeshPacket decoded = 2;`
+     * `.meshtastic.MyNodeInfo my_info = 3;`
      */
-    public fun clearDecoded() {
-      _builder.clearDecoded()
+    public fun clearMyInfo() {
+      _builder.clearMyInfo()
     }
     /**
-     * `.meshtastic.MeshPacket decoded = 2;`
-     * @return Whether the decoded field is set.
+     * `.meshtastic.MyNodeInfo my_info = 3;`
+     * @return Whether the myInfo field is set.
      */
-    public fun hasDecoded(): kotlin.Boolean {
-      return _builder.hasDecoded()
+    public fun hasMyInfo(): kotlin.Boolean {
+      return _builder.hasMyInfo()
     }
 
     /**
-     * <code>uint32 config_complete_id = 3;</code>
+     * `.meshtastic.NodeInfo node_info = 4;`
+     */
+    public var nodeInfo: com.loremote.app.proto.MeshProtos.NodeInfo
+      @JvmName("getNodeInfo")
+      get() = _builder.getNodeInfo()
+      @JvmName("setNodeInfo")
+      set(value) {
+        _builder.setNodeInfo(value)
+      }
+    /**
+     * `.meshtastic.NodeInfo node_info = 4;`
+     */
+    public fun clearNodeInfo() {
+      _builder.clearNodeInfo()
+    }
+    /**
+     * `.meshtastic.NodeInfo node_info = 4;`
+     * @return Whether the nodeInfo field is set.
+     */
+    public fun hasNodeInfo(): kotlin.Boolean {
+      return _builder.hasNodeInfo()
+    }
+
+    /**
+     * <code>uint32 config_complete_id = 6;</code>
      */
     public var configCompleteId: kotlin.Int
       @JvmName("getConfigCompleteId")
@@ -86,13 +110,13 @@ public object FromRadioKt {
         _builder.setConfigCompleteId(value)
       }
     /**
-     * `uint32 config_complete_id = 3;`
+     * `uint32 config_complete_id = 6;`
      */
     public fun clearConfigCompleteId() {
       _builder.clearConfigCompleteId()
     }
     /**
-     * `uint32 config_complete_id = 3;`
+     * `uint32 config_complete_id = 6;`
      * @return Whether the configCompleteId field is set.
      */
     public fun hasConfigCompleteId(): kotlin.Boolean {
@@ -110,6 +134,12 @@ public object FromRadioKt {
 public inline fun com.loremote.app.proto.MeshProtos.FromRadio.copy(block: `com.loremote.app.proto`.FromRadioKt.Dsl.() -> kotlin.Unit): com.loremote.app.proto.MeshProtos.FromRadio =
   `com.loremote.app.proto`.FromRadioKt.Dsl._create(this.toBuilder()).apply { block() }._build()
 
-public val com.loremote.app.proto.MeshProtos.FromRadioOrBuilder.decodedOrNull: com.loremote.app.proto.MeshProtos.MeshPacket?
-  get() = if (hasDecoded()) getDecoded() else null
+public val com.loremote.app.proto.MeshProtos.FromRadioOrBuilder.packetOrNull: com.loremote.app.proto.MeshProtos.MeshPacket?
+  get() = if (hasPacket()) getPacket() else null
+
+public val com.loremote.app.proto.MeshProtos.FromRadioOrBuilder.myInfoOrNull: com.loremote.app.proto.MeshProtos.MyNodeInfo?
+  get() = if (hasMyInfo()) getMyInfo() else null
+
+public val com.loremote.app.proto.MeshProtos.FromRadioOrBuilder.nodeInfoOrNull: com.loremote.app.proto.MeshProtos.NodeInfo?
+  get() = if (hasNodeInfo()) getNodeInfo() else null
 
