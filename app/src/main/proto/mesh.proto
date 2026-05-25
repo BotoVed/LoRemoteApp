@@ -5,19 +5,23 @@ option java_outer_classname = "MeshProtos";
 option optimize_for = LITE_RUNTIME;
 
 message Data {
-  int32 portnum  = 1;
-  bytes payload  = 2;
+  int32  portnum  = 1;
+  bytes  payload  = 2;
+  fixed32 from    = 4;
+  fixed32 to      = 5;
 }
 
 message MeshPacket {
-  uint32 from      = 1;
-  uint32 to        = 2;
-  Data   decoded   = 3;
-  uint32 id        = 9;
+  fixed32 from      = 1;
+  fixed32 to        = 2;
+  bytes  decoded   = 4;
+  fixed32 id        = 9;
   uint32 rx_time   = 11;
   float  rx_snr    = 13;
   int32  rx_rssi   = 14;
   uint32 hop_limit = 10;
+  bool want_ack  = 12;
+  uint32 channel   = 8;
 }
 
 message FromRadio {

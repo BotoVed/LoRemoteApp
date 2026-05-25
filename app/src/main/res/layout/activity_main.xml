@@ -49,6 +49,15 @@
         <Button android:id="@+id/btnDisc"
             android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
             android:text="DISC" android:textSize="11sp" android:layout_margin="2dp"/>
+        <Button android:id="@+id/btnPingBroadcast"
+            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
+            android:text="PING→" android:textSize="10sp" android:layout_margin="2dp"/>
+        <Button android:id="@+id/btnSendTest"
+            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
+            android:text="SEND TEST" android:textSize="10sp" android:layout_margin="2dp"/>
+        <Button android:id="@+id/btnSendText"
+            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
+            android:text="SEND TEXT" android:textSize="10sp" android:layout_margin="2dp"/>
     </LinearLayout>
 
     <!-- Лог -->

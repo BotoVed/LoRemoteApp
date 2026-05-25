@@ -14,6 +14,8 @@ import androidx.lifecycle.lifecycleScope
 import com.loremote.app.ble.BleScanner
 import com.loremote.app.ble.BleState
 import com.loremote.app.ble.LoRemoteBleManager
+import com.loremote.app.ble.GATEWAY_NODE_NUM
+import com.loremote.app.ble.LOREMOTE_PORT
 import com.loremote.app.databinding.ActivityMainBinding
 import com.loremote.app.protocol.OutPacket
 import com.loremote.app.protocol.PacketType
@@ -119,11 +121,24 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnPing.setOnClickListener { sendPacket(Protocol.ping()) }
+        binding.btnPingBroadcast.setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    val bytes = Protocol.encode(Protocol.ping())
+                    bleManager.sendLoRemoteBroadcast(bytes)
+                    addLog("TX→ broadcast tp:6 (${bytes.size}b)")
+                } catch (e: Exception) {
+                    addLog("TX→ ERROR: ${e.message}")
+                }
+            }
+        }
         binding.btnAll.setOnClickListener { sendPacket(Protocol.requestAll()) }
         binding.btnDisc.setOnClickListener {
             bleManager.disconnect().enqueue()
             addLog("Disconnecting...")
         }
+        binding.btnSendTest.setOnClickListener { sendTestPacket() }
+        binding.btnSendText.setOnClickListener { sendTextPacket() }
     }
 
     private fun sendPacket(packet: OutPacket) {
@@ -155,6 +170,30 @@ class MainActivity : AppCompatActivity() {
         if (logLines.size > 100) logLines.removeAt(logLines.size - 1)
         binding.tvLog.text = logLines.joinToString("\n")
         binding.scrollLog.post { binding.scrollLog.smoothScrollTo(0, 0) }
+    }
+
+    private fun sendTestPacket() {
+        lifecycleScope.launch {
+            try {
+                val bytes = Protocol.encode(Protocol.ping())
+                bleManager.sendLoRemotePacket(bytes, GATEWAY_NODE_NUM, 256)
+                addLog("TX→TEST tp:6 (${bytes.size}b)")
+            } catch (e: Exception) {
+                addLog("TX→TEST ERROR: ${e.message}")
+            }
+        }
+    }
+
+    private fun sendTextPacket() {
+        lifecycleScope.launch {
+            try {
+                val textBytes = "hello".toByteArray()
+                bleManager.sendLoRemotePacket(textBytes, GATEWAY_NODE_NUM, 1)
+                addLog("TX→TEXT hello (${textBytes.size}b)")
+            } catch (e: Exception) {
+                addLog("TX→TEXT ERROR: ${e.message}")
+            }
+        }
     }
 
     private fun checkPermissionsAndScan() {

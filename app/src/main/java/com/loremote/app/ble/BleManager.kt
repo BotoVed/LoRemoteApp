@@ -23,6 +23,7 @@ val MESH_FROM_NUM  = UUID.fromString("ed9da18c-a800-4f66-a670-aa7547e34453")
 // Constants
 const val LOREMOTE_PORT    = 256
 const val GATEWAY_NODE_NUM = 0x077ccb09  // T114 node ID = 125747977
+const val BROADCAST_NODE   = 0xFFFFFFFF.toInt()
 
 sealed class BleState {
     object Disconnected : BleState()
@@ -151,14 +152,22 @@ class LoRemoteBleManager(
             when (fromRadio.payloadVariantCase) {
                 MeshProtos.FromRadio.PayloadVariantCase.PACKET -> {
                     val meshPacket = fromRadio.packet
-                    val portnum = meshPacket.decoded?.portnum ?: 0
+                    val decodedBytes = meshPacket.decoded.toByteArray()
+                    var portnum = 0
+                    var payload = ByteArray(0)
+                    try {
+                        val data = MeshProtos.Data.parseFrom(decodedBytes)
+                        portnum = data.portnum
+                        payload = data.payload.toByteArray()
+                    } catch (e: Exception) {
+                        Log.d(TAG, "Decode data failed: ${e.message}")
+                    }
                     val rssi = meshPacket.rxRssi
                     val snr = meshPacket.rxSnr
 
-                    Log.d(TAG, "MeshPacket from=${meshPacket.from} portnum=$portnum rssi=$rssi snr=$snr")
+                    Log.d(TAG, "MeshPacket from=${meshPacket.from} portnum=$portnum rssi=$rssi snr=$snr decodedBytes=${decodedBytes.size}")
 
                     if (portnum == 256) {
-                        val payload = meshPacket.decoded.payload.toByteArray()
                         Log.i(TAG, "✓ LoRemote packet! payload=${payload.size}b")
                         onPacketReceived(payload)
                     } else {
@@ -193,10 +202,10 @@ class LoRemoteBleManager(
 
     // ── Send ──────────────────────────────────────────────────────────────
 
-    private fun wrapInToRadio(
+    private fun wrapInToRadioWithPortnum(
         payload: ByteArray,
-        destNodeNum: Int = GATEWAY_NODE_NUM,
-        portnum: Int = LOREMOTE_PORT
+        destNodeNum: Int,
+        portnum: Int
     ): ByteArray {
         val data = MeshProtos.Data.newBuilder()
             .setPortnum(portnum)
@@ -205,7 +214,9 @@ class LoRemoteBleManager(
 
         val meshPacket = MeshProtos.MeshPacket.newBuilder()
             .setTo(destNodeNum)
-            .setDecoded(data)
+            .setChannel(0)
+            .setWantAck(true)
+            .setDecoded(com.google.protobuf.ByteString.copyFrom(data.toByteArray()))
             .build()
 
         val toRadio = MeshProtos.ToRadio.newBuilder()
@@ -215,10 +226,30 @@ class LoRemoteBleManager(
         return toRadio.toByteArray()
     }
 
+    private fun wrapInToRadio(
+        payload: ByteArray,
+        destNodeNum: Int = GATEWAY_NODE_NUM,
+        portnum: Int = LOREMOTE_PORT
+    ): ByteArray {
+        return wrapInToRadioWithPortnum(payload, destNodeNum, portnum)
+    }
+
     suspend fun sendLoRemote(msgpackBytes: ByteArray, destNode: Int = GATEWAY_NODE_NUM) {
-        val toRadioBytes = wrapInToRadio(msgpackBytes, destNode)
+        val toRadioBytes = wrapInToRadio(msgpackBytes, BROADCAST_NODE)
         send(toRadioBytes)
         Log.i(TAG, "Sent LoRemote packet: msgpack=${msgpackBytes.size}b wrapped=${toRadioBytes.size}b")
+    }
+
+    suspend fun sendLoRemoteBroadcast(msgpackBytes: ByteArray) {
+        val toRadioBytes = wrapInToRadio(msgpackBytes, BROADCAST_NODE)
+        send(toRadioBytes)
+        Log.i(TAG, "Sent LoRemote BROADCAST: msgpack=${msgpackBytes.size}b wrapped=${toRadioBytes.size}b")
+    }
+
+    suspend fun sendLoRemotePacket(payload: ByteArray, destNode: Int, portnum: Int) {
+        val toRadioBytes = wrapInToRadioWithPortnum(payload, BROADCAST_NODE, portnum)
+        send(toRadioBytes)
+        Log.i(TAG, "Sent LoRemotePacket: payload=${payload.size}b portnum=$portnum wrapped=${toRadioBytes.size}b")
     }
 
     suspend fun send(data: ByteArray) {
@@ -233,6 +264,7 @@ class LoRemoteBleManager(
             writeCharacteristic(char, chunk, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT).suspend()
             offset += chunkSize
         }
+        Log.d(TAG, "ToRadio bytes: ${data.toHex()}")
         Log.v(TAG, "Sent ${data.size}b in ${(data.size + chunkSize - 1) / chunkSize} chunks, mtu=$mtu")
     }
 
