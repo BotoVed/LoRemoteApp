@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="#1a1a1a">
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="○ Disconnected"
+        android:textColor="#c9a84c"
+        android:textSize="15sp"
+        android:fontFamily="monospace"
+        android:paddingBottom="8dp"/>
+
+    <!-- Список устройств -->
+    <ListView
+        android:id="@+id/lvDevices"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:background="#222222"
+        android:divider="#333333"
+        android:dividerHeight="1dp"/>
+
+    <!-- Кнопки -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp">
+
+        <Button android:id="@+id/btnScan"
+            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
+            android:text="SCAN" android:textSize="11sp" android:layout_margin="2dp"/>
+        <Button android:id="@+id/btnConnect"
+            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
+            android:text="CONNECT" android:textSize="11sp" android:layout_margin="2dp"/>
+        <Button android:id="@+id/btnPing"
+            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
+            android:text="PING" android:textSize="11sp" android:layout_margin="2dp"/>
+        <Button android:id="@+id/btnAll"
+            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
+            android:text="ALL" android:textSize="11sp" android:layout_margin="2dp"/>
+        <Button android:id="@+id/btnDisc"
+            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
+            android:text="DISC" android:textSize="11sp" android:layout_margin="2dp"/>
+    </LinearLayout>
+
+    <!-- Лог -->
+    <ScrollView
+        android:id="@+id/scrollLog"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:background="#222222">
+
+        <TextView
+            android:id="@+id/tvLog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Log...\n"
+            android:textColor="#f0f0f0"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:padding="8dp"/>
+    </ScrollView>
+</LinearLayout>

@@ -1,0 +1,16 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color white
+id btnAll
+id btnConnect
+id btnDisc
+id btnPing
+id btnScan
+id lvDevices
+id scrollLog
+id tvLog
+id tvStatus
+layout activity_main
+string app_name
+style Theme.LoRemote

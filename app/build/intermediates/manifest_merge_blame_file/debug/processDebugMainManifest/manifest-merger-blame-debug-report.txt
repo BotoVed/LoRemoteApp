@@ -1,0 +1,154 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.loremote.app"
+4    android:versionCode="2"
+5    android:versionName="0.2.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-permission
+11-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:4:5-94
+12        android:name="android.permission.BLUETOOTH"
+12-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:4:22-65
+13        android:maxSdkVersion="30" />
+13-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:4:66-92
+14    <uses-permission
+14-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:5:5-100
+15        android:name="android.permission.BLUETOOTH_ADMIN"
+15-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:5:22-71
+16        android:maxSdkVersion="30" />
+16-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:5:72-98
+17    <uses-permission
+17-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:6:5-7:57
+18        android:name="android.permission.BLUETOOTH_SCAN"
+18-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:6:22-70
+19        android:usesPermissionFlags="neverForLocation" />
+19-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:7:9-55
+20    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+20-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:8:5-75
+20-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:8:22-73
+21    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+21-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:9:5-78
+21-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:9:22-76
+22    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+22-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:10:5-80
+22-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:10:22-78
+23
+24    <uses-feature
+24-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:12:5-89
+25        android:name="android.hardware.bluetooth_le"
+25-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:12:19-63
+26        android:required="true" />
+26-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:12:64-87
+27
+28    <permission
+28-->[androidx.core:core:1.9.0] /home/boss/.gradle/caches/transforms-4/6af907c62c992c2d9eef8763ba5ebb76/transformed/core-1.9.0/AndroidManifest.xml:22:5-24:47
+29        android:name="com.loremote.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+29-->[androidx.core:core:1.9.0] /home/boss/.gradle/caches/transforms-4/6af907c62c992c2d9eef8763ba5ebb76/transformed/core-1.9.0/AndroidManifest.xml:23:9-81
+30        android:protectionLevel="signature" />
+30-->[androidx.core:core:1.9.0] /home/boss/.gradle/caches/transforms-4/6af907c62c992c2d9eef8763ba5ebb76/transformed/core-1.9.0/AndroidManifest.xml:24:9-44
+31
+32    <uses-permission android:name="com.loremote.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+32-->[androidx.core:core:1.9.0] /home/boss/.gradle/caches/transforms-4/6af907c62c992c2d9eef8763ba5ebb76/transformed/core-1.9.0/AndroidManifest.xml:26:5-97
+32-->[androidx.core:core:1.9.0] /home/boss/.gradle/caches/transforms-4/6af907c62c992c2d9eef8763ba5ebb76/transformed/core-1.9.0/AndroidManifest.xml:26:22-94
+33
+34    <application
+34-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:14:5-26:19
+35        android:name="com.loremote.app.App"
+35-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:15:9-28
+36        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+36-->[androidx.core:core:1.9.0] /home/boss/.gradle/caches/transforms-4/6af907c62c992c2d9eef8763ba5ebb76/transformed/core-1.9.0/AndroidManifest.xml:28:18-86
+37        android:debuggable="true"
+38        android:extractNativeLibs="false"
+39        android:label="LoRemote"
+39-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:16:9-33
+40        android:theme="@style/Theme.LoRemote" >
+40-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:17:9-46
+41        <activity
+41-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:18:9-25:20
+42            android:name="com.loremote.app.ui.MainActivity"
+42-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:19:13-44
+43            android:exported="true" >
+43-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:20:13-36
+44            <intent-filter>
+44-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:21:13-24:29
+45                <action android:name="android.intent.action.MAIN" />
+45-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:22:17-68
+45-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:22:25-66
+46
+47                <category android:name="android.intent.category.LAUNCHER" />
+47-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:23:17-76
+47-->/home/boss/loremote-android/app/src/main/AndroidManifest.xml:23:27-74
+48            </intent-filter>
+49        </activity>
+50
+51        <provider
+51-->[androidx.emoji2:emoji2:1.2.0] /home/boss/.gradle/caches/transforms-4/9bc0746aba89de82a13a646406e4bc6f/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:24:9-32:20
+52            android:name="androidx.startup.InitializationProvider"
+52-->[androidx.emoji2:emoji2:1.2.0] /home/boss/.gradle/caches/transforms-4/9bc0746aba89de82a13a646406e4bc6f/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:25:13-67
+53            android:authorities="com.loremote.app.androidx-startup"
+53-->[androidx.emoji2:emoji2:1.2.0] /home/boss/.gradle/caches/transforms-4/9bc0746aba89de82a13a646406e4bc6f/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:26:13-68
+54            android:exported="false" >
+54-->[androidx.emoji2:emoji2:1.2.0] /home/boss/.gradle/caches/transforms-4/9bc0746aba89de82a13a646406e4bc6f/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:27:13-37
+55            <meta-data
+55-->[androidx.emoji2:emoji2:1.2.0] /home/boss/.gradle/caches/transforms-4/9bc0746aba89de82a13a646406e4bc6f/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:29:13-31:52
+56                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+56-->[androidx.emoji2:emoji2:1.2.0] /home/boss/.gradle/caches/transforms-4/9bc0746aba89de82a13a646406e4bc6f/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:30:17-75
+57                android:value="androidx.startup" />
+57-->[androidx.emoji2:emoji2:1.2.0] /home/boss/.gradle/caches/transforms-4/9bc0746aba89de82a13a646406e4bc6f/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:31:17-49
+58            <meta-data
+58-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/boss/.gradle/caches/transforms-4/46f0063027e08d2b974fc75201f2a434/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
+59                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+59-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/boss/.gradle/caches/transforms-4/46f0063027e08d2b974fc75201f2a434/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
+60                android:value="androidx.startup" />
+60-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/boss/.gradle/caches/transforms-4/46f0063027e08d2b974fc75201f2a434/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
+61            <meta-data
+61-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:29:13-31:52
+62                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+62-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:30:17-85
+63                android:value="androidx.startup" />
+63-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:31:17-49
+64        </provider>
+65
+66        <receiver
+66-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:34:9-52:20
+67            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+67-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:35:13-76
+68            android:directBootAware="false"
+68-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:36:13-44
+69            android:enabled="true"
+69-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:37:13-35
+70            android:exported="true"
+70-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:38:13-36
+71            android:permission="android.permission.DUMP" >
+71-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:39:13-57
+72            <intent-filter>
+72-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:40:13-42:29
+73                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+73-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:41:17-91
+73-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:41:25-88
+74            </intent-filter>
+75            <intent-filter>
+75-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:43:13-45:29
+76                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+76-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:44:17-85
+76-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:44:25-82
+77            </intent-filter>
+78            <intent-filter>
+78-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:46:13-48:29
+79                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+79-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:47:17-88
+79-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:47:25-85
+80            </intent-filter>
+81            <intent-filter>
+81-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:49:13-51:29
+82                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+82-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:50:17-95
+82-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/boss/.gradle/caches/transforms-4/de6c85c5ab7c5be021ddc3a27e3cbea8/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:50:25-92
+83            </intent-filter>
+84        </receiver>
+85    </application>
+86
+87</manifest>

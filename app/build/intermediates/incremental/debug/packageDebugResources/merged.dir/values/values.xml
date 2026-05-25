@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">LoRemote</string>
+    <style name="Theme.LoRemote" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">#c9a84c</item>
+        <item name="colorPrimaryVariant">#9a7a30</item>
+        <item name="colorOnPrimary">#1a1a1a</item>
+    </style>
+</resources>
