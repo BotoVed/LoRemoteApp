@@ -131,4 +131,4 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 
 ## Лицензия
 
-MIT © [BotoVed](https://github.com/BotoVed)
+GPLv3 © [BotoVed](https://github.com/BotoVed)
