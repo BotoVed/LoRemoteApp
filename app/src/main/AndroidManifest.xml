@@ -16,7 +16,9 @@
 
     <application
         android:name=".App"
+        android:icon="@mipmap/ic_launcher"
         android:label="LoRemote"
+        android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/Theme.LoRemote">
         <activity
             android:name=".ui.MainActivity"
