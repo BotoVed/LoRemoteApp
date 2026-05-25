@@ -146,16 +146,71 @@ class LoRemoteBleManager(
         }
     }
 
-    // Разбор FromRadio — нас интересуют только PRIVATE_APP пакеты
+    // Разбор FromRadio — извлекаем наши MessagePack пакеты
     private fun handleFromRadio(bytes: ByteArray) {
-        // FromRadio это protobuf. Нас интересует поле packet (field 2).
-        // Внутри MeshPacket.decoded.portnum == 256 (PRIVATE_APP) — наши данные.
-        // Простой вариант: пробуем декодировать как наш MessagePack напрямую.
-        // Если Meshtastic завернул пакет в protobuf — нужно распаковать.
-        // Для начала — передаём байты наверх, MainActivity разберётся.
-        Log.d(TAG, "FromRadio packet: ${bytes.toHex()}")
-        onPacketReceived(bytes)
+        // FromRadio protobuf: Decode, смотрим поле 2 (decoded)
+        // Внутри: portnum (field 23) и payload (field 24)
+        // Нас интересуют только portnum == 256 (PRIVATE_APP)
+
+        Log.d(TAG, "FromRadio data: ${bytes.size} bytes, hex: ${bytes.toHex().take(80)}")
+
+        try {
+            val decoded = bytes.unpackDecodedField()
+            if (decoded != null) {
+                Log.d(TAG, "Decoded field found: ${decoded.size} bytes")
+                // Это наш MessagePack пакет
+                onPacketReceived(decoded)
+            } else {
+                Log.w(TAG, "No decoded field in FromRadio")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to parse FromRadio: ${e.message}")
+            // Передаём сырые байты как fallback
+            onPacketReceived(bytes)
+        }
     }
+
+    // Распаковываем из FromRadio protobuf поле decoded
+    private fun ByteArray.unpackDecodedField(): ByteArray? {
+        // FromRadio protobuf формат:
+        // field 2 (decoded) = (2 << 3) | 2 = 0x12
+        // тип: length-delimited (wire type 2)
+        // внутри: MeshPacket -> decoded (field 22) = (22 << 3) | 2 = 0x62
+        // внутри: payload (field 24) = (24 << 3) | 2 = 0x64
+
+        if (size < 2) return null
+
+        // Простой парсер: ищем tag 0x12 (field 2, length-delimited)
+        var i = 0
+        while (i < size - 1) {
+            val tag = this[i].toInt() and 0xFF
+            if (tag == 0x12) { // field 2, wire type 2
+                // size
+                if (i + 1 >= size) return null
+                val sizeByte = this[i + 1].toInt() and 0xFF
+                val dataLen = if (sizeByte and 0x80 != 0) {
+                    // Multi-byte length (unlikely for small packets)
+                    val first = sizeByte and 0x7F
+                    if (i + 2 >= size) return null
+                    val second = this[i + 2].toInt() and 0xFF
+                    (first shl 7) or second
+                } else {
+                    sizeByte
+                }
+                val dataStart = i + 2 + (if (sizeByte and 0x80 != 0) 1 else 0)
+                if (dataStart + dataLen <= size) {
+                    // Вложенные поля внутри decoded (MeshPacket)
+                    val inner = copyOfRange(dataStart, dataStart + dataLen)
+                    return inner.unpackDecodedField()
+                }
+                return null
+            }
+            i++
+        }
+        return null
+    }
+
+    private fun Int.toByte() = toByte()
 
     // ── Send ──────────────────────────────────────────────────────────────
 

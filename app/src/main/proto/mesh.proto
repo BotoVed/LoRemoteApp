@@ -1,0 +1,43 @@
+syntax = "proto3";
+package meshtastic;
+option java_package = "com.loremote.app.proto";
+option java_outer_classname = "MeshProtos";
+option optimize_for = LITE_RUNTIME;
+
+message FromRadio {
+  oneof payload_variant {
+    uint32 ack_req = 1;
+    MeshPacket decoded = 2;
+    uint32 config_complete_id = 3;
+  }
+}
+
+message ToRadio {
+  oneof payload_variant {
+    MeshPacket packet = 1;
+    uint32 want_config_id = 3;
+  }
+}
+
+message MeshPacket {
+  oneof payload_variant {
+    uint32 to = 1;
+    uint32 from = 2;
+    uint32 id = 4;
+    uint32 rx_time = 5;
+    uint32 rx_rssi = 15;
+    uint32 rx_rssi_db = 16;
+    uint32 rx_snr = 17;
+    uint32 hop_limit = 19;
+    uint32 hop_start = 20;
+    DecodedPacket decoded = 22;
+    uint32 portnum = 23;
+    bytes payload = 24;
+    uint32 rx_lqi = 26;
+  }
+}
+
+message DecodedPacket {
+  bytes portnum = 23;
+  bytes payload = 24;
+}
