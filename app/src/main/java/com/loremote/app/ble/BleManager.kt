@@ -288,6 +288,7 @@ class LoRemoteBleManager(
     }
     override fun onDeviceConnected(device: BluetoothDevice) {
         Log.i(TAG, "Connected: ${device.name}")
+        saveLastDevice(device)
     }
     override fun onDeviceReady(device: BluetoothDevice) {
         Log.i(TAG, "Device ready: ${device.name}")
@@ -297,6 +298,17 @@ class LoRemoteBleManager(
         _state.value = BleState.Disconnected
         toRadioChar = null; fromRadioChar = null; fromNumChar = null
         Log.i(TAG, "Disconnected: ${device.name}")
+        saveLastDevice(device)
+    }
+
+    private fun saveLastDevice(device: BluetoothDevice) {
+        try {
+            val prefs = context.getSharedPreferences("loremote", Context.MODE_PRIVATE)
+            prefs.edit().putString("last_device_mac", device.address).apply()
+            prefs.edit().putString("last_device_name", device.name ?: "Unknown").apply()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to save last device: ${e.message}")
+        }
     }
     override fun onLinkLossOccurred(device: BluetoothDevice) {
         _state.value = BleState.Disconnected

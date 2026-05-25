@@ -18,11 +18,19 @@ class BleScanner(private val context: Context) {
 
     private val callback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
-            val list = _results.value.toMutableList()
-            val idx = list.indexOfFirst { it.device.address == result.device.address }
-            if (idx >= 0) list[idx] = result else list.add(result)
-            _results.value = list.sortedByDescending { it.rssi }
-            Log.d(TAG, "Found: ${result.device.name ?: "Unknown"} ${result.device.address} RSSI=${result.rssi}")
+            val serviceUuids = result.scanRecord?.serviceUuids
+            val isMeshtastic = serviceUuids?.any { it.uuid == MESH_SERVICE } ?: false
+            val isMeshtasticName = result.device.name?.contains("Meshtastic", ignoreCase = true) == true
+
+            if (isMeshtastic || isMeshtasticName || result.device.name?.startsWith("Meshtastic_") == true) {
+                val list = _results.value.toMutableList()
+                val idx = list.indexOfFirst { it.device.address == result.device.address }
+                if (idx >= 0) list[idx] = result else list.add(result)
+                _results.value = list.sortedByDescending { it.rssi }
+                Log.d(TAG, "Found Meshtastic: ${result.device.name ?: "Unknown"} ${result.device.address} RSSI=${result.rssi} meshtastic=$isMeshtastic")
+            } else {
+                Log.d(TAG, "Skip non-Meshtastic: ${result.device.name ?: "Unknown"} ${result.device.address}")
+            }
         }
         override fun onScanFailed(errorCode: Int) {
             Log.e(TAG, "Scan failed: $errorCode")
