@@ -179,8 +179,6 @@ appcompat: 1.6.1, material: 1.11.0
 
 ## Статус v0.3.0 ✅
 
-- [x] **android:theme="@style/Theme.LoRemote"** в AndroidManifest (fix: AppCompat краш)
-- [x] Версия 0.3.0 в build.gradle.kts
 - [x] BLE сканирование + фильтрация Meshtastic устройств
 - [x] Автоподключение к последнему устройству (SharedPreferences)
 - [x] Meshtastic handshake (config_complete_id → Ready)
@@ -189,15 +187,15 @@ appcompat: 1.6.1, material: 1.11.0
 - [x] PING доходит до T114, плагин получает
 - [x] MessagePack encode/decode
 - [x] DeliveryQueue (6 попыток)
-- [x] Foreground Service — BleService (LifecycleService + START_STICKY)
-- [x] Ping loop — keepalive каждые 60 сек в фоне
-- [x] Уведомления: статус соединения + тревога (tp:3 BS)
-- [x] MainActivity bindService + BroadcastReceiver
-- [x] AndroidManifest: FOREGROUND_SERVICE, POST_NOTIFICATIONS
+- [x] Foreground Service (BleService, LifecycleService, START_STICKY)
+- [x] Ping loop каждые 60 сек в фоне
+- [x] Уведомление в шторке со статусом BLE
+- [x] Alarm notification при тревогах
+- [x] bindService в MainActivity + BroadcastReceiver
 
 ## TODO (следующие шаги)
 
 1. **PONG от T114** — проверить что плагин отвечает на PING
 2. **Полный UI** — зоны, карточки устройств (на основе LORA_CONFIG)
 3. **Авторизация** — SHA-256 пароль, несколько пользователей
-4. **Полноценные алармы** — звуковые уведомления, badge, vibration
+4. **Звуковые алармы** — звук/вибрация при тревогах
