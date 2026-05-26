@@ -200,8 +200,10 @@ appcompat: 1.6.1, material: 1.11.0
 | BLUETOOTH_SCAN crash в onResume | Проверять hasBlePermissions() перед startScan() в SettingsFragment |
 | Автоподключение через getRemoteDevice падает | Использовать connectToDevice() — он сохраняет MAC |
 | Жёлтая иконка BLE | При fail автоконнекта иконка остаётся yellow — fix: connectTo(device.device) |
+| tryAutoConnect() рвёт соединение при включении экрана | Проверять state перед connectTo(), убрать вызов из onStart() |
+| retryCount=0 вызывал onFailed() после первой отправки | При retryCount=0 считать delivered после первого send |
 
-## Статус v0.5.2 ✅ (текущий)
+## Статус v0.5.6 ✅ (текущий)
 
 ### Исправления
 - [x] DeliveryQueue.NPE — чтение SharedPreferences перенесено из конструктора в onCreate()
@@ -211,6 +213,10 @@ appcompat: 1.6.1, material: 1.11.0
 - [x] Жёлтая иконка — авто-подключение через connectToDevice()
 - [x] Заголовки в Settings и Control — центрирование, стиль как в HTML
 - [x] DeliveryQueue — дедупликация, FIFO, real timestamps, direct send
+- [x] v0.5.3 — Integer→Long safe casts (normalize, toLong, extractStateValues)
+- [x] v0.5.4 — BleService diagnostic logs (onCreate, onStartCommand)
+- [x] v0.5.5 — BLE icon restore on re-bind, remove saveLastDevice from onDeviceDisconnected
+- [x] v0.5.6 — tryAutoConnect() state check, retryCount=0 → delivered
 
 ### Полная версия v0.5.0 ✅
 - [x] BLE сканирование + фильтрация Meshtastic устройств
