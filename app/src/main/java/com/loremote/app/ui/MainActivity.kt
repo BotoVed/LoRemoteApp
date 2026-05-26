@@ -97,11 +97,6 @@ class MainActivity : AppCompatActivity() {
         binding.lvDevices.setOnItemClickListener { _, view, position, _ ->
             selectedIndex = position
             selectedDevice = deviceList.getOrNull(position)
-            for (i in 0 until binding.lvDevices.childCount) {
-                binding.lvDevices.getChildAt(i)?.setBackgroundColor(
-                    if (i == position) 0xFF2A2A2A.toInt() else android.graphics.Color.TRANSPARENT
-                )
-            }
             val d = selectedDevice
             addLog("Selected: ${d?.device?.name ?: "Unknown"} (${d?.device?.address})")
         }
