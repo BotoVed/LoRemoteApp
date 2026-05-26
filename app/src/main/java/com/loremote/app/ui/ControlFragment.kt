@@ -155,7 +155,7 @@ class ControlFragment : Fragment() {
                     val changes = mapOf("s" to if (checked) 1L else 0L)
                     main.sendPacket(
                         OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0),
-                        stateChanges = changes
+                        newValue = changes
                     )
                 }
                 break
@@ -298,7 +298,7 @@ class ControlFragment : Fragment() {
                         val changes = mapOf("s" to if (isChecked) 1L else 0L)
                         main.sendPacket(
                             OutPacket(tp = PacketType.CMD, id = hash, s = if (isChecked) 1 else 0),
-                            stateChanges = changes
+                            newValue = changes
                         )
                     }
                 }
@@ -313,7 +313,7 @@ class ControlFragment : Fragment() {
                         val cmd = if (isChecked) "lock" else "unlock"
                         main.sendPacket(
                             OutPacket(tp = PacketType.CMD, id = hash, cmd = cmd),
-                            stateChanges = changes
+                            newValue = changes
                         )
                     }
                 }

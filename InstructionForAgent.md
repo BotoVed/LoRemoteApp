@@ -203,7 +203,18 @@ appcompat: 1.6.1, material: 1.11.0
 | tryAutoConnect() рвёт соединение при включении экрана | Проверять state перед connectTo(), убрать вызов из onStart() |
 | retryCount=0 вызывал onFailed() после первой отправки | При retryCount=0 считать delivered после первого send |
 
-## Статус v0.5.6 ✅ (текущий)
+## Статус v0.5.7 ✅ (текущий)
+
+### Исправления
+- [x] DeliveryQueue — полная переделка: loop-based, без рекурсии, oldValue/newValue
+- [x] DeliveryQueue — thread-safe (Collections.synchronizedMap)
+- [x] DeliveryQueue — confirmed/rollback через oldValue/newValue
+- [x] DeliveryQueue — enqueue с oldValue/newValue, confirm с confirmedValues
+- [x] DeliveryQueue — start() в onCreate, stop() в onDestroy
+- [x] BleService — GlobalScope убран из sendFn
+- [x] sendPacket — oldValue/newValue вместо stateChanges
+- [x] handlePacket — id через toString() вместо as? String
+- [x] SettingsFragment — ping check по state, queue refresh loop 1 сек
 
 ### Исправления
 - [x] DeliveryQueue.NPE — чтение SharedPreferences перенесено из конструктора в onCreate()
@@ -260,14 +271,11 @@ appcompat: 1.6.1, material: 1.11.0
 - [x] Broadcast отправка portnum=256
 - [x] PING доходит до T114, плагин получает
 - [x] MessagePack encode/decode
-- [x] DeliveryQueue (6 попыток)
 - [x] Foreground Service (BleService, LifecycleService, START_STICKY)
 - [x] Ping loop каждые 60 сек в фоне
 - [x] Уведомление в шторке со статусом BLE
 - [x] DeviceStateManager (pending/confirm/rollback для состояний устройств)
-- [x] DeliveryQueue → DeviceStateManager.onDelivered / onFailed
 - [x] requestAll при подключении (BleService)
-- [x] sendPacket через DeliveryQueue с stateChanges
 - [x] Контроль UI: toggle серый (PENDING), красный (FAILED)
 - [x] Debounce слайдеров в DevicePopupDialog (500мс)
 - [x] Alarm notification при тревогах

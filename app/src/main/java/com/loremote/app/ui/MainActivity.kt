@@ -238,13 +238,13 @@ class MainActivity : AppCompatActivity() {
     // ── Packet Handler ────────────────────────────────────────────────────
     private fun handlePacket(map: Map<String, Any?>) {
         val tp = (map["tp"] as? Number)?.toInt() ?: return
-        val id = map["id"] as? String
+        val id = map["id"]?.toString()
 
         when (tp) {
             PacketType.CONFIRM -> {
                 if (id != null) {
                     DeviceStateManager.onConfirmed(id, extractStateValues(map))
-                    bleService?.deliveryQueue?.confirm(id)
+                    bleService?.deliveryQueue?.confirm(id, extractStateValues(map))
                 }
             }
             PacketType.STATUS -> {
@@ -298,17 +298,14 @@ class MainActivity : AppCompatActivity() {
     }
 
  // ── Send ──────────────────────────────────────────────────────────────
-    fun sendPacket(packet: OutPacket, stateChanges: Map<String, Any?>? = null) {
+    fun sendPacket(packet: OutPacket, oldValue: Map<String, Any?> = emptyMap(), newValue: Map<String, Any?> = emptyMap()) {
         val packetWithTs = packet.copy(_ts = System.currentTimeMillis() / 1000)
         lifecycleScope.launch {
             try {
                 if (packetWithTs.id != null) {
-                    if (stateChanges != null) {
-                        DeviceStateManager.onSending(packetWithTs.id, stateChanges)
-                    }
-                    bleService?.deliveryQueue?.enqueue(packetWithTs.id, packetWithTs)
+                    DeviceStateManager.onSending(packetWithTs.id, newValue)
+                    bleService?.deliveryQueue?.enqueue(packetWithTs.id, packetWithTs, oldValue, newValue)
                 } else {
-                    // Без id — прямая отправка, без ожидания подтверждения
                     val bytes = Protocol.encode(packetWithTs)
                     bleService?.bleManager?.sendLoRemote(bytes)
                 }

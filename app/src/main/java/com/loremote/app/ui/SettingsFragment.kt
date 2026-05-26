@@ -6,9 +6,11 @@ import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.loremote.app.R
  import com.loremote.app.protocol.DeliveryQueue.QueueEntry
 import com.loremote.app.protocol.Protocol
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SettingsFragment : Fragment() {
@@ -78,6 +80,13 @@ class SettingsFragment : Fragment() {
 
         queueListContainer = view.findViewById(R.id.queueListContainer)
 
+        lifecycleScope.launch {
+            while (isAdded) {
+                delay(1000)
+                activity?.runOnUiThread { updateQueueList() }
+            }
+        }
+
         // Сохранить/восстановить конфиг
         val configPrefs = requireContext().getSharedPreferences("loremote", Context.MODE_PRIVATE)
         val savedConfig = configPrefs.getString("config_json", null)
@@ -118,6 +127,11 @@ class SettingsFragment : Fragment() {
 
         // Проверить связь
         view.findViewById<Button>(R.id.btnPing).setOnClickListener {
+            val state = main.bleManager?.state?.value
+            if (state !is com.loremote.app.ble.BleState.Ready) {
+                tvPingResult?.text = "Нет подключения (state=$state)"
+                return@setOnClickListener
+            }
             tvPingResult?.text = "Отправка PING..."
             main.sendPacket(Protocol.ping())
         }
@@ -178,7 +192,7 @@ fun updateDeviceList(results: List<ScanResult>) {
         main.startScanSilent()
     }
 
-    private fun updateQueueList() {
+    fun updateQueueList() {
         val main = activity as? MainActivity ?: return
         val queue = main.bleService?.deliveryQueue ?: return
         val entries = queue.getQueueEntries()

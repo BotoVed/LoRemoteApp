@@ -18,7 +18,7 @@ class DevicePopupDialog(
     private val hash: String,
     private val dev: JSONObject,
     private val type: String,
-    private val onSend: (OutPacket, Map<String, Any?>?) -> Unit
+    private val onSend: (OutPacket, Map<String, Any?>) -> Unit
 ) : BottomSheetDialogFragment() {
 
    private val debounceJobs = mutableMapOf<String, kotlinx.coroutines.Job>()
@@ -51,7 +51,7 @@ class DevicePopupDialog(
                         val changes = mapOf(field to if (checked) 1L else 0L)
                         main.sendPacket(
                             OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0),
-                            stateChanges = changes
+                            newValue = changes
                         )
                     }
                 }
@@ -221,7 +221,7 @@ private fun buildLightControls(layout: LinearLayout) {
                 text = name
                 textSize = 11f
                 setOnClickListener {
-                    onSend(OutPacket(tp = PacketType.CMD, id = hash, bri = bri, ct = ct), null)
+                    onSend(OutPacket(tp = PacketType.CMD, id = hash, bri = bri, ct = ct), emptyMap())
                 }
             }
             btn.layoutParams = LinearLayout.LayoutParams(
@@ -434,7 +434,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         val openBtn = Button(ctx).apply {
             text = "Открыть"
             setTextColor(ctx.getColor(R.color.green_text))
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "open"), null) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "open"), emptyMap()) }
         }
         openBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         openBtn.layoutParams.height = dpToPx(44)
@@ -443,7 +443,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         val stopBtn = Button(ctx).apply {
             text = "Стоп"
             setTextColor(ctx.getColor(R.color.gray_400))
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "stop"), null) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "stop"), emptyMap()) }
         }
         stopBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         stopBtn.layoutParams.height = dpToPx(44)
@@ -452,7 +452,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         val closeBtn = Button(ctx).apply {
             text = "Закрыть"
             setTextColor(ctx.getColor(R.color.red_text))
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "close"), null) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "close"), emptyMap()) }
         }
         closeBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         closeBtn.layoutParams.height = dpToPx(44)
@@ -471,7 +471,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         val unlockBtn = Button(ctx).apply {
             text = "Открыть замок"
             textSize = 14f
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "unlock"), null) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "unlock"), emptyMap()) }
         }
         unlockBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         unlockBtn.layoutParams.height = dpToPx(44)
@@ -480,7 +480,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         val lockBtn = Button(ctx).apply {
             text = "Закрыть замок"
             textSize = 14f
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "lock"), null) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "lock"), emptyMap()) }
         }
         lockBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         lockBtn.layoutParams.height = dpToPx(44)
@@ -493,7 +493,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         val btn = Button(ctx).apply {
             text = "▶ Нажать"
             textSize = 14f
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "press"), null) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "press"), emptyMap()) }
         }
         btn.layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(44)

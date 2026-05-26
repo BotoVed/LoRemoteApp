@@ -57,15 +57,14 @@ class BleService : LifecycleService() {
         deliveryQueue = DeliveryQueue(
             sendFn = { packet ->
                 val bytes = com.loremote.app.protocol.Protocol.encode(packet)
-                kotlinx.coroutines.GlobalScope.launch {
-                    bleManager.sendLoRemote(bytes)
-                }
+                bleManager.sendLoRemote(bytes)
             },
             onFailed = { devId ->
                 Log.w("BleService", "Delivery failed for $devId")
             },
             context = this
         )
+        deliveryQueue.start()
 
         createNotificationChannel()
         startForeground(NOTIF_ID, buildNotification("Ожидание подключения..."))
@@ -112,6 +111,7 @@ class BleService : LifecycleService() {
     override fun onDestroy() {
         super.onDestroy()
         pingJob?.cancel()
+        deliveryQueue.stop()
         bleManager.disconnect().enqueue()
     }
 
