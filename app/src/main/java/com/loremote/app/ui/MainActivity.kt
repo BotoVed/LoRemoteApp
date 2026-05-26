@@ -132,6 +132,9 @@ class MainActivity : AppCompatActivity() {
         }
         binding.btnSendTest.setOnClickListener { sendTestPacket() }
         binding.btnSendText.setOnClickListener { sendTextPacket() }
+
+        // Автоподключение к последнему устройству
+        tryAutoConnect()
     }
 
     override fun onStart() {
@@ -248,6 +251,30 @@ class MainActivity : AppCompatActivity() {
                 addLog("TX→TEXT hello (${textBytes.size}b)")
             } catch (e: Exception) {
                 addLog("TX→TEXT ERROR: ${e.message}")
+            }
+        }
+    }
+
+    private fun tryAutoConnect() {
+        val prefs = getSharedPreferences("loremote", Context.MODE_PRIVATE)
+        val lastMac = prefs.getString("last_device_mac", null)
+        val lastName = prefs.getString("last_device_name", null)
+
+        if (lastMac != null && lastName != null) {
+            addLog("Last device: $lastName ($lastMac)")
+            val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+            if (bluetoothAdapter?.isEnabled == true) {
+                try {
+                    val device = bluetoothAdapter.getRemoteDevice(lastMac)
+                    Log.i(TAG, "Auto-connecting to $lastName ($lastMac)")
+                    binding.tvStatus.text = "Reconnecting to $lastName..."
+                    bleService?.bleManager?.connectTo(device)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Auto-connect failed: ${e.message}")
+                    addLog("Auto-connect failed: ${e.message}")
+                }
+            } else {
+                addLog("BLE is off — cannot auto-connect to $lastName")
             }
         }
     }
