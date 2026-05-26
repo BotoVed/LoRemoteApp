@@ -44,6 +44,8 @@ app/src/main/java/com/loremote/app/
     Protocol.kt        — MessagePack encode/decode + wrapInToRadio()
     Packet.kt          — OutPacket, PacketType, GATEWAY_NODE_NUM
     DeliveryQueue.kt   — гарантия доставки (6 попыток, coroutines)
+  state/
+    DeviceStateManager.kt — локальное хранение состояний (pending/confirm/rollback)
   ui/
     MainActivity.kt    — UI: bindService + BroadcastReceiver
   App.kt
@@ -191,7 +193,7 @@ appcompat: 1.6.1, material: 1.11.0
 | devices не попадают в зоны при `a: null` | optString("a") == "" или `"null"` — проверять оба |
 | buildZones не вызывается при переключении | Читать из SharedPreferences в onResume |
 
-## Статус v0.4.1 ✅
+## Статус v0.5.0 ✅
 
 - [x] BLE сканирование + фильтрация Meshtastic устройств
 - [x] Автоподключение к последнему устройству (SharedPreferences)
@@ -204,6 +206,12 @@ appcompat: 1.6.1, material: 1.11.0
 - [x] Foreground Service (BleService, LifecycleService, START_STICKY)
 - [x] Ping loop каждые 60 сек в фоне
 - [x] Уведомление в шторке со статусом BLE
+- [x] DeviceStateManager (pending/confirm/rollback для состояний устройств)
+- [x] DeliveryQueue → DeviceStateManager.onDelivered / onFailed
+- [x] requestAll при подключении (BleService)
+- [x] sendPacket через DeliveryQueue с stateChanges
+- [x] Контроль UI: toggle серый (PENDING), красный (FAILED)
+- [x] Debounce слайдеров в DevicePopupDialog (500мс)
 - [x] Alarm notification при тревогах
 - [x] bindService в MainActivity + BroadcastReceiver
 - [x] Полная переработка UI: тёмная тема, серая палитра, цветные статусы
