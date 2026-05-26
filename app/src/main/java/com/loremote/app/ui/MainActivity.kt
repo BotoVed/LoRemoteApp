@@ -1,6 +1,6 @@
 package com.loremote.app.ui
 
-  import android.Manifest
+import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanResult
 import android.content.BroadcastReceiver
@@ -13,7 +13,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -21,20 +20,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.loremote.app.R
 import com.loremote.app.ble.BleScanner
 import com.loremote.app.ble.BleService
 import com.loremote.app.ble.BleState
-import com.loremote.app.ble.GATEWAY_NODE_NUM
-import com.loremote.app.ble.LOREMOTE_PORT
 import com.loremote.app.databinding.ActivityMainBinding
 import com.loremote.app.protocol.OutPacket
 import com.loremote.app.protocol.PacketType
 import com.loremote.app.protocol.Protocol
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
-    private val TAG = "MainActivity"
     private lateinit var binding: ActivityMainBinding
     private var bleService: BleService? = null
     private var serviceBound = false
@@ -42,20 +40,22 @@ class MainActivity : AppCompatActivity() {
     private val deviceList = mutableListOf<ScanResult>()
     private lateinit var deviceAdapter: ArrayAdapter<String>
     private var selectedDevice: ScanResult? = null
-    private var selectedIndex = -1
 
-    private val logLines = mutableListOf<String>()
+    // Конфиг
+    var savedConfig: JSONObject? = null
+
+    // Текущая вкладка
+    private var currentTab = 0
 
     private val packetReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: android.content.Context, intent: Intent) {
+        override fun onReceive(context: Context, intent: Intent) {
             val bytes = intent.getByteArrayExtra(BleService.EXTRA_BYTES) ?: return
             runOnUiThread {
                 try {
                     val map = Protocol.decode(bytes)
-                    addLog("RX tp:${map["tp"]} id:${map["id"]} s:${map["s"]} v:${map["v"]}")
                     handlePacket(map)
                 } catch (e: Exception) {
-                    addLog("RX raw ${bytes.size}b: ${bytes.take(8).joinToString("") { "%02x".format(it) }}...")
+                    android.util.Log.e("MainActivity", "Decode error: ${e.message}")
                 }
             }
         }
@@ -83,9 +83,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        deviceAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf())
-        binding.lvDevices.adapter = deviceAdapter
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED
@@ -94,47 +91,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.lvDevices.setOnItemClickListener { _, view, position, _ ->
-            selectedIndex = position
-            selectedDevice = deviceList.getOrNull(position)
-            val d = selectedDevice
-            addLog("Selected: ${d?.device?.name ?: "Unknown"} (${d?.device?.address})")
-        }
-
-        binding.btnScan.setOnClickListener { checkPermissionsAndScan() }
-
-        binding.btnConnect.setOnClickListener {
-            val device = selectedDevice ?: run {
-                Toast.makeText(this, "Выберите устройство из списка", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            scannerStop()
-            addLog("Connecting to ${device.device.name}...")
-            bleService?.bleManager?.connectTo(device.device)
-        }
-
-        binding.btnPing.setOnClickListener { sendPacket(Protocol.ping()) }
-        binding.btnPingBroadcast.setOnClickListener {
-            lifecycleScope.launch {
-                try {
-                    val bytes = Protocol.encode(Protocol.ping())
-                    bleService?.bleManager?.sendLoRemoteBroadcast(bytes)
-                    addLog("TX→ broadcast tp:6 (${bytes.size}b)")
-                } catch (e: Exception) {
-                    addLog("TX→ ERROR: ${e.message}")
-                }
-            }
-        }
-        binding.btnAll.setOnClickListener { sendPacket(Protocol.requestAll()) }
-        binding.btnDisc.setOnClickListener {
-            bleService?.bleManager?.disconnect()?.enqueue()
-            addLog("Disconnecting...")
-        }
-        binding.btnSendTest.setOnClickListener { sendTestPacket() }
-        binding.btnSendText.setOnClickListener { sendTextPacket() }
-
-        // Автоподключение к последнему устройству
-        tryAutoConnect()
+        setupHeader()
+        setupBottomNav()
+        showTab(0)
     }
 
     override fun onStart() {
@@ -147,6 +106,7 @@ class MainActivity : AppCompatActivity() {
             IntentFilter(BleService.ACTION_PACKET),
             RECEIVER_NOT_EXPORTED
         )
+        tryAutoConnect()
     }
 
     override fun onStop() {
@@ -160,30 +120,72 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        scannerStop()
-    }
-
-    private fun scannerStop() {
         bleService?.scanner?.stop()
     }
 
+    // ── Header ────────────────────────────────────────────────────────────
+    private fun setupHeader() {
+        binding.tvHomeName.text = "Tech-no-mad"
+        binding.ivSettings.setOnClickListener { showTab(1) }
+        binding.ivAlertClose.setOnClickListener {
+            binding.alertBar.visibility = View.GONE
+        }
+    }
+
+    fun showAlert(msg: String) {
+        binding.tvAlert.text = msg
+        binding.alertBar.visibility = View.VISIBLE
+    }
+
+    private fun updateBleIcon(connected: Boolean) {
+        binding.ivBleStatus.setColorFilter(
+            getColor(if (connected) R.color.green_text else R.color.gray_600)
+        )
+    }
+
+    private fun updateHaIcon(online: Boolean) {
+        binding.ivHaStatus.setColorFilter(
+            getColor(if (online) R.color.green_text else R.color.red_text)
+        )
+    }
+
+    // ── Bottom Nav ────────────────────────────────────────────────────────
+    private fun setupBottomNav() {
+        binding.bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_control  -> { showTab(0); true }
+                R.id.nav_settings -> { showTab(1); true }
+                else -> false
+            }
+        }
+    }
+
+    fun showTab(tab: Int) {
+        currentTab = tab
+        val fragment = when (tab) {
+            0 -> ControlFragment()
+            else -> SettingsFragment()
+        }
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.contentContainer, fragment)
+            .commit()
+    }
+
+    // ── BLE State Observer ────────────────────────────────────────────────
     private fun observeBleState() {
         lifecycleScope.launch {
             bleService?.bleManager?.state?.collect { state ->
-                val txt = when (state) {
-                    is BleState.Disconnected -> "○ Disconnected"
-                    is BleState.Connecting   -> "○ Connecting..."
-                    is BleState.Handshake    -> "◑ Handshake..."
-                    is BleState.Ready        -> "● Ready"
-                    is BleState.Error        -> "✗ ${state.message}"
-                }
-                binding.tvStatus.text = txt
-                if (state is BleState.Ready) {
-                    addLog("✓ Connected and ready!")
-                    sendPacket(Protocol.ping())
-                }
-                if (state is BleState.Error) {
-                    addLog("ERROR: ${state.message}")
+                when (state) {
+                    is BleState.Ready -> {
+                        updateBleIcon(true)
+                        sendPacket(Protocol.ping())
+                    }
+                    is BleState.Disconnected -> updateBleIcon(false)
+                    is BleState.Error -> {
+                        updateBleIcon(false)
+                        showAlert("BLE: ${state.message}")
+                    }
+                    else -> updateBleIcon(false)
                 }
             }
         }
@@ -198,88 +200,89 @@ class MainActivity : AppCompatActivity() {
             "$name  ${r.device.address}  ${r.rssi}dBm"
         })
         deviceAdapter.notifyDataSetChanged()
+
+        // Уведомить SettingsFragment
+        val settingsFragment = supportFragmentManager.findFragmentById(R.id.contentContainer) as? SettingsFragment
+        settingsFragment?.updateDeviceList(results)
     }
 
-    private fun sendPacket(packet: OutPacket) {
+    // ── Packet Handler ────────────────────────────────────────────────────
+    private fun handlePacket(map: Map<String, Any?>) {
+        val tp = (map["tp"] as? Long)?.toInt() ?: return
+        when (tp) {
+            PacketType.CONFIRM -> {
+                android.util.Log.d("MainActivity", "✓ CONFIRM id=${map["id"]}")
+            }
+            PacketType.STATUS -> {
+                val id = map["id"] as? String
+                if (id != null) {
+                    (supportFragmentManager.findFragmentById(R.id.contentContainer) as? ControlFragment)
+                        ?.onDeviceUpdate(id, map)
+                }
+            }
+            PacketType.PUSH -> {
+                val id = map["id"] as? String
+                val s = map["s"]
+                if (id != null) {
+                    (supportFragmentManager.findFragmentById(R.id.contentContainer) as? ControlFragment)
+                        ?.onDeviceUpdate(id, map)
+                }
+                // Аларм если binary_sensor сработал
+                if (s == 1L || s == true) {
+                    val cfg = savedConfig
+                    val deviceName = cfg?.optJSONObject("mpg")
+                        ?.optJSONObject(id)?.optString("n", id ?: "") ?: (id ?: "")
+                    showAlert("⚠️ Тревога: $deviceName")
+                    bleService?.showAlarmNotification(deviceName, "Сработал датчик: $deviceName")
+                }
+            }
+            PacketType.CONFIG -> {
+                android.util.Log.d("MainActivity", "⚙ CONFIG s=${map["s"]} pg=${map["pg"]}/${map["pgt"]}")
+            }
+            PacketType.PING -> {
+                updateHaIcon(true)
+                val cfgh = map["cfgh"] as? String
+                (supportFragmentManager.findFragmentById(R.id.contentContainer) as? ControlFragment)
+                    ?.onPong(cfgh)
+                val pingFragment = supportFragmentManager.findFragmentById(R.id.contentContainer) as? SettingsFragment
+                pingFragment?.let {
+                    it.tvPingResult?.text = "PONG ✓  cfgh=${cfgh ?: "?"}\n${java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())}"
+                }
+            }
+        }
+    }
+
+    // ── Send ──────────────────────────────────────────────────────────────
+    fun sendPacket(packet: OutPacket) {
         lifecycleScope.launch {
             try {
                 val bytes = Protocol.encode(packet)
                 bleService?.bleManager?.sendLoRemote(bytes)
-                addLog("TX tp:${packet.tp} (${bytes.size}b)")
             } catch (e: Exception) {
-                addLog("TX ERROR: ${e.message}")
+                android.util.Log.e("MainActivity", "Send error: ${e.message}")
             }
         }
     }
 
-    private fun handlePacket(map: Map<String, Any?>) {
-        val tp = (map["tp"] as? Long)?.toInt() ?: return
-        when (tp) {
-            PacketType.CONFIRM -> addLog("✓ CONFIRM id=${map["id"]}")
-            PacketType.STATUS  -> addLog("≡ STATUS  id=${map["id"]} s=${map["s"]}")
-            PacketType.PUSH    -> addLog("↓ PUSH    id=${map["id"]} s=${map["s"]} v=${map["v"]}")
-            PacketType.CONFIG  -> addLog("⚙ CONFIG  s=${map["s"]} pg=${map["pg"]}/${map["pgt"]}")
-            PacketType.PING    -> addLog("♥ PONG    cfgh=${map["cfgh"]}")
+    // ── Config ────────────────────────────────────────────────────────────
+    fun applyConfig(jsonStr: String) {
+        try {
+            val cleaned = jsonStr
+                .replace(Regex("^.*window\\.LORA_CONFIG\\s*=\\s*"), "")
+                .trimEnd(';', ' ', '\n')
+            savedConfig = JSONObject(cleaned)
+            val homeName = savedConfig?.optString("n", "Tech-no-mad") ?: "Tech-no-mad"
+            binding.tvHomeName.text = homeName
+            (supportFragmentManager.findFragmentById(R.id.contentContainer) as? ControlFragment)
+                ?.buildZones(savedConfig!!)
+            Toast.makeText(this, "Конфиг применён ✓", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Ошибка конфига: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
-    private fun addLog(line: String) {
-        Log.d(TAG, line)
-        logLines.add(0, line)
-        if (logLines.size > 100) logLines.removeAt(logLines.size - 1)
-        binding.tvLog.text = logLines.joinToString("\n")
-        binding.scrollLog.post { binding.scrollLog.smoothScrollTo(0, 0) }
-    }
-
-    private fun sendTestPacket() {
-        lifecycleScope.launch {
-            try {
-                val bytes = Protocol.encode(Protocol.ping())
-                bleService?.bleManager?.sendLoRemotePacket(bytes, GATEWAY_NODE_NUM, 256)
-                addLog("TX→TEST tp:6 (${bytes.size}b)")
-            } catch (e: Exception) {
-                addLog("TX→TEST ERROR: ${e.message}")
-            }
-        }
-    }
-
-    private fun sendTextPacket() {
-        lifecycleScope.launch {
-            try {
-                val textBytes = "hello".toByteArray()
-                bleService?.bleManager?.sendLoRemotePacket(textBytes, GATEWAY_NODE_NUM, 1)
-                addLog("TX→TEXT hello (${textBytes.size}b)")
-            } catch (e: Exception) {
-                addLog("TX→TEXT ERROR: ${e.message}")
-            }
-        }
-    }
-
-    private fun tryAutoConnect() {
-        val prefs = getSharedPreferences("loremote", Context.MODE_PRIVATE)
-        val lastMac = prefs.getString("last_device_mac", null)
-        val lastName = prefs.getString("last_device_name", null)
-
-        if (lastMac != null && lastName != null) {
-            addLog("Last device: $lastName ($lastMac)")
-            val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-            if (bluetoothAdapter?.isEnabled == true) {
-                try {
-                    val device = bluetoothAdapter.getRemoteDevice(lastMac)
-                    Log.i(TAG, "Auto-connecting to $lastName ($lastMac)")
-                    binding.tvStatus.text = "Reconnecting to $lastName..."
-                    bleService?.bleManager?.connectTo(device)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Auto-connect failed: ${e.message}")
-                    addLog("Auto-connect failed: ${e.message}")
-                }
-            } else {
-                addLog("BLE is off — cannot auto-connect to $lastName")
-            }
-        }
-    }
-
-    private fun checkPermissionsAndScan() {
+    // ── Permissions & BLE ────────────────────────────────────────────────
+    fun startScan() {
         val perms = arrayOf(
             Manifest.permission.BLUETOOTH_SCAN,
             Manifest.permission.BLUETOOTH_CONNECT,
@@ -290,10 +293,45 @@ class MainActivity : AppCompatActivity() {
         }
         if (missing.isEmpty()) {
             bleService?.scanner?.start()
-            addLog("Scanning...")
         } else {
             ActivityCompat.requestPermissions(this, missing.toTypedArray(), 1)
         }
+    }
+
+    fun connectToDevice(device: ScanResult) {
+        bleService?.scanner?.stop()
+        getSharedPreferences("loremote", Context.MODE_PRIVATE).edit()
+            .putString("last_device_mac", device.device.address)
+            .putString("last_device_name", device.device.name ?: "Unknown")
+            .apply()
+        bleService?.bleManager?.connectTo(device.device)
+    }
+
+    fun getDeviceList(): List<ScanResult> = deviceList
+
+    fun getBleService(): BleService? = bleService
+
+    private fun tryAutoConnect() {
+        val prefs = getSharedPreferences("loremote", Context.MODE_PRIVATE)
+        val lastMac = prefs.getString("last_device_mac", null)
+        val lastName = prefs.getString("last_device_name", null)
+
+        if (lastMac != null && lastName != null) {
+            val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+            if (bluetoothAdapter?.isEnabled == true) {
+                try {
+                    val device = bluetoothAdapter.getRemoteDevice(lastMac)
+                    android.util.Log.i("MainActivity", "Auto-connecting to $lastName ($lastMac)")
+                    bleService?.bleManager?.connectTo(device)
+                } catch (e: Exception) {
+                    android.util.Log.e("MainActivity", "Auto-connect failed: ${e.message}")
+                }
+            }
+        }
+    }
+
+    companion object {
+        const val TAG = "MainActivity"
     }
 
     override fun onRequestPermissionsResult(req: Int, perms: Array<String>, results: IntArray) {

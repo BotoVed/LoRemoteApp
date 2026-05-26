@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:2:1-27:12
-INJECTED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:2:1-27:12
-INJECTED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:2:1-27:12
-INJECTED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:2:1-27:12
+ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:2:1-36:12
+INJECTED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:2:1-36:12
+INJECTED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:2:1-36:12
+INJECTED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:2:1-36:12
 MERGED from [androidx.databinding:viewbinding:8.4.0] /home/boss/.gradle/caches/transforms-4/b4f5d7dbc0e19d04e535b5bef6c8c14f/transformed/jetified-viewbinding-8.4.0/AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.material:material:1.11.0] /home/boss/.gradle/caches/transforms-4/8c29113c9e7a800d91a1c7663cc8833c/transformed/material-1.11.0/AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] /home/boss/.gradle/caches/transforms-4/636a2e929abb85c48a8e34b6ef2dacf8/transformed/constraintlayout-2.1.4/AndroidManifest.xml:2:1-11:12
@@ -35,6 +35,7 @@ MERGED from [androidx.recyclerview:recyclerview:1.1.0] /home/boss/.gradle/caches
 MERGED from [androidx.customview:customview:1.1.0] /home/boss/.gradle/caches/transforms-4/93db3801eb62816b70cd1e13ff56b67a/transformed/customview-1.1.0/AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.core:core:1.9.0] /home/boss/.gradle/caches/transforms-4/6af907c62c992c2d9eef8763ba5ebb76/transformed/core-1.9.0/AndroidManifest.xml:17:1-30:12
 MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /home/boss/.gradle/caches/transforms-4/8d283113a6819844e33a67b36edb8016/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-service:2.7.0] /home/boss/.gradle/caches/transforms-4/0d97a13b02d16c7e3389c06f35f166b1/transformed/jetified-lifecycle-service-2.7.0/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /home/boss/.gradle/caches/transforms-4/eed4683072331379ae5946755a00c481/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /home/boss/.gradle/caches/transforms-4/06f8a5c24e60789593fdf9352512d6c9/transformed/jetified-lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:17:1-22:12
 MERGED from [no.nordicsemi.android:ble-ktx:2.7.4] /home/boss/.gradle/caches/transforms-4/47d3c3f2a49663fafb0ac1587332b408/transformed/jetified-ble-ktx-2.7.4/AndroidManifest.xml:2:1-7:12
@@ -93,15 +94,27 @@ uses-permission#android.permission.ACCESS_COARSE_LOCATION
 ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:10:5-80
 	android:name
 		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:10:22-78
-uses-feature#android.hardware.bluetooth_le
-ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:12:5-89
-	android:required
-		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:12:64-87
+uses-permission#android.permission.FOREGROUND_SERVICE
+ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:11:5-76
 	android:name
-		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:12:19-63
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:11:22-74
+uses-permission#android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE
+ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:12:5-93
+	android:name
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:12:22-91
+uses-permission#android.permission.POST_NOTIFICATIONS
+ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:13:5-76
+	android:name
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:13:22-74
+uses-feature#android.hardware.bluetooth_le
+ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:15:5-89
+	android:required
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:15:64-87
+	android:name
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:15:19-63
 application
-ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:14:5-26:19
-INJECTED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:14:5-26:19
+ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:17:5-35:19
+INJECTED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:17:5-35:19
 MERGED from [com.google.android.material:material:1.11.0] /home/boss/.gradle/caches/transforms-4/8c29113c9e7a800d91a1c7663cc8833c/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.11.0] /home/boss/.gradle/caches/transforms-4/8c29113c9e7a800d91a1c7663cc8833c/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] /home/boss/.gradle/caches/transforms-4/636a2e929abb85c48a8e34b6ef2dacf8/transformed/constraintlayout-2.1.4/AndroidManifest.xml:9:5-20
@@ -123,27 +136,39 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] /home/boss/.gradle/caches/t
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.9.0] /home/boss/.gradle/caches/transforms-4/6af907c62c992c2d9eef8763ba5ebb76/transformed/core-1.9.0/AndroidManifest.xml:28:18-86
 	android:label
-		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:16:9-33
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:20:9-33
+	android:roundIcon
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:21:9-48
+	android:icon
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:19:9-43
 	android:theme
-		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:17:9-46
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:22:9-46
 	android:name
-		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:15:9-28
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:18:9-28
 activity#com.loremote.app.ui.MainActivity
-ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:18:9-25:20
+ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:23:9-30:20
 	android:exported
-		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:20:13-36
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:25:13-36
 	android:name
-		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:19:13-44
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:24:13-44
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:21:13-24:29
+ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:26:13-29:29
 action#android.intent.action.MAIN
-ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:22:17-68
+ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:27:17-68
 	android:name
-		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:22:25-66
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:27:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:23:17-76
+ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:28:17-76
 	android:name
-		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:23:27-74
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:28:27-74
+service#com.loremote.app.ble.BleService
+ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:31:9-34:39
+	android:exported
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:34:13-37
+	android:foregroundServiceType
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:33:13-60
+	android:name
+		ADDED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml:32:13-43
 uses-sdk
 INJECTED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/boss/loremote-android/app/src/main/AndroidManifest.xml
@@ -210,6 +235,8 @@ MERGED from [androidx.core:core:1.9.0] /home/boss/.gradle/caches/transforms-4/6a
 MERGED from [androidx.core:core:1.9.0] /home/boss/.gradle/caches/transforms-4/6af907c62c992c2d9eef8763ba5ebb76/transformed/core-1.9.0/AndroidManifest.xml:20:5-44
 MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /home/boss/.gradle/caches/transforms-4/8d283113a6819844e33a67b36edb8016/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:5:5-44
 MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /home/boss/.gradle/caches/transforms-4/8d283113a6819844e33a67b36edb8016/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-service:2.7.0] /home/boss/.gradle/caches/transforms-4/0d97a13b02d16c7e3389c06f35f166b1/transformed/jetified-lifecycle-service-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-service:2.7.0] /home/boss/.gradle/caches/transforms-4/0d97a13b02d16c7e3389c06f35f166b1/transformed/jetified-lifecycle-service-2.7.0/AndroidManifest.xml:5:5-44
 MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /home/boss/.gradle/caches/transforms-4/eed4683072331379ae5946755a00c481/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:5:5-44
 MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /home/boss/.gradle/caches/transforms-4/eed4683072331379ae5946755a00c481/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:5:5-44
 MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /home/boss/.gradle/caches/transforms-4/06f8a5c24e60789593fdf9352512d6c9/transformed/jetified-lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:20:5-44

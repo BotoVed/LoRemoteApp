@@ -28,7 +28,7 @@ public object MeshPacketKt {
     internal fun _build(): com.loremote.app.proto.MeshProtos.MeshPacket = _builder.build()
 
     /**
-     * <code>uint32 from = 1;</code>
+     * <code>fixed32 from = 1;</code>
      */
     public var from: kotlin.Int
       @JvmName("getFrom")
@@ -38,14 +38,14 @@ public object MeshPacketKt {
         _builder.setFrom(value)
       }
     /**
-     * `uint32 from = 1;`
+     * `fixed32 from = 1;`
      */
     public fun clearFrom() {
       _builder.clearFrom()
     }
 
     /**
-     * <code>uint32 to = 2;</code>
+     * <code>fixed32 to = 2;</code>
      */
     public var to: kotlin.Int
       @JvmName("getTo")
@@ -55,16 +55,16 @@ public object MeshPacketKt {
         _builder.setTo(value)
       }
     /**
-     * `uint32 to = 2;`
+     * `fixed32 to = 2;`
      */
     public fun clearTo() {
       _builder.clearTo()
     }
 
     /**
-     * `.meshtastic.Data decoded = 3;`
+     * <code>bytes decoded = 4;</code>
      */
-    public var decoded: com.loremote.app.proto.MeshProtos.Data
+    public var decoded: com.google.protobuf.ByteString
       @JvmName("getDecoded")
       get() = _builder.getDecoded()
       @JvmName("setDecoded")
@@ -72,21 +72,14 @@ public object MeshPacketKt {
         _builder.setDecoded(value)
       }
     /**
-     * `.meshtastic.Data decoded = 3;`
+     * `bytes decoded = 4;`
      */
     public fun clearDecoded() {
       _builder.clearDecoded()
     }
-    /**
-     * `.meshtastic.Data decoded = 3;`
-     * @return Whether the decoded field is set.
-     */
-    public fun hasDecoded(): kotlin.Boolean {
-      return _builder.hasDecoded()
-    }
 
     /**
-     * <code>uint32 id = 9;</code>
+     * <code>fixed32 id = 9;</code>
      */
     public var id: kotlin.Int
       @JvmName("getId")
@@ -96,7 +89,7 @@ public object MeshPacketKt {
         _builder.setId(value)
       }
     /**
-     * `uint32 id = 9;`
+     * `fixed32 id = 9;`
      */
     public fun clearId() {
       _builder.clearId()
@@ -169,11 +162,42 @@ public object MeshPacketKt {
     public fun clearHopLimit() {
       _builder.clearHopLimit()
     }
+
+    /**
+     * <code>bool want_ack = 12;</code>
+     */
+    public var wantAck: kotlin.Boolean
+      @JvmName("getWantAck")
+      get() = _builder.getWantAck()
+      @JvmName("setWantAck")
+      set(value) {
+        _builder.setWantAck(value)
+      }
+    /**
+     * `bool want_ack = 12;`
+     */
+    public fun clearWantAck() {
+      _builder.clearWantAck()
+    }
+
+    /**
+     * <code>uint32 channel = 8;</code>
+     */
+    public var channel: kotlin.Int
+      @JvmName("getChannel")
+      get() = _builder.getChannel()
+      @JvmName("setChannel")
+      set(value) {
+        _builder.setChannel(value)
+      }
+    /**
+     * `uint32 channel = 8;`
+     */
+    public fun clearChannel() {
+      _builder.clearChannel()
+    }
   }
 }
 public inline fun com.loremote.app.proto.MeshProtos.MeshPacket.copy(block: `com.loremote.app.proto`.MeshPacketKt.Dsl.() -> kotlin.Unit): com.loremote.app.proto.MeshProtos.MeshPacket =
   `com.loremote.app.proto`.MeshPacketKt.Dsl._create(this.toBuilder()).apply { block() }._build()
-
-public val com.loremote.app.proto.MeshProtos.MeshPacketOrBuilder.decodedOrNull: com.loremote.app.proto.MeshProtos.Data?
-  get() = if (hasDecoded()) getDecoded() else null
 

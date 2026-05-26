@@ -1,72 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="12dp"
-    android:background="#1a1a1a">
+    android:background="@color/bg_dark">
 
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="○ Disconnected"
-        android:textColor="#c9a84c"
-        android:textSize="15sp"
-        android:fontFamily="monospace"
-        android:paddingBottom="8dp"/>
-
-    <!-- Список устройств -->
-    <ListView
-        android:id="@+id/lvDevices"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:background="#222222"
-        android:divider="#333333"
-        android:dividerHeight="1dp"/>
-
-    <!-- Кнопки -->
+    <!-- HEADER -->
     <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:background="@color/bg_card">
+
+        <ImageView
+            android:id="@+id/ivAppIcon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@mipmap/ic_launcher"
+            android:layout_marginEnd="10dp"/>
+
+        <TextView
+            android:id="@+id/tvHomeName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Tech-no-mad"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/gray_200"/>
+
+        <!-- BLE статус -->
+        <ImageView
+            android:id="@+id/ivBleStatus"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:padding="4dp"
+            android:src="@drawable/ic_bluetooth"
+            android:tint="@color/gray_600"
+            android:layout_marginEnd="4dp"/>
+
+        <!-- HA онлайн/офлайн -->
+        <ImageView
+            android:id="@+id/ivHaStatus"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:padding="4dp"
+            android:src="@drawable/ic_circle"
+            android:tint="@color/gray_600"
+            android:layout_marginEnd="4dp"/>
+
+        <!-- Шестерёнка → Настройки -->
+        <ImageView
+            android:id="@+id/ivSettings"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:padding="4dp"
+            android:src="@drawable/ic_settings"
+            android:tint="@color/gray_400"
+            android:clickable="true"
+            android:focusable="true"/>
+    </LinearLayout>
+
+    <!-- ALERT BAR -->
+    <LinearLayout
+        android:id="@+id/alertBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp">
-
-        <Button android:id="@+id/btnScan"
-            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
-            android:text="SCAN" android:textSize="11sp" android:layout_margin="2dp"/>
-        <Button android:id="@+id/btnConnect"
-            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
-            android:text="CONNECT" android:textSize="11sp" android:layout_margin="2dp"/>
-        <Button android:id="@+id/btnPing"
-            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
-            android:text="PING" android:textSize="11sp" android:layout_margin="2dp"/>
-        <Button android:id="@+id/btnAll"
-            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
-            android:text="ALL" android:textSize="11sp" android:layout_margin="2dp"/>
-        <Button android:id="@+id/btnDisc"
-            android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1"
-            android:text="DISC" android:textSize="11sp" android:layout_margin="2dp"/>
-    </LinearLayout>
-
-    <!-- Лог -->
-    <ScrollView
-        android:id="@+id/scrollLog"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="3"
-        android:background="#222222">
+        android:gravity="center_vertical"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:background="@color/red_soft"
+        android:visibility="gone">
 
         <TextView
-            android:id="@+id/tvLog"
-            android:layout_width="match_parent"
+            android:id="@+id/tvAlert"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Log...\n"
-            android:textColor="#f0f0f0"
-            android:textSize="10sp"
-            android:fontFamily="monospace"
-            android:padding="8dp"/>
-    </ScrollView>
+            android:layout_weight="1"
+            android:textSize="13sp"
+            android:textColor="@color/red_text"/>
+
+        <ImageView
+            android:id="@+id/ivAlertClose"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_close"
+            android:tint="@color/red_text"
+            android:clickable="true"
+            android:focusable="true"/>
+    </LinearLayout>
+
+    <!-- CONTENT -->
+    <FrameLayout
+        android:id="@+id/contentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <!-- BOTTOM NAV -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_card"
+        app:itemTextColor="@color/gray_400"
+        app:itemIconTint="@color/gray_400"
+        app:menu="@menu/bottom_nav_menu"
+        app:elevation="8dp"/>
+
 </LinearLayout>

@@ -4,15 +4,15 @@ package com.loremote.app.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.loremote.app.R;
 import java.lang.NullPointerException;
 import java.lang.Override;
@@ -23,46 +23,55 @@ public final class ActivityMainBinding implements ViewBinding {
   private final LinearLayout rootView;
 
   @NonNull
-  public final Button btnAll;
+  public final LinearLayout alertBar;
 
   @NonNull
-  public final Button btnConnect;
+  public final BottomNavigationView bottomNav;
 
   @NonNull
-  public final Button btnDisc;
+  public final FrameLayout contentContainer;
 
   @NonNull
-  public final Button btnPing;
+  public final LinearLayout header;
 
   @NonNull
-  public final Button btnScan;
+  public final ImageView ivAlertClose;
 
   @NonNull
-  public final ListView lvDevices;
+  public final ImageView ivAppIcon;
 
   @NonNull
-  public final ScrollView scrollLog;
+  public final ImageView ivBleStatus;
 
   @NonNull
-  public final TextView tvLog;
+  public final ImageView ivHaStatus;
 
   @NonNull
-  public final TextView tvStatus;
+  public final ImageView ivSettings;
 
-  private ActivityMainBinding(@NonNull LinearLayout rootView, @NonNull Button btnAll,
-      @NonNull Button btnConnect, @NonNull Button btnDisc, @NonNull Button btnPing,
-      @NonNull Button btnScan, @NonNull ListView lvDevices, @NonNull ScrollView scrollLog,
-      @NonNull TextView tvLog, @NonNull TextView tvStatus) {
+  @NonNull
+  public final TextView tvAlert;
+
+  @NonNull
+  public final TextView tvHomeName;
+
+  private ActivityMainBinding(@NonNull LinearLayout rootView, @NonNull LinearLayout alertBar,
+      @NonNull BottomNavigationView bottomNav, @NonNull FrameLayout contentContainer,
+      @NonNull LinearLayout header, @NonNull ImageView ivAlertClose, @NonNull ImageView ivAppIcon,
+      @NonNull ImageView ivBleStatus, @NonNull ImageView ivHaStatus, @NonNull ImageView ivSettings,
+      @NonNull TextView tvAlert, @NonNull TextView tvHomeName) {
     this.rootView = rootView;
-    this.btnAll = btnAll;
-    this.btnConnect = btnConnect;
-    this.btnDisc = btnDisc;
-    this.btnPing = btnPing;
-    this.btnScan = btnScan;
-    this.lvDevices = lvDevices;
-    this.scrollLog = scrollLog;
-    this.tvLog = tvLog;
-    this.tvStatus = tvStatus;
+    this.alertBar = alertBar;
+    this.bottomNav = bottomNav;
+    this.contentContainer = contentContainer;
+    this.header = header;
+    this.ivAlertClose = ivAlertClose;
+    this.ivAppIcon = ivAppIcon;
+    this.ivBleStatus = ivBleStatus;
+    this.ivHaStatus = ivHaStatus;
+    this.ivSettings = ivSettings;
+    this.tvAlert = tvAlert;
+    this.tvHomeName = tvHomeName;
   }
 
   @Override
@@ -92,62 +101,75 @@ public final class ActivityMainBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.btnAll;
-      Button btnAll = ViewBindings.findChildViewById(rootView, id);
-      if (btnAll == null) {
+      id = R.id.alertBar;
+      LinearLayout alertBar = ViewBindings.findChildViewById(rootView, id);
+      if (alertBar == null) {
         break missingId;
       }
 
-      id = R.id.btnConnect;
-      Button btnConnect = ViewBindings.findChildViewById(rootView, id);
-      if (btnConnect == null) {
+      id = R.id.bottomNav;
+      BottomNavigationView bottomNav = ViewBindings.findChildViewById(rootView, id);
+      if (bottomNav == null) {
         break missingId;
       }
 
-      id = R.id.btnDisc;
-      Button btnDisc = ViewBindings.findChildViewById(rootView, id);
-      if (btnDisc == null) {
+      id = R.id.contentContainer;
+      FrameLayout contentContainer = ViewBindings.findChildViewById(rootView, id);
+      if (contentContainer == null) {
         break missingId;
       }
 
-      id = R.id.btnPing;
-      Button btnPing = ViewBindings.findChildViewById(rootView, id);
-      if (btnPing == null) {
+      id = R.id.header;
+      LinearLayout header = ViewBindings.findChildViewById(rootView, id);
+      if (header == null) {
         break missingId;
       }
 
-      id = R.id.btnScan;
-      Button btnScan = ViewBindings.findChildViewById(rootView, id);
-      if (btnScan == null) {
+      id = R.id.ivAlertClose;
+      ImageView ivAlertClose = ViewBindings.findChildViewById(rootView, id);
+      if (ivAlertClose == null) {
         break missingId;
       }
 
-      id = R.id.lvDevices;
-      ListView lvDevices = ViewBindings.findChildViewById(rootView, id);
-      if (lvDevices == null) {
+      id = R.id.ivAppIcon;
+      ImageView ivAppIcon = ViewBindings.findChildViewById(rootView, id);
+      if (ivAppIcon == null) {
         break missingId;
       }
 
-      id = R.id.scrollLog;
-      ScrollView scrollLog = ViewBindings.findChildViewById(rootView, id);
-      if (scrollLog == null) {
+      id = R.id.ivBleStatus;
+      ImageView ivBleStatus = ViewBindings.findChildViewById(rootView, id);
+      if (ivBleStatus == null) {
         break missingId;
       }
 
-      id = R.id.tvLog;
-      TextView tvLog = ViewBindings.findChildViewById(rootView, id);
-      if (tvLog == null) {
+      id = R.id.ivHaStatus;
+      ImageView ivHaStatus = ViewBindings.findChildViewById(rootView, id);
+      if (ivHaStatus == null) {
         break missingId;
       }
 
-      id = R.id.tvStatus;
-      TextView tvStatus = ViewBindings.findChildViewById(rootView, id);
-      if (tvStatus == null) {
+      id = R.id.ivSettings;
+      ImageView ivSettings = ViewBindings.findChildViewById(rootView, id);
+      if (ivSettings == null) {
         break missingId;
       }
 
-      return new ActivityMainBinding((LinearLayout) rootView, btnAll, btnConnect, btnDisc, btnPing,
-          btnScan, lvDevices, scrollLog, tvLog, tvStatus);
+      id = R.id.tvAlert;
+      TextView tvAlert = ViewBindings.findChildViewById(rootView, id);
+      if (tvAlert == null) {
+        break missingId;
+      }
+
+      id = R.id.tvHomeName;
+      TextView tvHomeName = ViewBindings.findChildViewById(rootView, id);
+      if (tvHomeName == null) {
+        break missingId;
+      }
+
+      return new ActivityMainBinding((LinearLayout) rootView, alertBar, bottomNav, contentContainer,
+          header, ivAlertClose, ivAppIcon, ivBleStatus, ivHaStatus, ivSettings, tvAlert,
+          tvHomeName);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

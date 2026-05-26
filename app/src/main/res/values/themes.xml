@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.LoRemote" parent="Theme.MaterialComponents.DayNight">
+    <style name="Theme.LoRemote" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/gray_400</item>
+        <item name="colorOnPrimary">@color/bg_dark</item>
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:navigationBarColor">@color/bg_card</item>
+        <item name="materialButtonStyle">@style/Widget.LoRemote.Button</item>
+    </style>
+
+    <style name="Widget.LoRemote.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/bg_elevated</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:textColor">@color/gray_200</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 </resources>

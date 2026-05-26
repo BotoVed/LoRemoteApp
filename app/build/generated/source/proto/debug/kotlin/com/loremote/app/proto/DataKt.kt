@@ -60,6 +60,40 @@ public object DataKt {
     public fun clearPayload() {
       _builder.clearPayload()
     }
+
+    /**
+     * <code>fixed32 from = 4;</code>
+     */
+    public var from: kotlin.Int
+      @JvmName("getFrom")
+      get() = _builder.getFrom()
+      @JvmName("setFrom")
+      set(value) {
+        _builder.setFrom(value)
+      }
+    /**
+     * `fixed32 from = 4;`
+     */
+    public fun clearFrom() {
+      _builder.clearFrom()
+    }
+
+    /**
+     * <code>fixed32 to = 5;</code>
+     */
+    public var to: kotlin.Int
+      @JvmName("getTo")
+      get() = _builder.getTo()
+      @JvmName("setTo")
+      set(value) {
+        _builder.setTo(value)
+      }
+    /**
+     * `fixed32 to = 5;`
+     */
+    public fun clearTo() {
+      _builder.clearTo()
+    }
   }
 }
 public inline fun com.loremote.app.proto.MeshProtos.Data.copy(block: `com.loremote.app.proto`.DataKt.Dsl.() -> kotlin.Unit): com.loremote.app.proto.MeshProtos.Data =

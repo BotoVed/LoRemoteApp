@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.loremote.app-mergeDebugResources-32:/values-v23/values-v23.xml",
+            "outputFile": "com.loremote.app-mergeDebugResources-33:/values-v23/values-v23.xml",
             "map": [
                 {
                     "source": "/home/boss/.gradle/caches/transforms-4/80003035a59204ecd4321d0042ba3dac/transformed/cardview-1.0.0/res/values-v23/values-v23.xml",

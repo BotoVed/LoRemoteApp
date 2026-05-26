@@ -24,6 +24,18 @@ public final class MeshProtos {
      * @return The payload.
      */
     com.google.protobuf.ByteString getPayload();
+
+    /**
+     * <code>fixed32 from = 4;</code>
+     * @return The from.
+     */
+    int getFrom();
+
+    /**
+     * <code>fixed32 to = 5;</code>
+     * @return The to.
+     */
+    int getTo();
   }
   /**
    * Protobuf type {@code meshtastic.Data}
@@ -87,6 +99,58 @@ public final class MeshProtos {
     private void clearPayload() {
 
       payload_ = getDefaultInstance().getPayload();
+    }
+
+    public static final int FROM_FIELD_NUMBER = 4;
+    private int from_;
+    /**
+     * <code>fixed32 from = 4;</code>
+     * @return The from.
+     */
+    @java.lang.Override
+    public int getFrom() {
+      return from_;
+    }
+    /**
+     * <code>fixed32 from = 4;</code>
+     * @param value The from to set.
+     */
+    private void setFrom(int value) {
+      
+      from_ = value;
+    }
+    /**
+     * <code>fixed32 from = 4;</code>
+     */
+    private void clearFrom() {
+
+      from_ = 0;
+    }
+
+    public static final int TO_FIELD_NUMBER = 5;
+    private int to_;
+    /**
+     * <code>fixed32 to = 5;</code>
+     * @return The to.
+     */
+    @java.lang.Override
+    public int getTo() {
+      return to_;
+    }
+    /**
+     * <code>fixed32 to = 5;</code>
+     * @param value The to to set.
+     */
+    private void setTo(int value) {
+      
+      to_ = value;
+    }
+    /**
+     * <code>fixed32 to = 5;</code>
+     */
+    private void clearTo() {
+
+      to_ = 0;
     }
 
     public static com.loremote.app.proto.MeshProtos.Data parseFrom(
@@ -242,6 +306,62 @@ public final class MeshProtos {
         return this;
       }
 
+      /**
+       * <code>fixed32 from = 4;</code>
+       * @return The from.
+       */
+      @java.lang.Override
+      public int getFrom() {
+        return instance.getFrom();
+      }
+      /**
+       * <code>fixed32 from = 4;</code>
+       * @param value The from to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFrom(int value) {
+        copyOnWrite();
+        instance.setFrom(value);
+        return this;
+      }
+      /**
+       * <code>fixed32 from = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearFrom() {
+        copyOnWrite();
+        instance.clearFrom();
+        return this;
+      }
+
+      /**
+       * <code>fixed32 to = 5;</code>
+       * @return The to.
+       */
+      @java.lang.Override
+      public int getTo() {
+        return instance.getTo();
+      }
+      /**
+       * <code>fixed32 to = 5;</code>
+       * @param value The to to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTo(int value) {
+        copyOnWrite();
+        instance.setTo(value);
+        return this;
+      }
+      /**
+       * <code>fixed32 to = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearTo() {
+        copyOnWrite();
+        instance.clearTo();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:meshtastic.Data)
     }
     @java.lang.Override
@@ -260,10 +380,12 @@ public final class MeshProtos {
             java.lang.Object[] objects = new java.lang.Object[] {
               "portnum_",
               "payload_",
+              "from_",
+              "to_",
             };
             java.lang.String info =
-                "\u0000\u0002\u0000\u0000\u0001\u0002\u0002\u0000\u0000\u0000\u0001\u0004\u0002\n" +
-                "";
+                "\u0000\u0004\u0000\u0000\u0001\u0005\u0004\u0000\u0000\u0000\u0001\u0004\u0002\n" +
+                "\u0004\u0006\u0005\u0006";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         // fall through
@@ -323,30 +445,25 @@ public final class MeshProtos {
       com.google.protobuf.MessageLiteOrBuilder {
 
     /**
-     * <code>uint32 from = 1;</code>
+     * <code>fixed32 from = 1;</code>
      * @return The from.
      */
     int getFrom();
 
     /**
-     * <code>uint32 to = 2;</code>
+     * <code>fixed32 to = 2;</code>
      * @return The to.
      */
     int getTo();
 
     /**
-     * <code>.meshtastic.Data decoded = 3;</code>
-     * @return Whether the decoded field is set.
-     */
-    boolean hasDecoded();
-    /**
-     * <code>.meshtastic.Data decoded = 3;</code>
+     * <code>bytes decoded = 4;</code>
      * @return The decoded.
      */
-    com.loremote.app.proto.MeshProtos.Data getDecoded();
+    com.google.protobuf.ByteString getDecoded();
 
     /**
-     * <code>uint32 id = 9;</code>
+     * <code>fixed32 id = 9;</code>
      * @return The id.
      */
     int getId();
@@ -374,6 +491,18 @@ public final class MeshProtos {
      * @return The hopLimit.
      */
     int getHopLimit();
+
+    /**
+     * <code>bool want_ack = 12;</code>
+     * @return The wantAck.
+     */
+    boolean getWantAck();
+
+    /**
+     * <code>uint32 channel = 8;</code>
+     * @return The channel.
+     */
+    int getChannel();
   }
   /**
    * Protobuf type {@code meshtastic.MeshPacket}
@@ -384,12 +513,12 @@ public final class MeshProtos {
       // @@protoc_insertion_point(message_implements:meshtastic.MeshPacket)
       MeshPacketOrBuilder {
     private MeshPacket() {
+      decoded_ = com.google.protobuf.ByteString.EMPTY;
     }
-    private int bitField0_;
     public static final int FROM_FIELD_NUMBER = 1;
     private int from_;
     /**
-     * <code>uint32 from = 1;</code>
+     * <code>fixed32 from = 1;</code>
      * @return The from.
      */
     @java.lang.Override
@@ -397,7 +526,7 @@ public final class MeshProtos {
       return from_;
     }
     /**
-     * <code>uint32 from = 1;</code>
+     * <code>fixed32 from = 1;</code>
      * @param value The from to set.
      */
     private void setFrom(int value) {
@@ -405,7 +534,7 @@ public final class MeshProtos {
       from_ = value;
     }
     /**
-     * <code>uint32 from = 1;</code>
+     * <code>fixed32 from = 1;</code>
      */
     private void clearFrom() {
 
@@ -415,7 +544,7 @@ public final class MeshProtos {
     public static final int TO_FIELD_NUMBER = 2;
     private int to_;
     /**
-     * <code>uint32 to = 2;</code>
+     * <code>fixed32 to = 2;</code>
      * @return The to.
      */
     @java.lang.Override
@@ -423,7 +552,7 @@ public final class MeshProtos {
       return to_;
     }
     /**
-     * <code>uint32 to = 2;</code>
+     * <code>fixed32 to = 2;</code>
      * @param value The to to set.
      */
     private void setTo(int value) {
@@ -431,63 +560,44 @@ public final class MeshProtos {
       to_ = value;
     }
     /**
-     * <code>uint32 to = 2;</code>
+     * <code>fixed32 to = 2;</code>
      */
     private void clearTo() {
 
       to_ = 0;
     }
 
-    public static final int DECODED_FIELD_NUMBER = 3;
-    private com.loremote.app.proto.MeshProtos.Data decoded_;
+    public static final int DECODED_FIELD_NUMBER = 4;
+    private com.google.protobuf.ByteString decoded_;
     /**
-     * <code>.meshtastic.Data decoded = 3;</code>
+     * <code>bytes decoded = 4;</code>
+     * @return The decoded.
      */
     @java.lang.Override
-    public boolean hasDecoded() {
-      return ((bitField0_ & 0x00000001) != 0);
+    public com.google.protobuf.ByteString getDecoded() {
+      return decoded_;
     }
     /**
-     * <code>.meshtastic.Data decoded = 3;</code>
+     * <code>bytes decoded = 4;</code>
+     * @param value The decoded to set.
      */
-    @java.lang.Override
-    public com.loremote.app.proto.MeshProtos.Data getDecoded() {
-      return decoded_ == null ? com.loremote.app.proto.MeshProtos.Data.getDefaultInstance() : decoded_;
+    private void setDecoded(com.google.protobuf.ByteString value) {
+      java.lang.Class<?> valueClass = value.getClass();
+  
+      decoded_ = value;
     }
     /**
-     * <code>.meshtastic.Data decoded = 3;</code>
+     * <code>bytes decoded = 4;</code>
      */
-    private void setDecoded(com.loremote.app.proto.MeshProtos.Data value) {
-      value.getClass();
-  decoded_ = value;
-      bitField0_ |= 0x00000001;
-      }
-    /**
-     * <code>.meshtastic.Data decoded = 3;</code>
-     */
-    @java.lang.SuppressWarnings({"ReferenceEquality"})
-    private void mergeDecoded(com.loremote.app.proto.MeshProtos.Data value) {
-      value.getClass();
-  if (decoded_ != null &&
-          decoded_ != com.loremote.app.proto.MeshProtos.Data.getDefaultInstance()) {
-        decoded_ =
-          com.loremote.app.proto.MeshProtos.Data.newBuilder(decoded_).mergeFrom(value).buildPartial();
-      } else {
-        decoded_ = value;
-      }
-      bitField0_ |= 0x00000001;
-    }
-    /**
-     * <code>.meshtastic.Data decoded = 3;</code>
-     */
-    private void clearDecoded() {  decoded_ = null;
-      bitField0_ = (bitField0_ & ~0x00000001);
+    private void clearDecoded() {
+
+      decoded_ = getDefaultInstance().getDecoded();
     }
 
     public static final int ID_FIELD_NUMBER = 9;
     private int id_;
     /**
-     * <code>uint32 id = 9;</code>
+     * <code>fixed32 id = 9;</code>
      * @return The id.
      */
     @java.lang.Override
@@ -495,7 +605,7 @@ public final class MeshProtos {
       return id_;
     }
     /**
-     * <code>uint32 id = 9;</code>
+     * <code>fixed32 id = 9;</code>
      * @param value The id to set.
      */
     private void setId(int value) {
@@ -503,7 +613,7 @@ public final class MeshProtos {
       id_ = value;
     }
     /**
-     * <code>uint32 id = 9;</code>
+     * <code>fixed32 id = 9;</code>
      */
     private void clearId() {
 
@@ -614,6 +724,58 @@ public final class MeshProtos {
       hopLimit_ = 0;
     }
 
+    public static final int WANT_ACK_FIELD_NUMBER = 12;
+    private boolean wantAck_;
+    /**
+     * <code>bool want_ack = 12;</code>
+     * @return The wantAck.
+     */
+    @java.lang.Override
+    public boolean getWantAck() {
+      return wantAck_;
+    }
+    /**
+     * <code>bool want_ack = 12;</code>
+     * @param value The wantAck to set.
+     */
+    private void setWantAck(boolean value) {
+      
+      wantAck_ = value;
+    }
+    /**
+     * <code>bool want_ack = 12;</code>
+     */
+    private void clearWantAck() {
+
+      wantAck_ = false;
+    }
+
+    public static final int CHANNEL_FIELD_NUMBER = 8;
+    private int channel_;
+    /**
+     * <code>uint32 channel = 8;</code>
+     * @return The channel.
+     */
+    @java.lang.Override
+    public int getChannel() {
+      return channel_;
+    }
+    /**
+     * <code>uint32 channel = 8;</code>
+     * @param value The channel to set.
+     */
+    private void setChannel(int value) {
+      
+      channel_ = value;
+    }
+    /**
+     * <code>uint32 channel = 8;</code>
+     */
+    private void clearChannel() {
+
+      channel_ = 0;
+    }
+
     public static com.loremote.app.proto.MeshProtos.MeshPacket parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -712,7 +874,7 @@ public final class MeshProtos {
 
 
       /**
-       * <code>uint32 from = 1;</code>
+       * <code>fixed32 from = 1;</code>
        * @return The from.
        */
       @java.lang.Override
@@ -720,7 +882,7 @@ public final class MeshProtos {
         return instance.getFrom();
       }
       /**
-       * <code>uint32 from = 1;</code>
+       * <code>fixed32 from = 1;</code>
        * @param value The from to set.
        * @return This builder for chaining.
        */
@@ -730,7 +892,7 @@ public final class MeshProtos {
         return this;
       }
       /**
-       * <code>uint32 from = 1;</code>
+       * <code>fixed32 from = 1;</code>
        * @return This builder for chaining.
        */
       public Builder clearFrom() {
@@ -740,7 +902,7 @@ public final class MeshProtos {
       }
 
       /**
-       * <code>uint32 to = 2;</code>
+       * <code>fixed32 to = 2;</code>
        * @return The to.
        */
       @java.lang.Override
@@ -748,7 +910,7 @@ public final class MeshProtos {
         return instance.getTo();
       }
       /**
-       * <code>uint32 to = 2;</code>
+       * <code>fixed32 to = 2;</code>
        * @param value The to to set.
        * @return This builder for chaining.
        */
@@ -758,7 +920,7 @@ public final class MeshProtos {
         return this;
       }
       /**
-       * <code>uint32 to = 2;</code>
+       * <code>fixed32 to = 2;</code>
        * @return This builder for chaining.
        */
       public Builder clearTo() {
@@ -768,54 +930,35 @@ public final class MeshProtos {
       }
 
       /**
-       * <code>.meshtastic.Data decoded = 3;</code>
+       * <code>bytes decoded = 4;</code>
+       * @return The decoded.
        */
       @java.lang.Override
-      public boolean hasDecoded() {
-        return instance.hasDecoded();
-      }
-      /**
-       * <code>.meshtastic.Data decoded = 3;</code>
-       */
-      @java.lang.Override
-      public com.loremote.app.proto.MeshProtos.Data getDecoded() {
+      public com.google.protobuf.ByteString getDecoded() {
         return instance.getDecoded();
       }
       /**
-       * <code>.meshtastic.Data decoded = 3;</code>
+       * <code>bytes decoded = 4;</code>
+       * @param value The decoded to set.
+       * @return This builder for chaining.
        */
-      public Builder setDecoded(com.loremote.app.proto.MeshProtos.Data value) {
+      public Builder setDecoded(com.google.protobuf.ByteString value) {
         copyOnWrite();
         instance.setDecoded(value);
         return this;
-        }
-      /**
-       * <code>.meshtastic.Data decoded = 3;</code>
-       */
-      public Builder setDecoded(
-          com.loremote.app.proto.MeshProtos.Data.Builder builderForValue) {
-        copyOnWrite();
-        instance.setDecoded(builderForValue.build());
-        return this;
       }
       /**
-       * <code>.meshtastic.Data decoded = 3;</code>
+       * <code>bytes decoded = 4;</code>
+       * @return This builder for chaining.
        */
-      public Builder mergeDecoded(com.loremote.app.proto.MeshProtos.Data value) {
+      public Builder clearDecoded() {
         copyOnWrite();
-        instance.mergeDecoded(value);
-        return this;
-      }
-      /**
-       * <code>.meshtastic.Data decoded = 3;</code>
-       */
-      public Builder clearDecoded() {  copyOnWrite();
         instance.clearDecoded();
         return this;
       }
 
       /**
-       * <code>uint32 id = 9;</code>
+       * <code>fixed32 id = 9;</code>
        * @return The id.
        */
       @java.lang.Override
@@ -823,7 +966,7 @@ public final class MeshProtos {
         return instance.getId();
       }
       /**
-       * <code>uint32 id = 9;</code>
+       * <code>fixed32 id = 9;</code>
        * @param value The id to set.
        * @return This builder for chaining.
        */
@@ -833,7 +976,7 @@ public final class MeshProtos {
         return this;
       }
       /**
-       * <code>uint32 id = 9;</code>
+       * <code>fixed32 id = 9;</code>
        * @return This builder for chaining.
        */
       public Builder clearId() {
@@ -954,6 +1097,62 @@ public final class MeshProtos {
         return this;
       }
 
+      /**
+       * <code>bool want_ack = 12;</code>
+       * @return The wantAck.
+       */
+      @java.lang.Override
+      public boolean getWantAck() {
+        return instance.getWantAck();
+      }
+      /**
+       * <code>bool want_ack = 12;</code>
+       * @param value The wantAck to set.
+       * @return This builder for chaining.
+       */
+      public Builder setWantAck(boolean value) {
+        copyOnWrite();
+        instance.setWantAck(value);
+        return this;
+      }
+      /**
+       * <code>bool want_ack = 12;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearWantAck() {
+        copyOnWrite();
+        instance.clearWantAck();
+        return this;
+      }
+
+      /**
+       * <code>uint32 channel = 8;</code>
+       * @return The channel.
+       */
+      @java.lang.Override
+      public int getChannel() {
+        return instance.getChannel();
+      }
+      /**
+       * <code>uint32 channel = 8;</code>
+       * @param value The channel to set.
+       * @return This builder for chaining.
+       */
+      public Builder setChannel(int value) {
+        copyOnWrite();
+        instance.setChannel(value);
+        return this;
+      }
+      /**
+       * <code>uint32 channel = 8;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearChannel() {
+        copyOnWrite();
+        instance.clearChannel();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:meshtastic.MeshPacket)
     }
     @java.lang.Override
@@ -970,19 +1169,20 @@ public final class MeshProtos {
         }
         case BUILD_MESSAGE_INFO: {
             java.lang.Object[] objects = new java.lang.Object[] {
-              "bitField0_",
               "from_",
               "to_",
               "decoded_",
+              "channel_",
               "id_",
               "hopLimit_",
               "rxTime_",
+              "wantAck_",
               "rxSnr_",
               "rxRssi_",
             };
             java.lang.String info =
-                "\u0000\b\u0000\u0001\u0001\u000e\b\u0000\u0000\u0000\u0001\u000b\u0002\u000b\u0003" +
-                "\u1009\u0000\t\u000b\n\u000b\u000b\u000b\r\u0001\u000e\u0004";
+                "\u0000\n\u0000\u0000\u0001\u000e\n\u0000\u0000\u0000\u0001\u0006\u0002\u0006\u0004" +
+                "\n\b\u000b\t\u0006\n\u000b\u000b\u000b\f\u0007\r\u0001\u000e\u0004";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         // fall through
