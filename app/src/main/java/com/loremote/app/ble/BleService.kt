@@ -36,18 +36,7 @@ class BleService : LifecycleService() {
 
     lateinit var bleManager: LoRemoteBleManager
     lateinit var scanner: BleScanner
-    val deliveryQueue = DeliveryQueue(
-        sendFn = { packet ->
-            val bytes = com.loremote.app.protocol.Protocol.encode(packet)
-            kotlinx.coroutines.GlobalScope.launch {
-                bleManager.sendLoRemote(bytes)
-            }
-        },
-        onFailed = { devId ->
-            Log.w("BleService", "Delivery failed for $devId")
-        },
-        context = this
-    )
+    lateinit var deliveryQueue: DeliveryQueue
 
     private var pingJob: kotlinx.coroutines.Job? = null
 
@@ -63,6 +52,19 @@ class BleService : LifecycleService() {
         }
 
         scanner = BleScanner(this)
+
+        deliveryQueue = DeliveryQueue(
+            sendFn = { packet ->
+                val bytes = com.loremote.app.protocol.Protocol.encode(packet)
+                kotlinx.coroutines.GlobalScope.launch {
+                    bleManager.sendLoRemote(bytes)
+                }
+            },
+            onFailed = { devId ->
+                Log.w("BleService", "Delivery failed for $devId")
+            },
+            context = this
+        )
 
         createNotificationChannel()
         startForeground(NOTIF_ID, buildNotification("Ожидание подключения..."))

@@ -11,7 +11,6 @@ class DeliveryQueue(
 ) {
     private val TAG = "DeliveryQueue"
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private val prefs = context.getSharedPreferences("loremote", android.content.Context.MODE_PRIVATE)
 
     private data class Entry(
         val devId: String,
@@ -22,12 +21,6 @@ class DeliveryQueue(
 
     private val queue = mutableMapOf<String, Entry>()
 
-    private val retryCount: Int
-        get() = prefs.getInt("retry_count", 0)
-
-    private val retryInterval: Long
-        get() = prefs.getInt("retry_interval", 30) * 1000L
-
     fun enqueue(devId: String, packet: OutPacket) {
         val key = "${devId}_${System.currentTimeMillis()}"
         queue[key] = Entry(devId, packet)
@@ -35,6 +28,10 @@ class DeliveryQueue(
     }
 
     private fun attempt(key: String) {
+        val prefs = context.getSharedPreferences("loremote", android.content.Context.MODE_PRIVATE)
+        val retryCount = prefs.getInt("retry_count", 0)
+        val retryInterval = prefs.getLong("retry_interval", 30) * 1000L
+
         val entry = queue[key] ?: return
         entry.attempts++
         val hopLimit = if (entry.attempts <= 3) 0 else 7

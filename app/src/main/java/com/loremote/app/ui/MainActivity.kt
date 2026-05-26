@@ -317,7 +317,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ── Permissions & BLE ────────────────────────────────────────────────
-    fun startScan() {
+   fun startScan() {
         val perms = arrayOf(
             Manifest.permission.BLUETOOTH_SCAN,
             Manifest.permission.BLUETOOTH_CONNECT,
@@ -330,6 +330,20 @@ class MainActivity : AppCompatActivity() {
             bleService?.scanner?.start()
         } else {
             ActivityCompat.requestPermissions(this, missing.toTypedArray(), 1)
+        }
+    }
+
+    fun hasBlePermissions(): Boolean {
+        return listOf(
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ).all { checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }
+    }
+
+    fun startScanSilent() {
+        if (hasBlePermissions()) {
+            bleService?.scanner?.start()
         }
     }
 

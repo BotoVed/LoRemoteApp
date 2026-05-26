@@ -117,9 +117,12 @@ class SettingsFragment : Fragment() {
         updateConnectState(main)
     }
 
-    override fun onResume() {
+   override fun onResume() {
         super.onResume()
-        (activity as? MainActivity)?.startScan()
+        val main = activity as? MainActivity ?: return
+        if (main.hasBlePermissions()) {
+            main.startScanSilent()
+        }
     }
 
     fun updateDeviceList(results: List<ScanResult>) {
