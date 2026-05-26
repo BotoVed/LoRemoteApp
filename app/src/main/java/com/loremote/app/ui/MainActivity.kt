@@ -281,8 +281,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun extractStateValues(map: Map<String, Any?>): Map<String, Any?> {
         return listOf("s","bri","ct","th","tc","md","fn","sp","pos","st","v","u")
-            .mapNotNull { k -> map[k]?.let { k to it } }
+            .mapNotNull { k -> map[k]?.let { k to normalize(it) } }
             .toMap()
+    }
+
+    private fun normalize(v: Any?): Any? = when (v) {
+        is Number -> v.toLong()
+        else -> v
     }
 
  // ── Send ──────────────────────────────────────────────────────────────

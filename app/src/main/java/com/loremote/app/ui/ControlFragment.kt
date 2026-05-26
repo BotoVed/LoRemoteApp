@@ -114,7 +114,7 @@ class ControlFragment : Fragment() {
             mpg.keys().forEach { hash ->
                 val dev = mpg.getJSONObject(hash)
                 val devArea = dev.optString("a")
-                val noArea = devArea == "" || devArea == "null"
+                val noArea = devArea == "" || devArea == "null" || dev.opt("a") == null
                 Log.d("ControlFragment", "    device=$hash a='$devArea' noArea=$noArea -> match=${devArea == areaId || (noArea && areaId == "ustroistva")}")
                 if (devArea == areaId || (noArea && areaId == "ustroistva")) {
                     devices.add(Pair(hash, dev))
@@ -332,7 +332,7 @@ class ControlFragment : Fragment() {
             }
             "CV" -> {
                 val state = devStates[hash]
-                val pos = (state?.get("pos") as? Long)?.toInt() ?: 0
+                val pos = toLong(state?.get("pos"))?.toInt() ?: 0
                 val st = state?.get("st")
                 val tvVal = TextView(ctx).apply {
                     text = if (pos != 0) "открыты·${pos}%" else "закрыты"
@@ -557,4 +557,9 @@ class ControlFragment : Fragment() {
 
     private fun dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
     private fun getColor(id: Int) = requireContext().getColor(id)
+
+    private fun toLong(v: Any?): Long? = when (v) {
+        is Number -> v.toLong()
+        else -> null
+    }
 }

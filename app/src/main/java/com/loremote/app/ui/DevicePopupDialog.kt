@@ -176,12 +176,12 @@ private fun buildLightControls(layout: LinearLayout) {
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
 
-        val bri = (currentVisibleState["bri"] as? Long)?.toInt() ?: 50
+        val bri = toLong(currentVisibleState["bri"])?.toInt() ?: 50
         addSlider(layout, "Яркость", "%", 1, 100, bri, 1, "bri") { v ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, bri = v), mapOf("bri" to v.toLong()))
         }
 
-        val ct = (currentVisibleState["ct"] as? Long)?.toInt() ?: 4000
+        val ct = toLong(currentVisibleState["ct"])?.toInt() ?: 4000
         addSlider(layout, "Температура цвета", "K", 2700, 6500, ct, 100, "ct") { v ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, ct = v), mapOf("ct" to v.toLong()))
         }
@@ -388,7 +388,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
 
-        val speed = (currentVisibleState["speed"] as? Long)?.toInt() ?: 50
+        val speed = toLong(currentVisibleState["speed"])?.toInt() ?: 50
         addSlider(layout, "Скорость", "%", 1, 100, speed, 1, "sp") { v ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, sp = v), mapOf("sp" to v.toLong()))
         }
@@ -420,7 +420,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
 
    private fun buildCoverControls(layout: LinearLayout) {
         val ctx = requireContext()
-        val pos = (currentVisibleState["pos"] as? Long)?.toInt() ?: 0
+        val pos = toLong(currentVisibleState["pos"])?.toInt() ?: 0
         addSlider(layout, "Позиция", "%", 0, 100, pos, 1, "pos") { v ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, pos = v), mapOf("pos" to v.toLong()))
         }
@@ -582,7 +582,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
 
     private fun buildAlarmControl(layout: LinearLayout) {
         val ctx = requireContext()
-        val mode = (currentVisibleState["s"] as? Long)
+        val mode = toLong(currentVisibleState["s"])
 
         val status = TextView(ctx).apply {
             text = when (mode) {
@@ -801,4 +801,9 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
     }
 
     private fun dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
+
+    private fun toLong(v: Any?): Long? = when (v) {
+        is Number -> v.toLong()
+        else -> null
+    }
 }
