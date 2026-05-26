@@ -40,10 +40,16 @@ class DeliveryQueue(
         val pkt = entry.packet.copy(hl = hopLimit)
 
         entry.job = scope.launch {
-            Log.d(TAG, "Attempt ${entry.attempts} for ${entry.devId} (retry=$retryCount, interval=${retryInterval}ms) hl=$hopLimit")
-
+            Log.d(TAG, "Attempt ${entry.attempts} for ${entry.devId} hl=$hopLimit")
             entry.lastAttempt = System.currentTimeMillis()
             try { sendFn(pkt) } catch (e: Exception) { Log.e(TAG, "Send error: ${e.message}") }
+
+            if (retryCount == 0) {
+                queue.remove(key)
+                DeviceStateManager.onDelivered(entry.devId)
+                Log.d(TAG, "No retries — assuming delivered: ${entry.devId}")
+                return@launch
+            }
 
             if (entry.attempts > retryCount) {
                 queue.remove(key)

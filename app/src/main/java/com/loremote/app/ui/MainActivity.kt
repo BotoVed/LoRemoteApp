@@ -121,7 +121,6 @@ class MainActivity : AppCompatActivity() {
             IntentFilter(BleService.ACTION_PACKET),
             RECEIVER_NOT_EXPORTED
         )
-        tryAutoConnect()
     }
 
     override fun onResume() {
@@ -388,6 +387,11 @@ class MainActivity : AppCompatActivity() {
     val bleManager get() = bleService?.bleManager
 
   private fun tryAutoConnect() {
+        val currentState = bleService?.bleManager?.state?.value
+        if (currentState is BleState.Ready || currentState is BleState.Connecting || currentState is BleState.Handshake) {
+            android.util.Log.i("MainActivity", "Auto-connect skipped — already $currentState")
+            return
+        }
         val prefs = getSharedPreferences("loremote", Context.MODE_PRIVATE)
         val lastMac = prefs.getString("last_device_mac", null)
         val lastName = prefs.getString("last_device_name", null)
