@@ -61,8 +61,6 @@ class SettingsFragment : Fragment() {
                 Toast.makeText(context, "Введите конфиг", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            // Сохранить
-            prefs.edit().putString("config_json", text).apply()
             main.applyConfig(text)
         }
 

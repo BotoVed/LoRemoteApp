@@ -1,6 +1,8 @@
 package com.loremote.app.ui
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -15,7 +17,7 @@ class ControlFragment : Fragment() {
     private val devStates = mutableMapOf<String, Map<String, Any?>>()
     private var configJson: JSONObject? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val scroll = ScrollView(requireContext()).apply {
             setBackgroundColor(requireContext().getColor(R.color.bg_dark))
         }
@@ -25,16 +27,34 @@ class ControlFragment : Fragment() {
         }
         scroll.addView(zonesContainer)
 
-        // Восстановить конфиг если есть
-        (activity as? MainActivity)?.let { main ->
-            if (main.savedConfig != null) {
-                buildZones(main.savedConfig!!)
-            } else {
-                showPlaceholder("Конфигурация не загружена")
-            }
-        } ?: showPlaceholder("Конфигурация не загружена")
-
         return scroll
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val prefs = requireContext().getSharedPreferences("loremote", Context.MODE_PRIVATE)
+        val saved = prefs.getString("config_json", null)
+        Log.d("ControlFragment", "onResume: saved=${saved?.take(100)}")
+        Log.d("ControlFragment", "onResume: container=${zonesContainer != null}, childCount=${zonesContainer?.childCount}")
+
+        if (saved == null) {
+            Log.d("ControlFragment", "No config — showing placeholder")
+            showPlaceholder("Конфигурация не загружена")
+            return
+        }
+        try {
+            val cleaned = saved
+                .replace(Regex("^.*window\\.LORA_CONFIG\\s*=\\s*"), "")
+                .trimEnd(';', ' ', '\n')
+            Log.d("ControlFragment", "cleaned=${cleaned.take(100)}")
+            val json = org.json.JSONObject(cleaned)
+            Log.d("ControlFragment", "json ok, ar=${json.optJSONArray("ar")?.length()}, mpg=${json.optJSONObject("mpg")?.length()}")
+            buildZones(json)
+            Log.d("ControlFragment", "buildZones done, childCount=${zonesContainer?.childCount}")
+        } catch (e: Exception) {
+            Log.e("ControlFragment", "Error: ${e.message}", e)
+            showPlaceholder("Ошибка: ${e.message}")
+        }
     }
 
     private fun showPlaceholder(message: String) {
@@ -78,20 +98,27 @@ class ControlFragment : Fragment() {
         val areas = config.optJSONArray("ar") ?: return
         val mpg = config.optJSONObject("mpg") ?: return
 
+        var hasAny = false
+        Log.d("ControlFragment", "buildZones: ar=${areas.length()}, mpg=${mpg.length()}")
         for (i in 0 until areas.length()) {
             val area = areas.getJSONObject(i)
             val areaId = area.getString("id")
             val areaName = area.getString("n")
+            Log.d("ControlFragment", "  area=$areaId ($areaName)")
 
             val devices = mutableListOf<Pair<String, JSONObject>>()
             mpg.keys().forEach { hash ->
                 val dev = mpg.getJSONObject(hash)
-                if (dev.optString("a") == areaId) {
+                val devArea = dev.optString("a")
+                val noArea = devArea == "" || devArea == "null"
+                Log.d("ControlFragment", "    device=$hash a='$devArea' noArea=$noArea -> match=${devArea == areaId || (noArea && areaId == "ustroistva")}")
+                if (devArea == areaId || (noArea && areaId == "ustroistva")) {
                     devices.add(Pair(hash, dev))
                 }
             }
-            if (devices.isEmpty()) return
-
+            Log.d("ControlFragment", "  area $areaId: ${devices.size} devices")
+            if (devices.isEmpty()) continue
+            hasAny = true
             val zoneCard = buildZoneCard(areaName, devices, mpg)
             zonesContainer?.addView(zoneCard)
         }

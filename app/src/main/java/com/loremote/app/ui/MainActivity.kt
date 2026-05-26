@@ -282,10 +282,17 @@ class MainActivity : AppCompatActivity() {
             savedConfig = JSONObject(cleaned)
             val homeName = savedConfig?.optString("n", "Tech-no-mad") ?: "Tech-no-mad"
             binding.tvHomeName.text = homeName
-            (supportFragmentManager.findFragmentById(R.id.contentContainer) as? ControlFragment)
-                ?.buildZones(savedConfig!!)
+            // Сохранить в SharedPreferences — ОРИГИНАЛЬНЫЙ текст
+            getSharedPreferences("loremote", Context.MODE_PRIVATE).edit()
+                .putString("config_json", jsonStr).apply()
+            // Перезаписать конфиг в ControlFragment
+            val cf = supportFragmentManager.findFragmentById(R.id.contentContainer) as? ControlFragment
+            if (cf != null) {
+                cf.buildZones(savedConfig!!)
+            }
             Toast.makeText(this, "Конфиг применён ✓", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
+            savedConfig = null
             Toast.makeText(this, "Ошибка конфига: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
