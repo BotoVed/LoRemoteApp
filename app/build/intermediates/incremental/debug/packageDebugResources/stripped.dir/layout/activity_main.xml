@@ -44,6 +44,15 @@
             android:tint="@color/gray_600"
             android:layout_marginEnd="4dp"/>
 
+        <!-- Индикатор подключения -->
+        <ProgressBar
+            android:id="@+id/progressBle"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:visibility="gone"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_marginEnd="4dp"/>
+
         <!-- HA онлайн/офлайн -->
         <ImageView
             android:id="@+id/ivHaStatus"

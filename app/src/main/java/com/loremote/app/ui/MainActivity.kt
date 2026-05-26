@@ -33,16 +33,16 @@ import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-    private var bleService: BleService? = null
+  private lateinit var binding: ActivityMainBinding
     private var serviceBound = false
 
     private val deviceList = mutableListOf<ScanResult>()
-    private lateinit var deviceAdapter: ArrayAdapter<String>
+    private var deviceAdapter: ArrayAdapter<String>? = null
     private var selectedDevice: ScanResult? = null
 
     // Конфиг
     var savedConfig: JSONObject? = null
+    var bleService: BleService? = null
 
     // Текущая вкладка
     private var currentTab = 0
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, binder: IBinder) {
-            bleService = (binder as BleService.LocalBinder).getService()
+           bleService = (binder as BleService.LocalBinder).getService()
             serviceBound = true
             observeBleState()
             lifecycleScope.launch {
@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        override fun onServiceDisconnected(name: ComponentName) {
+       override fun onServiceDisconnected(name: ComponentName) {
             serviceBound = false
             bleService = null
         }
@@ -90,6 +90,8 @@ class MainActivity : AppCompatActivity() {
                 requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 2)
             }
         }
+
+        deviceAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf())
 
         setupHeader()
         setupBottomNav()
@@ -178,15 +180,34 @@ class MainActivity : AppCompatActivity() {
                 when (state) {
                     is BleState.Ready -> {
                         updateBleIcon(true)
+                        binding.progressBle.visibility = View.GONE
                         sendPacket(Protocol.ping())
                     }
-                    is BleState.Disconnected -> updateBleIcon(false)
+                    is BleState.Connecting -> {
+                        binding.progressBle.visibility = View.VISIBLE
+                        updateBleIcon(false)
+                    }
+                    is BleState.Handshake -> {
+                        binding.progressBle.visibility = View.VISIBLE
+                        updateBleIcon(false)
+                    }
+                    is BleState.Disconnected -> {
+                        binding.progressBle.visibility = View.GONE
+                        updateBleIcon(false)
+                    }
                     is BleState.Error -> {
+                        binding.progressBle.visibility = View.GONE
                         updateBleIcon(false)
                         showAlert("BLE: ${state.message}")
                     }
-                    else -> updateBleIcon(false)
+                    else -> {
+                        binding.progressBle.visibility = View.GONE
+                        updateBleIcon(false)
+                    }
                 }
+                // Обновить статус в SettingsFragment
+                val settingsFragment = supportFragmentManager.findFragmentById(R.id.contentContainer) as? SettingsFragment
+                settingsFragment?.updateConnectState(this@MainActivity)
             }
         }
     }
@@ -194,12 +215,12 @@ class MainActivity : AppCompatActivity() {
     private fun updateDeviceList(results: List<ScanResult>) {
         deviceList.clear()
         deviceList.addAll(results)
-        deviceAdapter.clear()
-        deviceAdapter.addAll(results.map { r ->
+        deviceAdapter?.clear()
+        deviceAdapter?.addAll(results.map { r ->
             val name = r.device.name ?: "Unknown"
             "$name  ${r.device.address}  ${r.rssi}dBm"
         })
-        deviceAdapter.notifyDataSetChanged()
+        deviceAdapter?.notifyDataSetChanged()
 
         // Уведомить SettingsFragment
         val settingsFragment = supportFragmentManager.findFragmentById(R.id.contentContainer) as? SettingsFragment
@@ -309,7 +330,7 @@ class MainActivity : AppCompatActivity() {
 
     fun getDeviceList(): List<ScanResult> = deviceList
 
-    fun getBleService(): BleService? = bleService
+    val bleManager get() = bleService?.bleManager
 
     private fun tryAutoConnect() {
         val prefs = getSharedPreferences("loremote", Context.MODE_PRIVATE)

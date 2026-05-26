@@ -3210,7 +3210,6 @@ id bounceStart
 id btnApplyConfig
 id btnConnect
 id btnPing
-id btnScan
 id buttonPanel
 id cache_measures
 id callMeasure
@@ -3474,6 +3473,7 @@ id pin
 id position
 id postLayout
 id pressed
+id progressBle
 id progress_circular
 id progress_horizontal
 id radio
@@ -3596,6 +3596,7 @@ id transition_scene_layoutid_cache
 id transition_transform
 id triangle
 id tvAlert
+id tvDeviceStatus
 id tvHomeName
 id tvPingResult
 id unchecked

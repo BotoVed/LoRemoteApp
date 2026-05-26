@@ -47,7 +47,6 @@ id bottomNav
 id btnApplyConfig
 id btnConnect
 id btnPing
-id btnScan
 id contentContainer
 id etConfig
 id header
@@ -58,8 +57,10 @@ id ivHaStatus
 id ivSettings
 id nav_control
 id nav_settings
+id progressBle
 id spinnerDevices
 id tvAlert
+id tvDeviceStatus
 id tvHomeName
 id tvPingResult
 id zonesContainer

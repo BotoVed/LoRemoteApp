@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,6 +51,9 @@ public final class ActivityMainBinding implements ViewBinding {
   public final ImageView ivSettings;
 
   @NonNull
+  public final ProgressBar progressBle;
+
+  @NonNull
   public final TextView tvAlert;
 
   @NonNull
@@ -59,7 +63,7 @@ public final class ActivityMainBinding implements ViewBinding {
       @NonNull BottomNavigationView bottomNav, @NonNull FrameLayout contentContainer,
       @NonNull LinearLayout header, @NonNull ImageView ivAlertClose, @NonNull ImageView ivAppIcon,
       @NonNull ImageView ivBleStatus, @NonNull ImageView ivHaStatus, @NonNull ImageView ivSettings,
-      @NonNull TextView tvAlert, @NonNull TextView tvHomeName) {
+      @NonNull ProgressBar progressBle, @NonNull TextView tvAlert, @NonNull TextView tvHomeName) {
     this.rootView = rootView;
     this.alertBar = alertBar;
     this.bottomNav = bottomNav;
@@ -70,6 +74,7 @@ public final class ActivityMainBinding implements ViewBinding {
     this.ivBleStatus = ivBleStatus;
     this.ivHaStatus = ivHaStatus;
     this.ivSettings = ivSettings;
+    this.progressBle = progressBle;
     this.tvAlert = tvAlert;
     this.tvHomeName = tvHomeName;
   }
@@ -155,6 +160,12 @@ public final class ActivityMainBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.progressBle;
+      ProgressBar progressBle = ViewBindings.findChildViewById(rootView, id);
+      if (progressBle == null) {
+        break missingId;
+      }
+
       id = R.id.tvAlert;
       TextView tvAlert = ViewBindings.findChildViewById(rootView, id);
       if (tvAlert == null) {
@@ -168,8 +179,8 @@ public final class ActivityMainBinding implements ViewBinding {
       }
 
       return new ActivityMainBinding((LinearLayout) rootView, alertBar, bottomNav, contentContainer,
-          header, ivAlertClose, ivAppIcon, ivBleStatus, ivHaStatus, ivSettings, tvAlert,
-          tvHomeName);
+          header, ivAlertClose, ivAppIcon, ivBleStatus, ivHaStatus, ivSettings, progressBle,
+          tvAlert, tvHomeName);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

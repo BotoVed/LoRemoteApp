@@ -32,27 +32,28 @@ public final class FragmentSettingsBinding implements ViewBinding {
   public final Button btnPing;
 
   @NonNull
-  public final Button btnScan;
-
-  @NonNull
   public final EditText etConfig;
 
   @NonNull
   public final Spinner spinnerDevices;
 
   @NonNull
+  public final TextView tvDeviceStatus;
+
+  @NonNull
   public final TextView tvPingResult;
 
   private FragmentSettingsBinding(@NonNull ScrollView rootView, @NonNull Button btnApplyConfig,
-      @NonNull Button btnConnect, @NonNull Button btnPing, @NonNull Button btnScan,
-      @NonNull EditText etConfig, @NonNull Spinner spinnerDevices, @NonNull TextView tvPingResult) {
+      @NonNull Button btnConnect, @NonNull Button btnPing, @NonNull EditText etConfig,
+      @NonNull Spinner spinnerDevices, @NonNull TextView tvDeviceStatus,
+      @NonNull TextView tvPingResult) {
     this.rootView = rootView;
     this.btnApplyConfig = btnApplyConfig;
     this.btnConnect = btnConnect;
     this.btnPing = btnPing;
-    this.btnScan = btnScan;
     this.etConfig = etConfig;
     this.spinnerDevices = spinnerDevices;
+    this.tvDeviceStatus = tvDeviceStatus;
     this.tvPingResult = tvPingResult;
   }
 
@@ -101,12 +102,6 @@ public final class FragmentSettingsBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.btnScan;
-      Button btnScan = ViewBindings.findChildViewById(rootView, id);
-      if (btnScan == null) {
-        break missingId;
-      }
-
       id = R.id.etConfig;
       EditText etConfig = ViewBindings.findChildViewById(rootView, id);
       if (etConfig == null) {
@@ -119,6 +114,12 @@ public final class FragmentSettingsBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tvDeviceStatus;
+      TextView tvDeviceStatus = ViewBindings.findChildViewById(rootView, id);
+      if (tvDeviceStatus == null) {
+        break missingId;
+      }
+
       id = R.id.tvPingResult;
       TextView tvPingResult = ViewBindings.findChildViewById(rootView, id);
       if (tvPingResult == null) {
@@ -126,7 +127,7 @@ public final class FragmentSettingsBinding implements ViewBinding {
       }
 
       return new FragmentSettingsBinding((ScrollView) rootView, btnApplyConfig, btnConnect, btnPing,
-          btnScan, etConfig, spinnerDevices, tvPingResult);
+          etConfig, spinnerDevices, tvDeviceStatus, tvPingResult);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -1,94 +1,102 @@
 [
     {
-        "merged": "com.loremote.app-debug-35:/mipmap-xxxhdpi_ic_launcher.png.flat",
-        "source": "com.loremote.app-main-37:/mipmap-xxxhdpi/ic_launcher.png"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_ic_settings.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/ic_settings.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/layout_fragment_settings.xml.flat",
-        "source": "com.loremote.app-main-37:/layout/fragment_settings.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/layout_activity_main.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/layout/activity_main.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/mipmap-hdpi_ic_launcher.png.flat",
-        "source": "com.loremote.app-main-37:/mipmap-hdpi/ic_launcher.png"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_badge_red.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/badge_red.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/mipmap-xxhdpi_ic_launcher.png.flat",
-        "source": "com.loremote.app-main-37:/mipmap-xxhdpi/ic_launcher.png"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_ic_alarm.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/ic_alarm.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/mipmap-mdpi_ic_launcher.png.flat",
-        "source": "com.loremote.app-main-37:/mipmap-mdpi/ic_launcher.png"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_ic_refresh.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/ic_refresh.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_badge_green.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/badge_green.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_ic_close.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/ic_close.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_ic_more.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/ic_more.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/mipmap-hdpi/ic_launcher.png"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_ic_refresh.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/ic_refresh.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_ic_bluetooth.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/ic_bluetooth.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_ic_alarm.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/ic_alarm.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_bg_zone_card.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/bg_zone_card.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_ic_settings.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/ic_settings.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_ic_home.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/ic_home.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_bg_bottom_sheet.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/bg_bottom_sheet.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/layout_fragment_settings.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/layout/fragment_settings.xml"
     },
     {
         "merged": "com.loremote.app-debug-35:/layout_activity_main.xml.flat",
         "source": "com.loremote.app-main-37:/layout/activity_main.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/mipmap-xhdpi_ic_launcher.png.flat",
-        "source": "com.loremote.app-main-37:/mipmap-xhdpi/ic_launcher.png"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_ic_circle.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/ic_circle.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_badge_yellow.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/badge_yellow.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_divider.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/divider.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_ic_home.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/ic_home.xml"
+        "merged": "com.loremote.app-debug-35:/layout_fragment_settings.xml.flat",
+        "source": "com.loremote.app-main-37:/layout/fragment_settings.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_ic_circle.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/ic_circle.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_badge_yellow.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/badge_yellow.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_ic_bluetooth.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/ic_bluetooth.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/mipmap-xhdpi/ic_launcher.png"
     },
     {
-        "merged": "com.loremote.app-debug-35:/menu_bottom_nav_menu.xml.flat",
-        "source": "com.loremote.app-main-37:/menu/bottom_nav_menu.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/mipmap-xxhdpi/ic_launcher.png"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_bg_zone_card.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/bg_zone_card.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/menu_bottom_nav_menu.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/menu/bottom_nav_menu.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_divider.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/divider.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/layout_fragment_control.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/layout/fragment_control.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/layout_fragment_control.xml.flat",
-        "source": "com.loremote.app-main-37:/layout/fragment_control.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/mipmap-mdpi/ic_launcher.png"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_badge_red.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/badge_red.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_ic_more.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/ic_more.xml"
     },
     {
-        "merged": "com.loremote.app-debug-35:/drawable_ic_close.xml.flat",
-        "source": "com.loremote.app-main-37:/drawable/ic_close.xml"
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_badge_green.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/badge_green.xml"
+    },
+    {
+        "merged": "/home/boss/.gradle/daemon/8.6/com.loremote.app-debug-35:/drawable_bg_bottom_sheet.xml.flat",
+        "source": "/home/boss/.gradle/daemon/8.6/com.loremote.app-main-37:/drawable/bg_bottom_sheet.xml"
     }
 ]
