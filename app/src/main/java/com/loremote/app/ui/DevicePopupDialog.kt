@@ -3,10 +3,14 @@ package com.loremote.app.ui
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.loremote.app.R
 import com.loremote.app.protocol.OutPacket
 import com.loremote.app.protocol.PacketType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 class DevicePopupDialog(
@@ -14,8 +18,10 @@ class DevicePopupDialog(
     private val dev: JSONObject,
     private val type: String,
     private val state: Map<String, Any?>?,
-    private val onSend: (OutPacket) -> Unit
+    private val onSend: (OutPacket, Map<String, Any?>?) -> Unit
 ) : BottomSheetDialogFragment() {
+
+    private val debounceJobs = mutableMapOf<String, kotlinx.coroutines.Job>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val ctx = requireContext()
@@ -77,21 +83,21 @@ class DevicePopupDialog(
         return scroll
     }
 
-    private fun buildLightControls(layout: LinearLayout) {
+private fun buildLightControls(layout: LinearLayout) {
         val ctx = requireContext()
         val on = state?.get("s") == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
 
-        val bri = (state?.get("bri") as? Long)?.toInt() ?: 50
-        addSlider(layout, "Яркость", "%", 1, 100, bri) { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, bri = v))
+val bri = (state?.get("bri") as? Long)?.toInt() ?: 50
+        addSlider(layout, "Яркость", "%", 1, 100, bri, 1, "bri") { v ->
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, bri = v), mapOf("bri" to v.toLong()))
         }
 
         val ct = (state?.get("ct") as? Long)?.toInt() ?: 4000
-        addSlider(layout, "Температура цвета", "K", 2700, 6500, ct, 100) { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, ct = v))
+        addSlider(layout, "Температура цвета", "K", 2700, 6500, ct, 100, "ct") { v ->
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, ct = v), mapOf("ct" to v.toLong()))
         }
 
         addPresetsRow(layout)
@@ -129,7 +135,7 @@ class DevicePopupDialog(
                 text = name
                 textSize = 11f
                 setOnClickListener {
-                    onSend(OutPacket(tp = PacketType.CMD, id = hash, bri = bri, ct = ct))
+                    onSend(OutPacket(tp = PacketType.CMD, id = hash, bri = bri, ct = ct), null)
                 }
             }
             btn.layoutParams = LinearLayout.LayoutParams(
@@ -146,7 +152,7 @@ class DevicePopupDialog(
         val ctx = requireContext()
         val on = state?.get("s") == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
 
         val tc = (state?.get("tc") as? Number)?.toInt()
@@ -160,10 +166,10 @@ class DevicePopupDialog(
             layout.addView(tvCurr)
         }
 
-        val th = (state?.get("th") as? Number)?.toInt() ?: 22
-        addTempControl(layout, "Целевая температура", "°C", 16, 30, th) { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()))
-        }
+val th = (state?.get("th") as? Number)?.toInt() ?: 22
+        addTempControl(layout, "Целевая температура", "°C", 16, 30, th, { v ->
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()), mapOf("th" to v.toDouble()))
+        })
 
         val modes = listOf("cool" to "❄", "heat" to "🔥", "fan" to "💨", "auto" to "🔄", "dry" to "💧")
         val currentMode = (state?.get("mode") as? String) ?: "cool"
@@ -184,7 +190,7 @@ class DevicePopupDialog(
                 text = icon
                 textSize = 14f
                 setOnClickListener {
-                    onSend(OutPacket(tp = PacketType.CMD, id = hash, md = m))
+                    onSend(OutPacket(tp = PacketType.CMD, id = hash, md = m), mapOf("md" to m))
                 }
                 if (m == currentMode) {
                     setTextColor(ctx.getColor(R.color.green_text))
@@ -217,7 +223,7 @@ class DevicePopupDialog(
                 text = name
                 textSize = 11f
                 setOnClickListener {
-                    onSend(OutPacket(tp = PacketType.CMD, id = hash, fn = f))
+                    onSend(OutPacket(tp = PacketType.CMD, id = hash, fn = f), mapOf("fn" to f))
                 }
                 if (f == currentFan) {
                     setTextColor(ctx.getColor(R.color.green_text))
@@ -236,7 +242,7 @@ class DevicePopupDialog(
         val ctx = requireContext()
         val on = state?.get("s") == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
 
         val tc = (state?.get("tc") as? Number)?.toInt()
@@ -251,9 +257,9 @@ class DevicePopupDialog(
         }
 
         val th = (state?.get("th") as? Number)?.toInt() ?: 55
-        addTempControl(layout, "Целевая температура", "°C", 35, 75, th) { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()))
-        }
+        addTempControl(layout, "Целевая температура", "°C", 35, 75, th, { v ->
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()), mapOf("th" to v.toDouble()))
+        })
 
         val modes = listOf("eco" to "Эко", "comfort" to "Комфорт", "power" to "Мощный", "vacation" to "Отпуск")
         val currentMode = (state?.get("mode") as? String) ?: "comfort"
@@ -274,7 +280,7 @@ class DevicePopupDialog(
                 text = name
                 textSize = 11f
                 setOnClickListener {
-                    onSend(OutPacket(tp = PacketType.CMD, id = hash, md = m))
+                    onSend(OutPacket(tp = PacketType.CMD, id = hash, md = m), mapOf("md" to m))
                 }
                 if (m == currentMode) {
                     setTextColor(ctx.getColor(R.color.green_text))
@@ -293,12 +299,12 @@ class DevicePopupDialog(
         val ctx = requireContext()
         val on = state?.get("s") == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
 
         val speed = (state?.get("speed") as? Long)?.toInt() ?: 50
-        addSlider(layout, "Скорость", "%", 1, 100, speed) { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, sp = v))
+        addSlider(layout, "Скорость", "%", 1, 100, speed, 1, "sp") { v ->
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, sp = v), mapOf("sp" to v.toLong()))
         }
     }
 
@@ -306,10 +312,10 @@ class DevicePopupDialog(
         val ctx = requireContext()
         val on = state?.get("s") == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
 
-        val tc = (state?.get("tc") as? Number)?.toInt()
+       val tc = (state?.get("tc") as? Number)?.toInt()
         if (tc != null) {
             val tvCurr = TextView(ctx).apply {
                 text = "Текущая: $tc%"
@@ -322,15 +328,15 @@ class DevicePopupDialog(
 
         val th = (state?.get("th") as? Number)?.toInt() ?: 50
         addTempControl(layout, "Целевая влажность", "%", 20, 80, th) { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()), mapOf("th" to v.toDouble()))
         }
     }
 
-    private fun buildCoverControls(layout: LinearLayout) {
+   private fun buildCoverControls(layout: LinearLayout) {
         val ctx = requireContext()
         val pos = (state?.get("pos") as? Long)?.toInt() ?: 0
-        addSlider(layout, "Позиция", "%", 0, 100, pos) { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, pos = v))
+        addSlider(layout, "Позиция", "%", 0, 100, pos, 1, "pos") { v ->
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, pos = v), mapOf("pos" to v.toLong()))
         }
 
         val btnRow = LinearLayout(ctx).apply {
@@ -342,7 +348,7 @@ class DevicePopupDialog(
         val openBtn = Button(ctx).apply {
             text = "Открыть"
             setTextColor(ctx.getColor(R.color.green_text))
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "open")) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "open"), null) }
         }
         openBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         openBtn.layoutParams.height = dpToPx(44)
@@ -351,7 +357,7 @@ class DevicePopupDialog(
         val stopBtn = Button(ctx).apply {
             text = "Стоп"
             setTextColor(ctx.getColor(R.color.gray_400))
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "stop")) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "stop"), null) }
         }
         stopBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         stopBtn.layoutParams.height = dpToPx(44)
@@ -360,7 +366,7 @@ class DevicePopupDialog(
         val closeBtn = Button(ctx).apply {
             text = "Закрыть"
             setTextColor(ctx.getColor(R.color.red_text))
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "close")) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "close"), null) }
         }
         closeBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         closeBtn.layoutParams.height = dpToPx(44)
@@ -379,7 +385,7 @@ class DevicePopupDialog(
         val unlockBtn = Button(ctx).apply {
             text = "Открыть замок"
             textSize = 14f
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "unlock")) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "unlock"), null) }
         }
         unlockBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         unlockBtn.layoutParams.height = dpToPx(44)
@@ -388,7 +394,7 @@ class DevicePopupDialog(
         val lockBtn = Button(ctx).apply {
             text = "Закрыть замок"
             textSize = 14f
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "lock")) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "lock"), null) }
         }
         lockBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         lockBtn.layoutParams.height = dpToPx(44)
@@ -401,7 +407,7 @@ class DevicePopupDialog(
         val btn = Button(ctx).apply {
             text = "▶ Нажать"
             textSize = 14f
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "press")) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "press"), null) }
         }
         btn.layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(44)
@@ -484,7 +490,7 @@ class DevicePopupDialog(
 
         val on = state?.get("s") == 1L
         addToggleRow(layout, "Сирена", on) { checked ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
     }
 
@@ -516,7 +522,7 @@ class DevicePopupDialog(
             text = "Уход"
             textSize = 13f
             setOnClickListener {
-                onSend(OutPacket(tp = PacketType.CMD, id = hash, s = 1L))
+                onSend(OutPacket(tp = PacketType.CMD, id = hash, s = 1L), mapOf("s" to 1L))
             }
         }
         awayBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -527,7 +533,7 @@ class DevicePopupDialog(
             text = "Дома"
             textSize = 13f
             setOnClickListener {
-                onSend(OutPacket(tp = PacketType.CMD, id = hash, s = 2L))
+                onSend(OutPacket(tp = PacketType.CMD, id = hash, s = 2L), mapOf("s" to 2L))
             }
         }
         stayBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -538,7 +544,7 @@ class DevicePopupDialog(
             text = "Ночь"
             textSize = 13f
             setOnClickListener {
-                onSend(OutPacket(tp = PacketType.CMD, id = hash, s = 3L))
+                onSend(OutPacket(tp = PacketType.CMD, id = hash, s = 3L), mapOf("s" to 3L))
             }
         }
         nightBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -560,7 +566,7 @@ class DevicePopupDialog(
             setOnClickListener {
                 val pin = pinInput.text.toString()
                 if (pin.isNotBlank()) {
-                    onSend(OutPacket(tp = PacketType.CMD, id = hash, pin = pin, s = 0L))
+                    onSend(OutPacket(tp = PacketType.CMD, id = hash, pin = pin, s = 0L), mapOf("s" to 0L))
                 }
             }
         }
@@ -573,7 +579,7 @@ class DevicePopupDialog(
     private fun buildToggleControl(layout: LinearLayout) {
         val on = state?.get("s") == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
     }
 
@@ -581,7 +587,7 @@ class DevicePopupDialog(
         val ctx = requireContext()
         val on = state?.get("s") == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
     }
 
@@ -608,10 +614,10 @@ class DevicePopupDialog(
     }
 
     private fun addSlider(layout: LinearLayout, label: String, unit: String, min: Int, max: Int, value: Int, onChange: (Int) -> Unit) {
-        addSlider(layout, label, unit, min, max, value, 1, onChange)
+        addSlider(layout, label, unit, min, max, value, 1, "", onChange)
     }
 
-    private fun addSlider(layout: LinearLayout, label: String, unit: String, min: Int, max: Int, value: Int, step: Int, onChange: (Int) -> Unit) {
+    private fun addSlider(layout: LinearLayout, label: String, unit: String, min: Int, max: Int, value: Int, step: Int, fieldName: String, onChange: (Int) -> Unit) {
         val ctx = requireContext()
         val tv = TextView(ctx).apply {
             text = label
@@ -635,12 +641,21 @@ class DevicePopupDialog(
             progress = value - min
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(sb: SeekBar, p: Int, u: Boolean) {
+                override fun onProgressChanged(sb: SeekBar, p: Int, fromUser: Boolean) {
+                    if (!fromUser) return
                     val v = p + min
                     tvVal.text = "$v$unit"
+                    debounceJobs[fieldName]?.cancel()
+                    debounceJobs[fieldName] = kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                        kotlinx.coroutines.delay(500)
+                        onChange(v)
+                    }
                 }
                 override fun onStartTrackingTouch(sb: SeekBar) {}
-                override fun onStopTrackingTouch(sb: SeekBar) { onChange(sb.progress + min) }
+                override fun onStopTrackingTouch(sb: SeekBar) {
+                    val v = sb.progress + min
+                    tvVal.text = "$v$unit"
+                }
             })
         }
         row.addView(seek)

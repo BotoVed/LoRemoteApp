@@ -167,6 +167,17 @@ appcompat: 1.6.1, material: 1.11.0
 
 ## Известные проблемы → решения
 
+### Бэйджи для статусов
+- `badge_yellow.xml`, `badge_neutral.xml` — для статусов SI, A, BS
+- `badge_green.xml`, `badge_red.xml` — для BS (Норма/Тревога)
+
+### Критичные паттерны
+- `zonesContainer` должен быть полем класса, не локальной переменной в `onCreateView`
+- `ControlFragment.onResume` — читать конфиг из SharedPreferences, не из `main.savedConfig`
+- `applyConfig` сохраняет **оригинальный** JSON в SharedPreferences, не очищенный
+
+## Известные проблемы → решения
+
 | Проблема | Решение |
 |---------|---------|
 | portnum=0 при парсинге | fixed32 для from/to/id в MeshPacket, не uint32 |
@@ -176,8 +187,11 @@ appcompat: 1.6.1, material: 1.11.0
 | Gradle не найден | `/tmp/gradle-8.6/bin/gradle`, не системный |
 | Nordic API | v2.7.4 требует BleManagerCallbacks интерфейс |
 | T1000-E не виден в скане | Закрыть Meshtastic app — BLE занят |
+| zonesContainer пустой после applyConfig | zonesContainer — поле класса, не локальная переменная |
+| devices не попадают в зоны при `a: null` | optString("a") == "" или `"null"` — проверять оба |
+| buildZones не вызывается при переключении | Читать из SharedPreferences в onResume |
 
-## Статус v0.4.0 ✅
+## Статус v0.4.1 ✅
 
 - [x] BLE сканирование + фильтрация Meshtastic устройств
 - [x] Автоподключение к последнему устройству (SharedPreferences)
@@ -195,11 +209,15 @@ appcompat: 1.6.1, material: 1.11.0
 - [x] Полная переработка UI: тёмная тема, серая палитра, цветные статусы
 - [x] Header с иконками BLE/HA/шестерёнка
 - [x] Bottom Navigation с двумя вкладками (Управление / Настройки)
-- [x] Зоны — карточки устройств с группировкой по типам (L, SW, C, WH, BS, S, SI, и т.д.)
+- [x] Полный UI (зоны, карточки устройств)
+  - [x] Строки устройств с toggle/значением/бейджем по типу (L, SW, C, WH, F, H, B, CV, LK, SI, A, S, BS)
+  - [x] Подписи под названием (subText)
+  - [x] Долгий тап → карточка, обычный тап → toggle
+  - [x] Плейсхолдер при отсутствии конфига
 - [x] Настройки: конфиг, BLE-сканер, PING-диагностика
 - [x] DevicePopupDialog — bottom sheet с контролами по типу устройства
 - [x] Alert bar для тревог
-- [x] Drawable ресурсы: bg_zone_card, badge_red, badge_green, badge_yellow, иконки
+- [x] Drawable ресурсы: bg_zone_card, badge_red, badge_green, badge_yellow, badge_neutral, иконки
 
 ## TODO (следующие шаги)
 

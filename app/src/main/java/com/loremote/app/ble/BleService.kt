@@ -12,9 +12,12 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+  import com.loremote.app.protocol.DeliveryQueue
+import com.loremote.app.protocol.Protocol
 import com.loremote.app.ui.MainActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import android.util.Log
 
 class BleService : LifecycleService() {
 
@@ -33,6 +36,17 @@ class BleService : LifecycleService() {
 
     lateinit var bleManager: LoRemoteBleManager
     lateinit var scanner: BleScanner
+    val deliveryQueue = DeliveryQueue(
+        sendFn = { packet ->
+            val bytes = com.loremote.app.protocol.Protocol.encode(packet)
+            kotlinx.coroutines.GlobalScope.launch {
+                bleManager.sendLoRemote(bytes)
+            }
+        },
+        onFailed = { devId ->
+            Log.w("BleService", "Delivery failed for $devId")
+        }
+    )
 
     private var pingJob: kotlinx.coroutines.Job? = null
 
@@ -65,6 +79,16 @@ class BleService : LifecycleService() {
 
                 if (state is BleState.Ready) {
                     startPingLoop()
+                    lifecycleScope.launch {
+                        delay(1000)
+                        try {
+                            val bytes = Protocol.encode(Protocol.requestAll())
+                            bleManager.sendLoRemote(bytes)
+                            Log.i("BleService", "Requested all device states")
+                        } catch (e: Exception) {
+                            Log.e("BleService", "requestAll failed: ${e.message}")
+                        }
+                    }
                 }
             }
         }

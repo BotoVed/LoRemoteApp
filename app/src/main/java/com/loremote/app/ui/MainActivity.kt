@@ -25,9 +25,10 @@ import com.loremote.app.ble.BleScanner
 import com.loremote.app.ble.BleService
 import com.loremote.app.ble.BleState
 import com.loremote.app.databinding.ActivityMainBinding
-import com.loremote.app.protocol.OutPacket
+ import com.loremote.app.protocol.OutPacket
 import com.loremote.app.protocol.PacketType
 import com.loremote.app.protocol.Protocol
+import com.loremote.app.state.DeviceStateManager
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
@@ -218,25 +219,30 @@ class MainActivity : AppCompatActivity() {
     // ── Packet Handler ────────────────────────────────────────────────────
     private fun handlePacket(map: Map<String, Any?>) {
         val tp = (map["tp"] as? Long)?.toInt() ?: return
+        val id = map["id"] as? String
+
         when (tp) {
             PacketType.CONFIRM -> {
-                android.util.Log.d("MainActivity", "✓ CONFIRM id=${map["id"]}")
+                if (id != null) {
+                    DeviceStateManager.onConfirmed(id, extractStateValues(map))
+                    bleService?.deliveryQueue?.confirm(id)
+                }
             }
             PacketType.STATUS -> {
-                val id = map["id"] as? String
                 if (id != null) {
+                    DeviceStateManager.onConfirmed(id, extractStateValues(map))
                     (supportFragmentManager.findFragmentById(R.id.contentContainer) as? ControlFragment)
                         ?.onDeviceUpdate(id, map)
                 }
             }
             PacketType.PUSH -> {
-                val id = map["id"] as? String
-                val s = map["s"]
                 if (id != null) {
+                    DeviceStateManager.onConfirmed(id, extractStateValues(map))
                     (supportFragmentManager.findFragmentById(R.id.contentContainer) as? ControlFragment)
                         ?.onDeviceUpdate(id, map)
                 }
                 // Аларм если binary_sensor сработал
+                val s = map["s"]
                 if (s == 1L || s == true) {
                     val cfg = savedConfig
                     val deviceName = cfg?.optJSONObject("mpg")
@@ -261,12 +267,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun extractStateValues(map: Map<String, Any?>): Map<String, Any?> {
+        return listOf("s","bri","ct","th","tc","md","fn","sp","pos","st","v","u")
+            .mapNotNull { k -> map[k]?.let { k to it } }
+            .toMap()
+    }
+
     // ── Send ──────────────────────────────────────────────────────────────
-    fun sendPacket(packet: OutPacket) {
+    fun sendPacket(packet: OutPacket, stateChanges: Map<String, Any?>? = null) {
         lifecycleScope.launch {
             try {
-                val bytes = Protocol.encode(packet)
-                bleService?.bleManager?.sendLoRemote(bytes)
+                if (packet.id != null && stateChanges != null) {
+                    DeviceStateManager.onSending(packet.id, stateChanges)
+                }
+                if (packet.id != null) {
+                    bleService?.deliveryQueue?.enqueue(packet.id, packet)
+                } else {
+                    val bytes = Protocol.encode(packet)
+                    bleService?.bleManager?.sendLoRemote(bytes)
+                }
             } catch (e: Exception) {
                 android.util.Log.e("MainActivity", "Send error: ${e.message}")
             }

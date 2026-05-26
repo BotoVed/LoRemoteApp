@@ -6,9 +6,13 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.loremote.app.R
+import kotlinx.coroutines.launch
 import com.loremote.app.protocol.OutPacket
 import com.loremote.app.protocol.PacketType
+import com.loremote.app.state.DeviceStateManager
+import com.loremote.app.state.DeviceStatus
 import org.json.JSONObject
 
 class ControlFragment : Fragment() {
@@ -124,6 +128,56 @@ class ControlFragment : Fragment() {
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        lifecycleScope.launch {
+            DeviceStateManager.states.collect { states ->
+                states.forEach { (hash, state) ->
+                    updateDeviceRow(hash, state)
+                }
+            }
+        }
+    }
+
+    fun updateDeviceRow(hash: String, state: com.loremote.app.state.DeviceState) {
+        val row = zonesContainer?.findViewWithTag<LinearLayout>(hash) ?: return
+
+        applyRowStatus(row, state.status)
+
+        val visible = DeviceStateManager.visible(hash)
+        for (i in 0 until row.childCount) {
+            val child = row.getChildAt(i)
+            if (child is Switch) {
+                child.setOnCheckedChangeListener(null)
+                child.isChecked = visible["s"] == 1L
+                child.setOnCheckedChangeListener { _, checked ->
+                    val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
+                    val changes = mapOf("s" to if (checked) 1L else 0L)
+                    main.sendPacket(
+                        OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0),
+                        stateChanges = changes
+                    )
+                }
+                break
+            }
+        }
+    }
+
+    private fun applyRowStatus(row: View, status: DeviceStatus) {
+        when (status) {
+            DeviceStatus.PENDING -> {
+                (row as? LinearLayout)?.alpha = 0.5f
+            }
+            DeviceStatus.FAILED -> {
+                (row as? LinearLayout)?.setBackgroundColor(0x15F87171.toInt())
+            }
+            DeviceStatus.OK -> {
+                (row as? LinearLayout)?.alpha = 1f
+                (row as? LinearLayout)?.setBackgroundColor(0)
+            }
+        }
+    }
+
     private fun buildZoneCard(zoneName: String, devices: List<Pair<String, JSONObject>>, mpg: JSONObject): View {
         val ctx = requireContext()
         val card = LinearLayout(ctx).apply {
@@ -187,16 +241,22 @@ class ControlFragment : Fragment() {
 
     private fun buildDeviceRow(hash: String, dev: JSONObject, type: String): View {
         val ctx = requireContext()
+        val state = DeviceStateManager.visible(hash)
+        val deviceStatus = DeviceStateManager.get(hash)?.status ?: DeviceStatus.OK
+
         val row = LinearLayout(ctx).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = android.view.Gravity.CENTER_VERTICAL
             setPadding(dpToPx(6), dpToPx(8), dpToPx(6), dpToPx(8))
+            tag = hash
             val lp = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
             layoutParams = lp
         }
+
+        applyRowStatus(row, deviceStatus)
 
         val nameBlock = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
@@ -209,7 +269,7 @@ class ControlFragment : Fragment() {
         }
         val tvSub = TextView(ctx).apply {
             id = View.generateViewId()
-            text = subText(type, devStates[hash])
+            text = subText(type, state)
             textSize = 11f
             setTextColor(getColor(R.color.gray_500))
         }
@@ -220,21 +280,29 @@ class ControlFragment : Fragment() {
         when (type) {
             "L", "SW", "C", "WH", "F", "H" -> {
                 val toggle = Switch(ctx).apply {
-                    isChecked = devStates[hash]?.get("s") == 1L
+                    isChecked = state["s"] == 1L
                     setOnCheckedChangeListener { _, isChecked ->
                         val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
-                        main.sendPacket(OutPacket(tp = PacketType.CMD, id = hash, s = if (isChecked) 1 else 0))
+                        val changes = mapOf("s" to if (isChecked) 1L else 0L)
+                        main.sendPacket(
+                            OutPacket(tp = PacketType.CMD, id = hash, s = if (isChecked) 1 else 0),
+                            stateChanges = changes
+                        )
                     }
                 }
                 row.addView(toggle)
             }
             "LK" -> {
                 val toggle = Switch(ctx).apply {
-                    isChecked = devStates[hash]?.get("s") == 1L
+                    isChecked = state["s"] == 1L
                     setOnCheckedChangeListener { _, isChecked ->
                         val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
+                        val changes = mapOf("s" to if (isChecked) 1L else 0L)
                         val cmd = if (isChecked) "lock" else "unlock"
-                        main.sendPacket(OutPacket(tp = PacketType.CMD, id = hash, cmd = cmd))
+                        main.sendPacket(
+                            OutPacket(tp = PacketType.CMD, id = hash, cmd = cmd),
+                            stateChanges = changes
+                        )
                     }
                 }
                 row.addView(toggle)
@@ -353,8 +421,8 @@ class ControlFragment : Fragment() {
     }
 
     private fun openDevicePopup(hash: String, dev: JSONObject, type: String) {
-        val dialog = DevicePopupDialog(hash, dev, type, devStates[hash]) { packet ->
-            (activity as? MainActivity)?.sendPacket(packet)
+        val dialog = DevicePopupDialog(hash, dev, type, devStates[hash]) { packet, changes ->
+            (activity as? MainActivity)?.sendPacket(packet, changes)
         }
         dialog.show(parentFragmentManager, "device_popup")
     }

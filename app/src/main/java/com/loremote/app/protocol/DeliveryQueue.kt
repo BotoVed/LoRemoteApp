@@ -1,6 +1,7 @@
 package com.loremote.app.protocol
 
 import android.util.Log
+import com.loremote.app.state.DeviceStateManager
 import kotlinx.coroutines.*
 
 class DeliveryQueue(
@@ -37,6 +38,7 @@ class DeliveryQueue(
 
             if (entry.attempts >= 6) {
                 queue.remove(key)
+                DeviceStateManager.onFailed(entry.devId)
                 withContext(Dispatchers.Main) { onFailed(entry.devId) }
                 return@launch
             }
@@ -49,6 +51,7 @@ class DeliveryQueue(
         val key = queue.keys.firstOrNull { queue[it]?.devId == devId } ?: return
         queue[key]?.job?.cancel()
         queue.remove(key)
+        DeviceStateManager.onDelivered(devId)
         Log.d(TAG, "Confirmed: $devId")
     }
 
