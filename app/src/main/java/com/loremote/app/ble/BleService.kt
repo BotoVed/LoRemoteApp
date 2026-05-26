@@ -45,7 +45,8 @@ class BleService : LifecycleService() {
         },
         onFailed = { devId ->
             Log.w("BleService", "Delivery failed for $devId")
-        }
+        },
+        context = this
     )
 
     private var pingJob: kotlinx.coroutines.Job? = null

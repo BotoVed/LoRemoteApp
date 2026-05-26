@@ -17,6 +17,11 @@ class SettingsFragment : Fragment() {
     var tvPingResult: TextView? = null
     private var tvDeviceStatus: TextView? = null
 
+    private var seekRetryCount: SeekBar? = null
+    private var tvRetryCountLabel: TextView? = null
+    private var seekRetryInterval: SeekBar? = null
+    private var tvRetryIntervalLabel: TextView? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_settings, container, false)
     }
@@ -32,9 +37,47 @@ class SettingsFragment : Fragment() {
         tvPingResult = view.findViewById(R.id.tvPingResult)
         tvDeviceStatus = view.findViewById(R.id.tvDeviceStatus)
 
-        // Сохранить/восстановить конфиг
+        seekRetryCount = view.findViewById(R.id.seekRetryCount)
+        tvRetryCountLabel = view.findViewById(R.id.tvRetryCountLabel)
+        seekRetryInterval = view.findViewById(R.id.seekRetryInterval)
+        tvRetryIntervalLabel = view.findViewById(R.id.tvRetryIntervalLabel)
+
+        // Загрузить значения из SharedPreferences
         val prefs = requireContext().getSharedPreferences("loremote", Context.MODE_PRIVATE)
-        val savedConfig = prefs.getString("config_json", null)
+        val retryCount = prefs.getInt("retry_count", 0)
+        val retryInterval = prefs.getInt("retry_interval", 30)
+
+        seekRetryCount?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                tvRetryCountLabel?.text = if (progress == 0) "0 повторов (без повторов)" else "$progress повторов"
+                seekRetryInterval?.isEnabled = progress > 0
+                seekRetryInterval?.alpha = if (progress > 0) 1f else 0.4f
+                prefs.edit().putInt("retry_count", progress).apply()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        })
+        seekRetryCount?.progress = retryCount
+        if (retryCount > 0) {
+            tvRetryCountLabel?.text = "$retryCount повторов"
+            seekRetryInterval?.isEnabled = true
+            seekRetryInterval?.alpha = 1f
+        }
+
+        seekRetryInterval?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                val interval = progress + 15
+                tvRetryIntervalLabel?.text = "$interval сек"
+                prefs.edit().putInt("retry_interval", interval).apply()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        })
+        seekRetryInterval?.progress = retryInterval - 15
+
+        // Сохранить/восстановить конфиг
+        val configPrefs = requireContext().getSharedPreferences("loremote", Context.MODE_PRIVATE)
+        val savedConfig = configPrefs.getString("config_json", null)
         if (!savedConfig.isNullOrBlank()) {
             view.findViewById<EditText>(R.id.etConfig).setText(savedConfig)
         }

@@ -198,7 +198,7 @@ class ControlFragment : Fragment() {
         val tvName = TextView(ctx).apply {
             text = zoneName
             textSize = 15f
-            setTextColor(getColor(R.color.gray_200))
+            setTextColor(ctx.getColor(R.color.gray_300))
             setTypeface(null, android.graphics.Typeface.BOLD)
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
@@ -223,6 +223,20 @@ class ControlFragment : Fragment() {
         val ctx = requireContext()
         val section = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
+        }
+
+        val typeName = getTypeName(type)
+        if (typeName != null) {
+            val label = TextView(ctx).apply {
+                text = typeName
+                textSize = 11f
+                setTextColor(ctx.getColor(R.color.gray_400))
+                setTextSize(11f)
+                letterSpacing = 0.08f
+                setPadding(dpToPx(6), dpToPx(10), dpToPx(6), dpToPx(4))
+                setAllCaps(true)
+            }
+            section.addView(label)
         }
 
         val devList = LinearLayout(ctx).apply {
@@ -421,10 +435,27 @@ class ControlFragment : Fragment() {
     }
 
     private fun openDevicePopup(hash: String, dev: JSONObject, type: String) {
-        val dialog = DevicePopupDialog(hash, dev, type, devStates[hash]) { packet, changes ->
+        val dialog = DevicePopupDialog(hash, dev, type) { packet, changes ->
             (activity as? MainActivity)?.sendPacket(packet, changes)
         }
         dialog.show(parentFragmentManager, "device_popup")
+    }
+
+    private fun getTypeName(type: String): String? {
+        return when (type) {
+            "L" -> "СВЕТ"
+            "SW", "SI" -> "ПЕРЕКЛЮЧАТЕЛИ"
+            "C" -> "КЛИМАТ"
+            "WH" -> "ВОДОНАГРЕВАТЕЛЬ"
+            "F" -> "ВЕНТИЛЯЦИЯ"
+            "H" -> "УВЛАЖНЕНИЕ"
+            "CV" -> "ЖАЛЮЗИ"
+            "LK" -> "ЗАМКИ"
+            "A" -> "БЕЗОПАСНОСТЬ"
+            "BS", "S" -> "ДАТЧИКИ"
+            "B" -> "КНОПКИ И СЦЕНЫ"
+            else -> null
+        }
     }
 
     private fun subText(type: String, state: Map<String, Any?>?): String {

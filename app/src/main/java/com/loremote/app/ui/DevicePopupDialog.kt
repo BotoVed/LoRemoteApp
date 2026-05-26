@@ -8,6 +8,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.loremote.app.R
 import com.loremote.app.protocol.OutPacket
 import com.loremote.app.protocol.PacketType
+import com.loremote.app.state.DeviceStateManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -17,11 +18,96 @@ class DevicePopupDialog(
     private val hash: String,
     private val dev: JSONObject,
     private val type: String,
-    private val state: Map<String, Any?>?,
     private val onSend: (OutPacket, Map<String, Any?>?) -> Unit
 ) : BottomSheetDialogFragment() {
 
-    private val debounceJobs = mutableMapOf<String, kotlinx.coroutines.Job>()
+   private val debounceJobs = mutableMapOf<String, kotlinx.coroutines.Job>()
+
+    private var currentVisibleState: Map<String, Any?> = emptyMap()
+
+    private fun updateControls(newState: Map<String, Any?>) {
+        val scroll = view?.parent as? ScrollView ?: return
+        val layout = scroll.getChildAt(0) as? LinearLayout ?: return
+        for (i in 1 until layout.childCount) {
+            val section = layout.getChildAt(i)
+            if (section is LinearLayout) {
+                updateControlSection(section, newState)
+            }
+        }
+    }
+
+    private fun updateControlSection(section: LinearLayout, newState: Map<String, Any?>) {
+        for (i in 0 until section.childCount) {
+            val child = section.getChildAt(i)
+            if (child is Switch) {
+                val parent = child.parent
+                if (parent is LinearLayout) {
+                    val label = parent.getChildAt(0) as? TextView
+                    val field = label?.text?.let { findFieldFromLabel(it.toString()) } ?: continue
+                    child.setOnCheckedChangeListener(null)
+                    child.isChecked = newState[field] == 1L
+                    child.setOnCheckedChangeListener { _, checked ->
+                        val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
+                        val changes = mapOf(field to if (checked) 1L else 0L)
+                        main.sendPacket(
+                            OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0),
+                            stateChanges = changes
+                        )
+                    }
+                }
+            }
+            if (child is TextView) {
+                val parent = child.parent
+                if (parent is LinearLayout) {
+                    val label = parent.getChildAt(0)
+                    if (label is TextView) {
+                        val fieldName = label.text?.let { findFieldFromLabel(it.toString()) }
+                        if (fieldName != null && child.id != View.NO_ID) {
+                            // This is a value TextView for a slider
+                            val value = newState[fieldName]
+                            if (value != null) {
+                                val unit = (child.parent as? LinearLayout)?.getChildAt(1) as? TextView
+                                if (unit != null) {
+                                    val parent2 = unit.parent as? LinearLayout
+                                    if (parent2 != null && parent2.childCount > 0) {
+                                        val seekBar = parent2.getChildAt(0) as? SeekBar
+                                        if (seekBar != null) {
+                                            unit.text = "$value"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun findFieldFromLabel(label: String): String? {
+        return when (label) {
+            "Включить", "Сирена" -> "s"
+            "Яркость" -> "bri"
+            "Температура цвета" -> "ct"
+            "Скорость" -> "sp"
+            "Позиция" -> "pos"
+            else -> null
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        currentVisibleState = DeviceStateManager.visible(hash)
+        lifecycleScope.launch {
+            DeviceStateManager.states.collect { states ->
+                val newState = DeviceStateManager.visible(hash)
+                if (newState != currentVisibleState) {
+                    currentVisibleState = newState
+                    updateControls(newState)
+                }
+            }
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val ctx = requireContext()
@@ -85,17 +171,17 @@ class DevicePopupDialog(
 
 private fun buildLightControls(layout: LinearLayout) {
         val ctx = requireContext()
-        val on = state?.get("s") == 1L
+        val on = currentVisibleState["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
 
-val bri = (state?.get("bri") as? Long)?.toInt() ?: 50
+        val bri = (currentVisibleState["bri"] as? Long)?.toInt() ?: 50
         addSlider(layout, "Яркость", "%", 1, 100, bri, 1, "bri") { v ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, bri = v), mapOf("bri" to v.toLong()))
         }
 
-        val ct = (state?.get("ct") as? Long)?.toInt() ?: 4000
+        val ct = (currentVisibleState["ct"] as? Long)?.toInt() ?: 4000
         addSlider(layout, "Температура цвета", "K", 2700, 6500, ct, 100, "ct") { v ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, ct = v), mapOf("ct" to v.toLong()))
         }
@@ -148,14 +234,14 @@ val bri = (state?.get("bri") as? Long)?.toInt() ?: 50
         layout.addView(presetsRow)
     }
 
-    private fun buildClimateControls(layout: LinearLayout) {
+private fun buildClimateControls(layout: LinearLayout) {
         val ctx = requireContext()
-        val on = state?.get("s") == 1L
+        val on = currentVisibleState["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
 
-        val tc = (state?.get("tc") as? Number)?.toInt()
+        val tc = (currentVisibleState["tc"] as? Number)?.toInt()
         if (tc != null) {
             val tvCurr = TextView(ctx).apply {
                 text = "Текущая: $tc°C"
@@ -166,13 +252,13 @@ val bri = (state?.get("bri") as? Long)?.toInt() ?: 50
             layout.addView(tvCurr)
         }
 
-val th = (state?.get("th") as? Number)?.toInt() ?: 22
-        addTempControl(layout, "Целевая температура", "°C", 16, 30, th, { v ->
+        val th = (currentVisibleState["th"] as? Number)?.toInt() ?: 22
+        addTempControl(layout, "Целевая температура", "°C", 16, 30, th) { v ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()), mapOf("th" to v.toDouble()))
-        })
+        }
 
         val modes = listOf("cool" to "❄", "heat" to "🔥", "fan" to "💨", "auto" to "🔄", "dry" to "💧")
-        val currentMode = (state?.get("mode") as? String) ?: "cool"
+        val currentMode = (currentVisibleState["mode"] as? String) ?: "cool"
         val modeRow = LinearLayout(ctx).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = android.view.Gravity.CENTER_VERTICAL
@@ -204,8 +290,8 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
         }
         layout.addView(modeRow)
 
-        val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to "Высокая", "auto" to "Авто")
-        val currentFan = (state?.get("fan") as? String) ?: "auto"
+val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to "Высокая", "auto" to "Авто")
+        val currentFan = (currentVisibleState["fan"] as? String) ?: "auto"
         val fanRow = LinearLayout(ctx).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = android.view.Gravity.CENTER_VERTICAL
@@ -240,12 +326,12 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
 
     private fun buildBoilerControls(layout: LinearLayout) {
         val ctx = requireContext()
-        val on = state?.get("s") == 1L
+        val on = currentVisibleState["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
 
-        val tc = (state?.get("tc") as? Number)?.toInt()
+        val tc = (currentVisibleState["tc"] as? Number)?.toInt()
         if (tc != null) {
             val tvCurr = TextView(ctx).apply {
                 text = "Текущая: $tc°C"
@@ -256,13 +342,13 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
             layout.addView(tvCurr)
         }
 
-        val th = (state?.get("th") as? Number)?.toInt() ?: 55
-        addTempControl(layout, "Целевая температура", "°C", 35, 75, th, { v ->
+        val th = (currentVisibleState["th"] as? Number)?.toInt() ?: 55
+        addTempControl(layout, "Целевая температура", "°C", 35, 75, th) { v ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()), mapOf("th" to v.toDouble()))
-        })
+        }
 
         val modes = listOf("eco" to "Эко", "comfort" to "Комфорт", "power" to "Мощный", "vacation" to "Отпуск")
-        val currentMode = (state?.get("mode") as? String) ?: "comfort"
+        val currentMode = (currentVisibleState["mode"] as? String) ?: "comfort"
         val modeRow = LinearLayout(ctx).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = android.view.Gravity.CENTER_VERTICAL
@@ -297,12 +383,12 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
 
     private fun buildFanControls(layout: LinearLayout) {
         val ctx = requireContext()
-        val on = state?.get("s") == 1L
+        val on = currentVisibleState["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
 
-        val speed = (state?.get("speed") as? Long)?.toInt() ?: 50
+        val speed = (currentVisibleState["speed"] as? Long)?.toInt() ?: 50
         addSlider(layout, "Скорость", "%", 1, 100, speed, 1, "sp") { v ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, sp = v), mapOf("sp" to v.toLong()))
         }
@@ -310,12 +396,12 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
 
     private fun buildHumidifierControls(layout: LinearLayout) {
         val ctx = requireContext()
-        val on = state?.get("s") == 1L
+        val on = currentVisibleState["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
 
-       val tc = (state?.get("tc") as? Number)?.toInt()
+       val tc = (currentVisibleState["tc"] as? Number)?.toInt()
         if (tc != null) {
             val tvCurr = TextView(ctx).apply {
                 text = "Текущая: $tc%"
@@ -326,7 +412,7 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
             layout.addView(tvCurr)
         }
 
-        val th = (state?.get("th") as? Number)?.toInt() ?: 50
+        val th = (currentVisibleState["th"] as? Number)?.toInt() ?: 50
         addTempControl(layout, "Целевая влажность", "%", 20, 80, th) { v ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()), mapOf("th" to v.toDouble()))
         }
@@ -334,7 +420,7 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
 
    private fun buildCoverControls(layout: LinearLayout) {
         val ctx = requireContext()
-        val pos = (state?.get("pos") as? Long)?.toInt() ?: 0
+        val pos = (currentVisibleState["pos"] as? Long)?.toInt() ?: 0
         addSlider(layout, "Позиция", "%", 0, 100, pos, 1, "pos") { v ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, pos = v), mapOf("pos" to v.toLong()))
         }
@@ -417,7 +503,7 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
 
     private fun buildBinarySensorControl(layout: LinearLayout) {
         val ctx = requireContext()
-        val active = state?.get("s") == 1L
+        val active = currentVisibleState["s"] == 1L
 
         val badge = TextView(ctx).apply {
             text = if (active) "⚠️ ТРЕВОГА" else "✓ Норма"
@@ -429,7 +515,7 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
         }
         layout.addView(badge)
 
-        val ts = state?.get("ts") as? String
+        val ts = currentVisibleState["ts"] as? String
         val tvTime = TextView(ctx).apply {
             text = if (ts != null) "Обновлено: $ts" else "Нет данных"
             textSize = 13f
@@ -441,9 +527,9 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
 
     private fun buildSensorControl(layout: LinearLayout) {
         val ctx = requireContext()
-        val v = state?.get("v")
+        val v = currentVisibleState["v"]
         val u = dev.optString("u", "")
-        val ts = state?.get("ts") as? String
+        val ts = currentVisibleState["ts"] as? String
 
         val tvVal = TextView(ctx).apply {
             text = if (v != null) "$v" else "—"
@@ -475,7 +561,7 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
 
     private fun buildSirenControl(layout: LinearLayout) {
         val ctx = requireContext()
-        val active = state?.get("s") == 1L
+        val active = currentVisibleState["s"] == 1L
 
         val warning = TextView(ctx).apply {
             text = "⚠️ Внимание: громкий звук"
@@ -488,7 +574,7 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
         }
         layout.addView(warning)
 
-        val on = state?.get("s") == 1L
+        val on = currentVisibleState["s"] == 1L
         addToggleRow(layout, "Сирена", on) { checked ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
@@ -496,7 +582,7 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
 
     private fun buildAlarmControl(layout: LinearLayout) {
         val ctx = requireContext()
-        val mode = (state?.get("s") as? Long)
+        val mode = (currentVisibleState["s"] as? Long)
 
         val status = TextView(ctx).apply {
             text = when (mode) {
@@ -577,7 +663,7 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
     }
 
     private fun buildToggleControl(layout: LinearLayout) {
-        val on = state?.get("s") == 1L
+        val on = currentVisibleState["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }
@@ -585,7 +671,7 @@ val th = (state?.get("th") as? Number)?.toInt() ?: 22
 
     private fun buildGenericControl(layout: LinearLayout) {
         val ctx = requireContext()
-        val on = state?.get("s") == 1L
+        val on = currentVisibleState["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), mapOf("s" to if (checked) 1L else 0L))
         }

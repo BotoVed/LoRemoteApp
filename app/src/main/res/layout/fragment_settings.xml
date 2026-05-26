@@ -112,5 +112,84 @@
             android:padding="8dp"
             android:background="@color/bg_elevated"/>
 
+        <!-- Секция: Доставка команд -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ДОСТАВКА КОМАНД"
+            android:textSize="11sp"
+            android:textColor="@color/gray_600"
+            android:letterSpacing="0.1"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="6dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="КОЛ-ВО ПОВТОРОВ ОТПРАВКИ"
+            android:textSize="11sp"
+            android:textColor="@color/gray_400"
+            android:layout_marginBottom="4dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <SeekBar
+                android:id="@+id/seekRetryCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="5"
+                android:progress="0"/>
+
+            <TextView
+                android:id="@+id/tvRetryCountLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 повторов (без повторов)"
+                android:textSize="11sp"
+                android:textColor="@color/gray_500"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ИНТЕРВАЛ ПОВТОРА (сек)"
+            android:textSize="11sp"
+            android:textColor="@color/gray_400"
+            android:layout_marginBottom="4dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <SeekBar
+                android:id="@+id/seekRetryInterval"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="105"
+                android:progress="15"
+                android:enabled="false"
+                android:alpha="0.4"/>
+
+            <TextView
+                android:id="@+id/tvRetryIntervalLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="30 сек"
+                android:textSize="11sp"
+                android:textColor="@color/gray_500"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
     </LinearLayout>
 </ScrollView>
