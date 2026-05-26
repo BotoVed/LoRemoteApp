@@ -27,10 +27,48 @@ class ControlFragment : Fragment() {
 
         // Восстановить конфиг если есть
         (activity as? MainActivity)?.let { main ->
-            main.savedConfig?.let { buildZones(it) }
-        }
+            if (main.savedConfig != null) {
+                buildZones(main.savedConfig!!)
+            } else {
+                showPlaceholder("Конфигурация не загружена")
+            }
+        } ?: showPlaceholder("Конфигурация не загружена")
 
         return scroll
+    }
+
+    private fun showPlaceholder(message: String) {
+        zonesContainer?.removeAllViews()
+        val ctx = requireContext()
+        val wrapper = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = android.view.Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            )
+            setPadding(dpToPx(32), dpToPx(80), dpToPx(32), dpToPx(32))
+        }
+        wrapper.addView(TextView(ctx).apply {
+            text = "⚙️"
+            textSize = 48f
+            gravity = android.view.Gravity.CENTER
+        })
+        wrapper.addView(TextView(ctx).apply {
+            text = message
+            textSize = 14f
+            setTextColor(ctx.getColor(R.color.gray_500))
+            gravity = android.view.Gravity.CENTER
+            setPadding(0, dpToPx(12), 0, 0)
+        })
+        wrapper.addView(TextView(ctx).apply {
+            text = "Перейдите в Настройки и вставьте window.LORA_CONFIG"
+            textSize = 12f
+            setTextColor(ctx.getColor(R.color.gray_600))
+            gravity = android.view.Gravity.CENTER
+            setPadding(0, dpToPx(8), 0, 0)
+        })
+        zonesContainer?.addView(wrapper)
     }
 
     fun buildZones(config: JSONObject) {
@@ -163,6 +201,67 @@ class ControlFragment : Fragment() {
                 }
                 row.addView(toggle)
             }
+            "LK" -> {
+                val toggle = Switch(ctx).apply {
+                    isChecked = devStates[hash]?.get("s") == 1L
+                    setOnCheckedChangeListener { _, isChecked ->
+                        val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
+                        val cmd = if (isChecked) "lock" else "unlock"
+                        main.sendPacket(OutPacket(tp = PacketType.CMD, id = hash, cmd = cmd))
+                    }
+                }
+                row.addView(toggle)
+            }
+            "B" -> {
+                val btn = Button(ctx).apply {
+                    text = "▶"
+                    setTextSize(16f)
+                    setOnClickListener {
+                        val main = activity as? MainActivity ?: return@setOnClickListener
+                        main.sendPacket(OutPacket(tp = PacketType.CMD, id = hash, cmd = "press"))
+                    }
+                }
+                row.addView(btn)
+            }
+            "CV" -> {
+                val state = devStates[hash]
+                val pos = (state?.get("pos") as? Long)?.toInt() ?: 0
+                val st = state?.get("st")
+                val tvVal = TextView(ctx).apply {
+                    text = if (pos != 0) "открыты·${pos}%" else "закрыты"
+                    textSize = 13f
+                    setTextColor(getColor(R.color.green_text))
+                }
+                row.addView(tvVal)
+            }
+            "SI" -> {
+                val state = devStates[hash]
+                val v = state?.get("v")
+                val u = dev.optString("u", "")
+                val tvVal = TextView(ctx).apply {
+                    text = if (v != null) "$v$u" else "—"
+                    textSize = 13f
+                    setTextColor(getColor(if (v != null) R.color.green_text else R.color.gray_500))
+                }
+                row.addView(tvVal)
+            }
+            "A" -> {
+                val state = devStates[hash]
+                val mode = state?.get("s")
+                val tvBadge = TextView(ctx).apply {
+                    text = when (mode) {
+                        1L -> "armed"
+                        2L -> "stay"
+                        3L -> "night"
+                        else -> "disarmed"
+                    }
+                    textSize = 12f
+                    setTextColor(getColor(R.color.yellow_text))
+                    setPadding(dpToPx(8), dpToPx(3), dpToPx(8), dpToPx(3))
+                    setBackgroundResource(R.drawable.badge_yellow)
+                }
+                row.addView(tvBadge)
+            }
             "S" -> {
                 val state = devStates[hash]
                 val v = state?.get("v")
@@ -178,24 +277,13 @@ class ControlFragment : Fragment() {
             "BS" -> {
                 val active = devStates[hash]?.get("s") == 1L
                 val tvBadge = TextView(ctx).apply {
-                    text = if (active) "Тревога!" else "Норма"
+                    text = if (active) "⚠️ Тревога" else "✓ Норма"
                     textSize = 12f
                     setTextColor(getColor(if (active) R.color.red_text else R.color.green_text))
                     setPadding(dpToPx(8), dpToPx(3), dpToPx(8), dpToPx(3))
                     setBackgroundResource(if (active) R.drawable.badge_red else R.drawable.badge_green)
                 }
                 row.addView(tvBadge)
-            }
-            "SI" -> {
-                val state = devStates[hash]
-                val v = state?.get("v")
-                val u = dev.optString("u", "")
-                val tvVal = TextView(ctx).apply {
-                    text = if (v != null) "$v$u" else "—"
-                    textSize = 13f
-                    setTextColor(getColor(if (v != null) R.color.green_text else R.color.gray_500))
-                }
-                row.addView(tvVal)
             }
             else -> {
                 val state = devStates[hash]
@@ -214,6 +302,13 @@ class ControlFragment : Fragment() {
         row.setOnLongClickListener {
             openDevicePopup(hash, dev, type)
             true
+        }
+
+        row.setOnClickListener {
+            val popupTypes = listOf("L", "SW", "C", "WH", "F", "H", "CV", "SI", "A", "S", "BS")
+            if (popupTypes.contains(type)) {
+                openDevicePopup(hash, dev, type)
+            }
         }
 
         return row
@@ -240,15 +335,35 @@ class ControlFragment : Fragment() {
     private fun subText(type: String, state: Map<String, Any?>?): String {
         if (state == null) return "—"
         return when (type) {
-            "L"  -> if (state["s"] == 1L) "${state["bri"] ?: 0}% · ${state["ct"] ?: 0}K" else "выкл"
+            "L"  -> if (state["s"] == 1L) "${state["bri"] ?: 0}% · ${(state["ct"] as? Number)?.toInt() ?: 0}K" else "выкл"
             "SW" -> if (state["s"] == 1L) "включён" else "выкл"
-            "C"  -> if (state["s"] == 1L) "→${(state["th"] as? Number)?.toInt() ?: 0}°C" else "выкл"
-            "WH" -> if (state["s"] == 1L) "→${(state["th"] as? Number)?.toInt() ?: 0}°C" else "выкл"
-            "CV" -> "${state["st"] ?: "?"} · ${state["pos"] ?: 0}%"
-            "LK" -> "${state["s"] ?: "?"}"
+            "C"  -> if (state["s"] == 1L) {
+                val th = (state["th"] as? Number)?.toInt() ?: 0
+                val tc = (state["tc"] as? Number)?.toInt() ?: 0
+                val mode = (state["mode"] as? String) ?: ""
+                "→$th° · $tc° · $mode"
+            } else "выкл"
+            "WH" -> if (state["s"] == 1L) {
+                val th = (state["th"] as? Number)?.toInt() ?: 0
+                val tc = (state["tc"] as? Number)?.toInt() ?: 0
+                "→$th° · сейчас $tc°"
+            } else "выкл"
+            "F"  -> if (state["s"] == 1L) "${state["speed"] ?: 0}%" else "выкл"
+            "H"  -> if (state["s"] == 1L) {
+                val th = (state["th"] as? Number)?.toInt() ?: 0
+                val tc = (state["tc"] as? Number)?.toInt() ?: 0
+                "→$th% · сейчас $tc%"
+            } else "выкл"
+            "CV" -> ""
+            "LK" -> if (state["s"] == 1L) "locked" else "unlocked"
             "BS" -> if (state["s"] == 1L) "Сработал" else "Норма"
             "SI" -> state["v"]?.toString() ?: "—"
-            "H"  -> if (state["s"] == 1L) "включён" else "выкл"
+            "A"  -> when (state["s"]) {
+                1L -> "armed"
+                2L -> "stay"
+                3L -> "night"
+                else -> "disarmed"
+            }
             "S"  -> state["v"]?.toString() ?: "—"
             else -> ""
         }

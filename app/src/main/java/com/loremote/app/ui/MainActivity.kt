@@ -139,10 +139,36 @@ class MainActivity : AppCompatActivity() {
         binding.alertBar.visibility = View.VISIBLE
     }
 
-    private fun updateBleIcon(connected: Boolean) {
-        binding.ivBleStatus.setColorFilter(
-            getColor(if (connected) R.color.green_text else R.color.gray_600)
-        )
+    private fun observeBleState() {
+        lifecycleScope.launch {
+            bleService?.bleManager?.state?.collect { state ->
+                when (state) {
+                    is BleState.Disconnected -> {
+                        binding.ivBleStatus.setColorFilter(getColor(R.color.gray_600))
+                    }
+                    is BleState.Connecting -> {
+                        binding.ivBleStatus.setColorFilter(getColor(R.color.yellow_text))
+                    }
+                    is BleState.Handshake -> {
+                        binding.ivBleStatus.setColorFilter(getColor(R.color.yellow_text))
+                    }
+                    is BleState.Ready -> {
+                        binding.ivBleStatus.setColorFilter(getColor(R.color.green_text))
+                        sendPacket(Protocol.ping())
+                    }
+                    is BleState.Error -> {
+                        binding.ivBleStatus.setColorFilter(getColor(R.color.red_text))
+                        showAlert("BLE: ${state.message}")
+                    }
+                    else -> {
+                        binding.ivBleStatus.setColorFilter(getColor(R.color.gray_600))
+                    }
+                }
+                // Обновить статус в SettingsFragment
+                val settingsFragment = supportFragmentManager.findFragmentById(R.id.contentContainer) as? SettingsFragment
+                settingsFragment?.updateConnectState(this@MainActivity)
+            }
+        }
     }
 
     private fun updateHaIcon(online: Boolean) {
@@ -173,45 +199,7 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
-    // ── BLE State Observer ────────────────────────────────────────────────
-    private fun observeBleState() {
-        lifecycleScope.launch {
-            bleService?.bleManager?.state?.collect { state ->
-                when (state) {
-                    is BleState.Ready -> {
-                        updateBleIcon(true)
-                        binding.progressBle.visibility = View.GONE
-                        sendPacket(Protocol.ping())
-                    }
-                    is BleState.Connecting -> {
-                        binding.progressBle.visibility = View.VISIBLE
-                        updateBleIcon(false)
-                    }
-                    is BleState.Handshake -> {
-                        binding.progressBle.visibility = View.VISIBLE
-                        updateBleIcon(false)
-                    }
-                    is BleState.Disconnected -> {
-                        binding.progressBle.visibility = View.GONE
-                        updateBleIcon(false)
-                    }
-                    is BleState.Error -> {
-                        binding.progressBle.visibility = View.GONE
-                        updateBleIcon(false)
-                        showAlert("BLE: ${state.message}")
-                    }
-                    else -> {
-                        binding.progressBle.visibility = View.GONE
-                        updateBleIcon(false)
-                    }
-                }
-                // Обновить статус в SettingsFragment
-                val settingsFragment = supportFragmentManager.findFragmentById(R.id.contentContainer) as? SettingsFragment
-                settingsFragment?.updateConnectState(this@MainActivity)
-            }
-        }
-    }
-
+    // ── Device List ───────────────────────────────────────────────────────
     private fun updateDeviceList(results: List<ScanResult>) {
         deviceList.clear()
         deviceList.addAll(results)
