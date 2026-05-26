@@ -192,8 +192,49 @@ appcompat: 1.6.1, material: 1.11.0
 | zonesContainer пустой после applyConfig | zonesContainer — поле класса, не локальная переменная |
 | devices не попадают в зоны при `a: null` | optString("a") == "" или `"null"` — проверять оба |
 | buildZones не вызывается при переключении | Читать из SharedPreferences в onResume |
+| DeliveryQueue.NPE при старте | getSharedPreferences перенести в onCreate() — контекст null в конструкторе Service |
+| BLUETOOTH_SCAN crash в onResume | Проверять hasBlePermissions() перед startScan() в SettingsFragment |
 
-## Статус v0.5.0 ✅
+## Статус v0.5.1 ✅ (текущий)
+
+### Исправления
+- [x] DeliveryQueue.NPE — чтение SharedPreferences перенесено из конструктора в onCreate()
+- [x] BLE сканирование в SettingsFragment — только если разрешения уже получены (hasBlePermissions)
+
+### Полная версия v0.5.0 ✅
+- [x] BLE сканирование + фильтрация Meshtastic устройств
+- [x] Автоподключение к последнему устройству (SharedPreferences)
+- [x] Meshtastic handshake (config_complete_id → Ready)
+- [x] Protobuf парсинг FromRadio (fixed32, все типы handshake)
+- [x] Broadcast отправка portnum=256
+- [x] PING доходит до T114, плагин получает
+- [x] MessagePack encode/decode
+- [x] DeliveryQueue (6 попыток)
+- [x] Foreground Service (BleService, LifecycleService, START_STICKY)
+- [x] Ping loop каждые 60 сек в фоне
+- [x] Уведомление в шторке со статусом BLE
+- [x] DeviceStateManager (pending/confirm/rollback для состояний устройств)
+- [x] DeliveryQueue → DeviceStateManager.onDelivered / onFailed
+- [x] requestAll при подключении (BleService)
+- [x] sendPacket через DeliveryQueue с stateChanges
+- [x] Контроль UI: toggle серый (PENDING), красный (FAILED)
+- [x] Debounce слайдеров в DevicePopupDialog (500мс)
+- [x] Alarm notification при тревогах
+- [x] bindService в MainActivity + BroadcastReceiver
+- [x] Полная переработка UI: тёмная тема, серая палитра, цветные статусы
+- [x] Header с иконками BLE/HA/шестерёнка
+- [x] Bottom Navigation с двумя вкладками (Управление / Настройки)
+- [x] Полный UI (зоны, карточки устройств)
+  - [x] Строки устройств с toggle/значением/бейджем по типу (L, SW, C, WH, F, H, B, CV, LK, SI, A, S, BS)
+  - [x] Подписи под названием (subText)
+  - [x] Долгий тап → карточка, обычный тап → toggle
+  - [x] Плейсхолдер при отсутствии конфига
+- [x] Настройки: конфиг, BLE-сканер, PING-диагностика, Delivery Queue (retry count/interval)
+- [x] DevicePopupDialog — bottom sheet с контролами по типу устройства
+- [x] Alert bar для тревог
+- [x] Drawable ресурсы: bg_zone_card, badge_red, badge_green, badge_yellow, badge_neutral, иконки
+
+## TODO (следующие шаги)
 
 - [x] BLE сканирование + фильтрация Meshtastic устройств
 - [x] Автоподключение к последнему устройству (SharedPreferences)
@@ -229,6 +270,5 @@ appcompat: 1.6.1, material: 1.11.0
 
 ## TODO (следующие шаги)
 
-1. **PONG от T114** — проверить что плагин отвечает на PING
-2. **Авторизация** — SHA-256 пароль, несколько пользователей
-3. **Звуковые алармы** — звук/вибрация при тревогах
+1. **Авторизация** — SHA-256 пароль, несколько пользователей
+2. **Звуковые алармы** — звук/вибрация при тревогах
