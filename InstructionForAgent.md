@@ -113,8 +113,12 @@ tp:6 PING     — телефон→HA / PONG с cfgh в ответ
 ```
 
 ### DeliveryQueue
+- Ключ = `devId` (один пакет на устройство)
 - Попытки 1-3: `hl=0` (прямая), 4-6: `hl=7` (через mesh)
-- Таймаут: 90 сек, подтверждение по tp:1 CONFIRM
+- Подтверждение по tp:1 CONFIRM
+- Без id — прямая отправка без очереди
+- Дедупликация: `enqueue(devId)` удаляет старую запись
+- lastAttempt — реальное время отправки (не время создания пакета)
 
 ## Foreground Service архитектура
 
@@ -194,12 +198,19 @@ appcompat: 1.6.1, material: 1.11.0
 | buildZones не вызывается при переключении | Читать из SharedPreferences в onResume |
 | DeliveryQueue.NPE при старте | getSharedPreferences перенести в onCreate() — контекст null в конструкторе Service |
 | BLUETOOTH_SCAN crash в onResume | Проверять hasBlePermissions() перед startScan() в SettingsFragment |
+| Автоподключение через getRemoteDevice падает | Использовать connectToDevice() — он сохраняет MAC |
+| Жёлтая иконка BLE | При fail автоконнекта иконка остаётся yellow — fix: connectTo(device.device) |
 
-## Статус v0.5.1 ✅ (текущий)
+## Статус v0.5.2 ✅ (текущий)
 
 ### Исправления
 - [x] DeliveryQueue.NPE — чтение SharedPreferences перенесено из конструктора в onCreate()
 - [x] BLE сканирование в SettingsFragment — только если разрешения уже получены (hasBlePermissions)
+- [x] Автоподключение при запуске — вызывается из onServiceConnected()
+- [x] Кнопка "Отключить" вместо "Найдено: X" в настройках
+- [x] Жёлтая иконка — авто-подключение через connectToDevice()
+- [x] Заголовки в Settings и Control — центрирование, стиль как в HTML
+- [x] DeliveryQueue — дедупликация, FIFO, real timestamps, direct send
 
 ### Полная версия v0.5.0 ✅
 - [x] BLE сканирование + фильтрация Meshtastic устройств
@@ -271,4 +282,3 @@ appcompat: 1.6.1, material: 1.11.0
 ## TODO (следующие шаги)
 
 1. **Авторизация** — SHA-256 пароль, несколько пользователей
-2. **Звуковые алармы** — звук/вибрация при тревогах
