@@ -179,6 +179,8 @@ appcompat: 1.6.1, material: 1.11.0
 
 ## Статус v0.3.0 ✅
 
+- [x] **android:theme="@style/Theme.LoRemote"** в AndroidManifest (fix: AppCompat краш)
+- [x] Версия 0.3.0 в build.gradle.kts
 - [x] BLE сканирование + фильтрация Meshtastic устройств
 - [x] Автоподключение к последнему устройству (SharedPreferences)
 - [x] Meshtastic handshake (config_complete_id → Ready)
