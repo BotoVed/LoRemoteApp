@@ -124,6 +124,14 @@ class MainActivity : AppCompatActivity() {
         tryAutoConnect()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Автозапуск сканирования если устройство не подключено
+        if (bleService?.bleManager?.state?.value !is BleState.Ready) {
+            bleService?.scanner?.start()
+        }
+    }
+
     override fun onStop() {
         super.onStop()
         if (serviceBound) {
@@ -230,7 +238,7 @@ class MainActivity : AppCompatActivity() {
 
     // ── Packet Handler ────────────────────────────────────────────────────
     private fun handlePacket(map: Map<String, Any?>) {
-        val tp = (map["tp"] as? Long)?.toInt() ?: return
+        val tp = (map["tp"] as? Number)?.toInt() ?: return
         val id = map["id"] as? String
 
         when (tp) {
@@ -286,7 +294,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun normalize(v: Any?): Any? = when (v) {
-        is Number -> v.toLong()
+        is Number -> (v as? Number)?.toLong() ?: 0L
         else -> v
     }
 
@@ -306,7 +314,7 @@ class MainActivity : AppCompatActivity() {
                     bleService?.bleManager?.sendLoRemote(bytes)
                 }
             } catch (e: Exception) {
-                android.util.Log.e("MainActivity", "Send error: ${e.message}")
+                android.util.Log.e("MainActivity", "Send error: ${e.message}\n${e.stackTrace.joinToString("\n")}")
             }
         }
     }

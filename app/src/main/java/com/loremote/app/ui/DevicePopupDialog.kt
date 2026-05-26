@@ -803,7 +803,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
     private fun dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
 
     private fun toLong(v: Any?): Long? = when (v) {
-        is Number -> v.toLong()
+        is Number -> (v as? Number)?.toLong() ?: 0L
         else -> null
     }
 }

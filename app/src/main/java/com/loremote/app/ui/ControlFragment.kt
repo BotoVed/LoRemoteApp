@@ -559,7 +559,7 @@ class ControlFragment : Fragment() {
     private fun getColor(id: Int) = requireContext().getColor(id)
 
     private fun toLong(v: Any?): Long? = when (v) {
-        is Number -> v.toLong()
+        is Number -> (v as? Number)?.toLong() ?: 0L
         else -> null
     }
 }

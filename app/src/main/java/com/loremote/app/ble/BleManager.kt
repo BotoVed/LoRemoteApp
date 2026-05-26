@@ -298,7 +298,6 @@ class LoRemoteBleManager(
         _state.value = BleState.Disconnected
         toRadioChar = null; fromRadioChar = null; fromNumChar = null
         Log.i(TAG, "Disconnected: ${device.name}")
-        saveLastDevice(device)
     }
 
     private fun saveLastDevice(device: BluetoothDevice) {

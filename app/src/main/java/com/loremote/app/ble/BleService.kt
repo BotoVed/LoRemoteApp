@@ -42,6 +42,7 @@ class BleService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        Log.e("BleService", "=== SERVICE CREATED ===")
 
         bleManager = LoRemoteBleManager(this) { bytes ->
             val intent = Intent(ACTION_PACKET).apply {
@@ -104,6 +105,7 @@ class BleService : LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+        Log.e("BleService", "=== ON_START_COMMAND === intent=$intent flags=$flags startId=$startId")
         return START_STICKY
     }
 
