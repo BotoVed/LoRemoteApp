@@ -24,6 +24,7 @@ data class OutPacket(
     val pin: String?    = null,
     val req: Any?       = null,
     val cfg: Int?       = null,
+    val _ts: Long?      = null,
     val ts: Long?       = null,
     val hl: Int?        = null
 )

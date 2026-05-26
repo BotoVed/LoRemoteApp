@@ -16,15 +16,17 @@ class DeliveryQueue(
         val devId: String,
         val packet: OutPacket,
         var attempts: Int = 0,
-        var job: Job? = null
+        var job: Job? = null,
+        var lastAttempt: Long = 0
     )
 
-    private val queue = mutableMapOf<String, Entry>()
+    private val queue = LinkedHashMap<String, Entry>()
 
     fun enqueue(devId: String, packet: OutPacket) {
-        val key = "${devId}_${System.currentTimeMillis()}"
-        queue[key] = Entry(devId, packet)
-        attempt(key)
+        // Удалить старую запись для этого устройства
+        queue.remove(devId)
+        queue[devId] = Entry(devId, packet)
+        attempt(devId)
     }
 
     private fun attempt(key: String) {
@@ -39,6 +41,8 @@ class DeliveryQueue(
 
         entry.job = scope.launch {
             Log.d(TAG, "Attempt ${entry.attempts} for ${entry.devId} (retry=$retryCount, interval=${retryInterval}ms) hl=$hopLimit")
+
+            entry.lastAttempt = System.currentTimeMillis()
             try { sendFn(pkt) } catch (e: Exception) { Log.e(TAG, "Send error: ${e.message}") }
 
             if (entry.attempts > retryCount) {
@@ -53,9 +57,8 @@ class DeliveryQueue(
     }
 
     fun confirm(devId: String) {
-        val key = queue.keys.firstOrNull { queue[it]?.devId == devId } ?: return
-        queue[key]?.job?.cancel()
-        queue.remove(key)
+        val entry = queue.remove(devId)
+        entry?.job?.cancel()
         DeviceStateManager.onDelivered(devId)
         Log.d(TAG, "Confirmed: $devId")
     }
@@ -64,4 +67,20 @@ class DeliveryQueue(
         queue.values.forEach { it.job?.cancel() }
         queue.clear()
     }
+
+    fun getQueueEntries(): List<QueueEntry> {
+        return queue.values.map { entry ->
+            QueueEntry(
+                devId = entry.devId,
+                attempts = entry.attempts,
+                lastAttempt = if (entry.lastAttempt > 0) entry.lastAttempt else entry.packet._ts ?: 0
+            )
+        }
+    }
+
+    data class QueueEntry(
+        val devId: String,
+        val attempts: Int,
+        val lastAttempt: Long
+    )
 }

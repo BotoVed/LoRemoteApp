@@ -29,6 +29,7 @@ import com.loremote.app.databinding.ActivityMainBinding
 import com.loremote.app.protocol.PacketType
 import com.loremote.app.protocol.Protocol
 import com.loremote.app.state.DeviceStateManager
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
@@ -37,9 +38,15 @@ class MainActivity : AppCompatActivity() {
   private lateinit var binding: ActivityMainBinding
     private var serviceBound = false
 
-    private val deviceList = mutableListOf<ScanResult>()
+   private val deviceList = mutableListOf<ScanResult>()
     private var deviceAdapter: ArrayAdapter<String>? = null
     private var selectedDevice: ScanResult? = null
+
+    fun clearDeviceList() {
+        deviceList.clear()
+        deviceAdapter?.clear()
+        deviceAdapter?.notifyDataSetChanged()
+    }
 
     // Конфиг
     var savedConfig: JSONObject? = null
@@ -63,14 +70,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, binder: IBinder) {
-           bleService = (binder as BleService.LocalBinder).getService()
+ override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+            bleService = (binder as BleService.LocalBinder).getService()
             serviceBound = true
             observeBleState()
             lifecycleScope.launch {
                 bleService!!.scanner.results.collect { results ->
                     updateDeviceList(results)
                 }
+            }
+            // Авто-подключение после биндинга сервиса
+            lifecycleScope.launch {
+                delay(500)
+                tryAutoConnect()
             }
         }
        override fun onServiceDisconnected(name: ComponentName) {
@@ -243,7 +255,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 // Аларм если binary_sensor сработал
                 val s = map["s"]
-                if (s == 1L || s == true) {
+                if (id != null && (s == 1L || s == true)) {
                     val cfg = savedConfig
                     val deviceName = cfg?.optJSONObject("mpg")
                         ?.optJSONObject(id)?.optString("n", id ?: "") ?: (id ?: "")
@@ -273,17 +285,19 @@ class MainActivity : AppCompatActivity() {
             .toMap()
     }
 
-    // ── Send ──────────────────────────────────────────────────────────────
+ // ── Send ──────────────────────────────────────────────────────────────
     fun sendPacket(packet: OutPacket, stateChanges: Map<String, Any?>? = null) {
+        val packetWithTs = packet.copy(_ts = System.currentTimeMillis() / 1000)
         lifecycleScope.launch {
             try {
-                if (packet.id != null && stateChanges != null) {
-                    DeviceStateManager.onSending(packet.id, stateChanges)
-                }
-                if (packet.id != null) {
-                    bleService?.deliveryQueue?.enqueue(packet.id, packet)
+                if (packetWithTs.id != null) {
+                    if (stateChanges != null) {
+                        DeviceStateManager.onSending(packetWithTs.id, stateChanges)
+                    }
+                    bleService?.deliveryQueue?.enqueue(packetWithTs.id, packetWithTs)
                 } else {
-                    val bytes = Protocol.encode(packet)
+                    // Без id — прямая отправка, без ожидания подтверждения
+                    val bytes = Protocol.encode(packetWithTs)
                     bleService?.bleManager?.sendLoRemote(bytes)
                 }
             } catch (e: Exception) {
@@ -360,7 +374,7 @@ class MainActivity : AppCompatActivity() {
 
     val bleManager get() = bleService?.bleManager
 
-    private fun tryAutoConnect() {
+  private fun tryAutoConnect() {
         val prefs = getSharedPreferences("loremote", Context.MODE_PRIVATE)
         val lastMac = prefs.getString("last_device_mac", null)
         val lastName = prefs.getString("last_device_name", null)

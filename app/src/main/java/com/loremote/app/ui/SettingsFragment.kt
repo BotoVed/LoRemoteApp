@@ -7,20 +7,22 @@ import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.loremote.app.R
+ import com.loremote.app.protocol.DeliveryQueue.QueueEntry
 import com.loremote.app.protocol.Protocol
+import kotlinx.coroutines.launch
 
 class SettingsFragment : Fragment() {
 
     private var spinnerAdapter: ArrayAdapter<String>? = null
     private val scanResults = mutableListOf<ScanResult>()
-    private var spinnerDevices: Spinner? = null
+  private var spinnerDevices: Spinner? = null
     var tvPingResult: TextView? = null
-    private var tvDeviceStatus: TextView? = null
 
     private var seekRetryCount: SeekBar? = null
     private var tvRetryCountLabel: TextView? = null
     private var seekRetryInterval: SeekBar? = null
     private var tvRetryIntervalLabel: TextView? = null
+    private var queueListContainer: LinearLayout? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_settings, container, false)
@@ -35,7 +37,6 @@ class SettingsFragment : Fragment() {
         spinnerDevices?.adapter = spinnerAdapter
 
         tvPingResult = view.findViewById(R.id.tvPingResult)
-        tvDeviceStatus = view.findViewById(R.id.tvDeviceStatus)
 
         seekRetryCount = view.findViewById(R.id.seekRetryCount)
         tvRetryCountLabel = view.findViewById(R.id.tvRetryCountLabel)
@@ -73,7 +74,9 @@ class SettingsFragment : Fragment() {
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
-        seekRetryInterval?.progress = retryInterval - 15
+       seekRetryInterval?.progress = retryInterval - 15
+
+        queueListContainer = view.findViewById(R.id.queueListContainer)
 
         // Сохранить/восстановить конфиг
         val configPrefs = requireContext().getSharedPreferences("loremote", Context.MODE_PRIVATE)
@@ -85,15 +88,21 @@ class SettingsFragment : Fragment() {
         // Сканировать
         (activity as? MainActivity)?.startScan()
 
-        // Подключиться
+       // Подключиться / Отключиться
         view.findViewById<Button>(R.id.btnConnect).setOnClickListener {
-            val idx = spinnerDevices?.selectedItemPosition ?: return@setOnClickListener
-            val device = scanResults.getOrNull(idx) ?: run {
-                Toast.makeText(context, "Выберите устройство", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+            val state = main.bleManager?.state?.value
+            if (state is com.loremote.app.ble.BleState.Ready || state is com.loremote.app.ble.BleState.Handshake) {
+                disconnectDevice()
+                Toast.makeText(context, "Отключено", Toast.LENGTH_SHORT).show()
+            } else {
+                val idx = spinnerDevices?.selectedItemPosition ?: return@setOnClickListener
+                val device = scanResults.getOrNull(idx) ?: run {
+                    Toast.makeText(context, "Выберите устройство", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                main.connectToDevice(device)
+                Toast.makeText(context, "Подключение к ${device.device.name}...", Toast.LENGTH_SHORT).show()
             }
-            main.connectToDevice(device)
-            Toast.makeText(context, "Подключение к ${device.device.name}...", Toast.LENGTH_SHORT).show()
         }
 
         // Применить конфиг
@@ -117,15 +126,16 @@ class SettingsFragment : Fragment() {
         updateConnectState(main)
     }
 
-   override fun onResume() {
+ override fun onResume() {
         super.onResume()
         val main = activity as? MainActivity ?: return
         if (main.hasBlePermissions()) {
             main.startScanSilent()
         }
+        view?.post { updateQueueList() }
     }
 
-    fun updateDeviceList(results: List<ScanResult>) {
+fun updateDeviceList(results: List<ScanResult>) {
         scanResults.clear()
         scanResults.addAll(results.sortedBy { it.device.name ?: "z_${it.device.address}" })
         spinnerAdapter?.clear()
@@ -133,24 +143,95 @@ class SettingsFragment : Fragment() {
             "${r.device.name ?: "Unknown"}  ${r.device.address}  ${r.rssi}dBm"
         })
         spinnerAdapter?.notifyDataSetChanged()
-
-        if (results.isNotEmpty()) {
-            val first = results[0]
-            tvDeviceStatus?.text = "Найдено: ${results.size} (${first.device.name})"
-        } else {
-            tvDeviceStatus?.text = "Не выбрано"
-        }
     }
 
     fun updateConnectState(main: MainActivity) {
         val state = main.bleManager?.state?.value
-        tvDeviceStatus?.text = when (state) {
-            is com.loremote.app.ble.BleState.Ready -> "● Подключено"
-            is com.loremote.app.ble.BleState.Connecting -> "○ Подключение..."
-            is com.loremote.app.ble.BleState.Handshake -> "◑ Инициализация..."
-            is com.loremote.app.ble.BleState.Disconnected -> "○ Не подключено"
-            is com.loremote.app.ble.BleState.Error -> "✗ ${state.message}"
-            else -> "Не выбрано"
+        val btn = view?.findViewById<Button>(R.id.btnConnect)
+        when (state) {
+            is com.loremote.app.ble.BleState.Ready -> {
+                btn?.text = "Отключить"
+            }
+            is com.loremote.app.ble.BleState.Connecting -> {
+                btn?.text = "Отключить"
+            }
+            is com.loremote.app.ble.BleState.Handshake -> {
+                btn?.text = "Отключить"
+            }
+            is com.loremote.app.ble.BleState.Disconnected -> {
+                btn?.text = "Подключить"
+            }
+            is com.loremote.app.ble.BleState.Error -> {
+                btn?.text = "Подключить"
+            }
+            else -> {
+                btn?.text = "Подключить"
+            }
         }
     }
+
+ fun disconnectDevice() {
+        val main = activity as? MainActivity ?: return
+        main.bleService?.bleManager?.disconnect()?.enqueue()
+        main.bleService?.scanner?.stop()
+        main.clearDeviceList()
+        main.startScanSilent()
+    }
+
+    private fun updateQueueList() {
+        val main = activity as? MainActivity ?: return
+        val queue = main.bleService?.deliveryQueue ?: return
+        val entries = queue.getQueueEntries()
+
+        queueListContainer?.removeAllViews()
+
+        if (entries.isEmpty()) {
+            val empty = TextView(requireContext()).apply {
+                text = "Очередь пуста"
+                textSize = 12f
+                setTextColor(getColor(R.color.gray_600))
+                gravity = android.view.Gravity.CENTER
+                setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12))
+            }
+            queueListContainer?.addView(empty)
+            return
+        }
+
+        entries.forEach { entry ->
+            val row = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setPadding(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8))
+            }
+
+            val name = TextView(requireContext()).apply {
+                text = entry.devId
+                textSize = 13f
+                setTextColor(getColor(R.color.gray_200))
+                setPadding(0, 0, dpToPx(16), 0)
+            }
+            row.addView(name)
+
+            val attempts = TextView(requireContext()).apply {
+                text = "${entry.attempts} попыт."
+                textSize = 11f
+                setTextColor(getColor(R.color.gray_500))
+                setPadding(0, 0, dpToPx(16), 0)
+            }
+            row.addView(attempts)
+
+           val time = TextView(requireContext()).apply {
+                val date = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+                text = if (entry.lastAttempt != null) date.format(java.util.Date(entry.lastAttempt)) else "—"
+                textSize = 11f
+                setTextColor(getColor(if (entry.attempts > 3) R.color.red_text else R.color.gray_400))
+            }
+            row.addView(time)
+
+            queueListContainer?.addView(row)
+        }
+    }
+
+    private fun dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
+    private fun getColor(id: Int) = requireContext().getColor(id)
 }

@@ -64,7 +64,7 @@ object Protocol {
         return map
     }
 
-    fun ping() = OutPacket(tp = PacketType.PING, ts = System.currentTimeMillis() / 1000)
+    fun ping() = OutPacket(tp = PacketType.PING, _ts = System.currentTimeMillis() / 1000)
     fun requestAll() = OutPacket(tp = PacketType.CMD, req = "all")
     fun requestConfig() = OutPacket(tp = PacketType.CMD, cfg = 2)
 }

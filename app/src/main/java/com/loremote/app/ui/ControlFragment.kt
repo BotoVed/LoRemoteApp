@@ -190,19 +190,16 @@ class ControlFragment : Fragment() {
             layoutParams = lp
         }
 
-        val header = LinearLayout(ctx).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = android.view.Gravity.CENTER_VERTICAL
-            setPadding(dpToPx(14), dpToPx(12), dpToPx(14), dpToPx(12))
-        }
-        val tvName = TextView(ctx).apply {
+        val header = TextView(ctx).apply {
             text = zoneName
-            textSize = 15f
-            setTextColor(ctx.getColor(R.color.gray_300))
+            textSize = 11f
+            setTextColor(ctx.getColor(R.color.gray_400))
             setTypeface(null, android.graphics.Typeface.BOLD)
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            letterSpacing = 0.08f
+            setAllCaps(true)
+            gravity = android.view.Gravity.CENTER
+            setPadding(dpToPx(20), dpToPx(10), dpToPx(20), dpToPx(10))
         }
-        header.addView(tvName)
         card.addView(header)
 
         card.addView(divider())
@@ -233,8 +230,9 @@ class ControlFragment : Fragment() {
                 setTextColor(ctx.getColor(R.color.gray_400))
                 setTextSize(11f)
                 letterSpacing = 0.08f
-                setPadding(dpToPx(6), dpToPx(10), dpToPx(6), dpToPx(4))
                 setAllCaps(true)
+                gravity = android.view.Gravity.CENTER
+                setPadding(dpToPx(20), dpToPx(10), dpToPx(20), dpToPx(4))
             }
             section.addView(label)
         }
