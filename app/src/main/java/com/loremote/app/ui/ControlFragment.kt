@@ -18,7 +18,6 @@ import org.json.JSONObject
 class ControlFragment : Fragment() {
 
     private var zonesContainer: LinearLayout? = null
-    private val devStates = mutableMapOf<String, Map<String, Any?>>()
     private var configJson: JSONObject? = null
 
      override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -132,35 +131,45 @@ class ControlFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         lifecycleScope.launch {
             DeviceStateManager.states.collect { states ->
-                states.forEach { (hash, state) ->
-                    updateDeviceRow(hash, state)
-                }
+                states.keys.forEach { hash -> refreshRow(hash) }
             }
         }
     }
 
-    fun updateDeviceRow(hash: String, state: com.loremote.app.state.DeviceState) {
+    fun refreshRow(hash: String) {
         val row = zonesContainer?.findViewWithTag<LinearLayout>(hash) ?: return
+        val state = DeviceStateManager.visible(hash)
+        val cfg = configJson?.optJSONObject("mpg")?.optJSONObject(hash) ?: return
+        val type = cfg.optString("tp", "")
 
-        applyRowStatus(row, state.status)
+        val leftCol = row.getChildAt(0) as? LinearLayout ?: return
+        val subText = leftCol.getChildAt(1) as? TextView
+        subText?.text = subText(type, state)
 
-        val visible = DeviceStateManager.visible(hash)
-        for (i in 0 until row.childCount) {
-            val child = row.getChildAt(i)
+        val rightCol = row.getChildAt(1) as? LinearLayout ?: row
+        for (i in 0 until (rightCol as LinearLayout).childCount) {
+            val child = rightCol.getChildAt(i)
             if (child is Switch) {
                 child.setOnCheckedChangeListener(null)
-                child.isChecked = visible["s"] == 1L
+                child.isChecked = state["s"] == 1L
                 child.setOnCheckedChangeListener { _, checked ->
                     val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
-                    val changes = mapOf("s" to if (checked) 1L else 0L)
+                    val old = DeviceStateManager.visible(hash)
+                    val newVal = mapOf("s" to if (checked) 1L else 0L)
                     main.sendPacket(
                         OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0),
-                        newValue = changes
+                        oldValue = old,
+                        newValue = newVal
                     )
                 }
                 break
             }
         }
+
+        val inQueue = (activity as? MainActivity)?.bleService?.deliveryQueue
+            ?.getQueueEntries()?.any { it.devId == hash } ?: false
+        row.alpha = if (inQueue) 0.5f else 1f
+        row.isEnabled = !inQueue
     }
 
     private fun applyRowStatus(row: View, status: DeviceStatus) {
@@ -295,9 +304,11 @@ class ControlFragment : Fragment() {
                     isChecked = state["s"] == 1L
                     setOnCheckedChangeListener { _, isChecked ->
                         val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
+                        val old = DeviceStateManager.visible(hash)
                         val changes = mapOf("s" to if (isChecked) 1L else 0L)
                         main.sendPacket(
                             OutPacket(tp = PacketType.CMD, id = hash, s = if (isChecked) 1 else 0),
+                            oldValue = old,
                             newValue = changes
                         )
                     }
@@ -309,10 +320,12 @@ class ControlFragment : Fragment() {
                     isChecked = state["s"] == 1L
                     setOnCheckedChangeListener { _, isChecked ->
                         val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
+                        val old = DeviceStateManager.visible(hash)
                         val changes = mapOf("s" to if (isChecked) 1L else 0L)
                         val cmd = if (isChecked) "lock" else "unlock"
                         main.sendPacket(
                             OutPacket(tp = PacketType.CMD, id = hash, cmd = cmd),
+                            oldValue = old,
                             newValue = changes
                         )
                     }
@@ -331,7 +344,7 @@ class ControlFragment : Fragment() {
                 row.addView(btn)
             }
             "CV" -> {
-                val state = devStates[hash]
+                val state = DeviceStateManager.visible(hash)
                 val pos = toLong(state?.get("pos"))?.toInt() ?: 0
                 val st = state?.get("st")
                 val tvVal = TextView(ctx).apply {
@@ -342,7 +355,7 @@ class ControlFragment : Fragment() {
                 row.addView(tvVal)
             }
             "SI" -> {
-                val state = devStates[hash]
+                val state = DeviceStateManager.visible(hash)
                 val v = state?.get("v")
                 val u = dev.optString("u", "")
                 val tvVal = TextView(ctx).apply {
@@ -353,7 +366,7 @@ class ControlFragment : Fragment() {
                 row.addView(tvVal)
             }
             "A" -> {
-                val state = devStates[hash]
+                val state = DeviceStateManager.visible(hash)
                 val mode = state?.get("s")
                 val tvBadge = TextView(ctx).apply {
                     text = when (mode) {
@@ -370,7 +383,7 @@ class ControlFragment : Fragment() {
                 row.addView(tvBadge)
             }
             "S" -> {
-                val state = devStates[hash]
+                val state = DeviceStateManager.visible(hash)
                 val v = state?.get("v")
                 val u = dev.optString("u", "")
                 val tvVal = TextView(ctx).apply {
@@ -382,7 +395,7 @@ class ControlFragment : Fragment() {
                 row.addView(tvVal)
             }
             "BS" -> {
-                val active = devStates[hash]?.get("s") == 1L
+                val active = DeviceStateManager.visible(hash)["s"] == 1L
                 val tvBadge = TextView(ctx).apply {
                     text = if (active) "⚠️ Тревога" else "✓ Норма"
                     textSize = 12f
@@ -393,7 +406,7 @@ class ControlFragment : Fragment() {
                 row.addView(tvBadge)
             }
             else -> {
-                val state = devStates[hash]
+                val state = DeviceStateManager.visible(hash)
                 val s = state?.get("s")
                 if (s is Long && s != 0L) {
                     val tvVal = TextView(ctx).apply {
@@ -421,20 +434,13 @@ class ControlFragment : Fragment() {
         return row
     }
 
-    fun onDeviceUpdate(id: String, map: Map<String, Any?>) {
-        devStates[id] = map
-        activity?.runOnUiThread {
-            refreshRow(id)
-        }
-    }
-
     fun onPong(cfgh: String?) {
         // PONG получен
     }
 
-    private fun openDevicePopup(hash: String, dev: JSONObject, type: String) {
-        val dialog = DevicePopupDialog(hash, dev, type) { packet, changes ->
-            (activity as? MainActivity)?.sendPacket(packet, changes)
+     private fun openDevicePopup(hash: String, dev: JSONObject, type: String) {
+        val dialog = DevicePopupDialog(hash, dev, type) { packet, changes, old ->
+            (activity as? MainActivity)?.sendPacket(packet, oldValue = old, newValue = changes)
         }
         dialog.show(parentFragmentManager, "device_popup")
     }
@@ -491,61 +497,6 @@ class ControlFragment : Fragment() {
             "S"  -> state["v"]?.toString() ?: "—"
             else -> ""
         }
-    }
-
-    private fun refreshRow(id: String) {
-        // Проходим по всем карточкам и ищем устройство с данным id
-        val count = zonesContainer?.childCount ?: 0
-        for (i in 0 until count) {
-            val zoneCard = zonesContainer?.getChildAt(i) ?: continue
-            if (zoneCard is LinearLayout) {
-                val childCount = zoneCard.childCount
-                for (j in 1 until childCount) {
-                    val child = zoneCard.getChildAt(j)
-                    refreshViewRecursive(child, id)
-                }
-            }
-        }
-    }
-
-    private fun refreshViewRecursive(view: View, id: String) {
-        if (view is LinearLayout) {
-            val count = view.childCount
-            for (i in 0 until count) {
-                refreshViewRecursive(view.getChildAt(i), id)
-            }
-        } else if (view is TextView) {
-            // Попытка найти имя устройства в TextView
-            val parent = view.parent
-            if (parent is LinearLayout) {
-                val nameView = parent.getChildAt(0)
-                if (nameView is TextView) {
-                    // Проверяем, совпадает ли имя с устройством
-                    val dev = findDeviceByName(nameView.text.toString())
-                    if (dev != null) {
-                        val hash = dev
-                        val state = devStates[dev]
-                        if (state != null) {
-                            // Обновить подзаголовок
-                            val subView = parent.getChildAt(1)
-                            if (subView is TextView) {
-                                // Нужно определить тип — упрощаем: перестраиваем
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun findDeviceByName(name: String): String? {
-        val config = configJson ?: return null
-        val mpg = config.optJSONObject("mpg") ?: return null
-        mpg.keys().forEach { hash ->
-            val dev = mpg.getJSONObject(hash)
-            if (dev.optString("n", "") == name) return hash
-        }
-        return null
     }
 
     private fun divider(): View = View(requireContext()).apply {

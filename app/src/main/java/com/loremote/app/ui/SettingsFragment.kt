@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.loremote.app.R
  import com.loremote.app.protocol.DeliveryQueue.QueueEntry
 import com.loremote.app.protocol.Protocol
+import com.loremote.app.state.DeviceStateManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -192,59 +193,93 @@ fun updateDeviceList(results: List<ScanResult>) {
         main.startScanSilent()
     }
 
-    fun updateQueueList() {
-        val main = activity as? MainActivity ?: return
-        val queue = main.bleService?.deliveryQueue ?: return
-        val entries = queue.getQueueEntries()
+  fun updateQueueList() {
+         val main = activity as? MainActivity ?: return
+         val queue = main.bleService?.deliveryQueue ?: return
+         val entries = queue.getQueueEntries()
+         val config = main.savedConfig
 
-        queueListContainer?.removeAllViews()
+         queueListContainer?.removeAllViews()
 
-        if (entries.isEmpty()) {
-            val empty = TextView(requireContext()).apply {
-                text = "Очередь пуста"
-                textSize = 12f
-                setTextColor(getColor(R.color.gray_600))
-                gravity = android.view.Gravity.CENTER
-                setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12))
-            }
-            queueListContainer?.addView(empty)
-            return
-        }
+         if (entries.isEmpty()) {
+             val empty = TextView(requireContext()).apply {
+                 text = "Очередь пуста"
+                 textSize = 12f
+                 setTextColor(getColor(R.color.gray_600))
+                 gravity = android.view.Gravity.CENTER
+                 setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12))
+             }
+             queueListContainer?.addView(empty)
+             return
+         }
 
-        entries.forEach { entry ->
-            val row = LinearLayout(requireContext()).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = android.view.Gravity.CENTER_VERTICAL
-                setPadding(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8))
-            }
+         entries.forEach { entry ->
+             val row = LinearLayout(requireContext()).apply {
+                 orientation = LinearLayout.HORIZONTAL
+                 gravity = android.view.Gravity.CENTER_VERTICAL
+                 setPadding(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8))
+             }
 
-            val name = TextView(requireContext()).apply {
-                text = entry.devId
-                textSize = 13f
-                setTextColor(getColor(R.color.gray_200))
-                setPadding(0, 0, dpToPx(16), 0)
-            }
-            row.addView(name)
+             val name = config?.optJSONObject("mpg")
+                 ?.optJSONObject(entry.devId)
+                 ?.optString("n", entry.devId) ?: entry.devId
 
-            val attempts = TextView(requireContext()).apply {
-                text = "${entry.attempts} попыт."
-                textSize = 11f
-                setTextColor(getColor(R.color.gray_500))
-                setPadding(0, 0, dpToPx(16), 0)
-            }
-            row.addView(attempts)
+             val tvName = TextView(requireContext()).apply {
+                 text = name
+                 textSize = 13f
+                 setTextColor(getColor(R.color.gray_200))
+                 setPadding(0, 0, dpToPx(16), 0)
+             }
+             row.addView(tvName)
 
-           val time = TextView(requireContext()).apply {
-                val date = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
-                text = if (entry.lastAttempt != null) date.format(java.util.Date(entry.lastAttempt)) else "—"
-                textSize = 11f
-                setTextColor(getColor(if (entry.attempts > 3) R.color.red_text else R.color.gray_400))
-            }
-            row.addView(time)
+             val date = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+             val tvTime = TextView(requireContext()).apply {
+                 text = if (entry.lastAttempt != null) date.format(java.util.Date(entry.lastAttempt)) else "—"
+                 textSize = 11f
+                 setPadding(0, 0, dpToPx(16), 0)
+             }
+             row.addView(tvTime)
 
-            queueListContainer?.addView(row)
-        }
-    }
+             val state = DeviceStateManager.visible(entry.devId)
+             val confirmed = state["tp"] == 1L
+             val tvConfirmed = TextView(requireContext()).apply {
+                 text = if (confirmed) "✓" else "—"
+                 textSize = 11f
+                 setPadding(0, 0, dpToPx(16), 0)
+             }
+             row.addView(tvConfirmed)
+
+             val tvAttempts = TextView(requireContext()).apply {
+                 text = "${entry.attempts}"
+                 textSize = 11f
+                 setPadding(0, 0, dpToPx(16), 0)
+             }
+             row.addView(tvAttempts)
+
+             val visible = DeviceStateManager.visible(entry.devId)
+             val value = listOf("s", "bri", "ct", "th", "tc", "sp", "pos", "v")
+                 .mapNotNull { k -> visible[k]?.let { k to it } }
+                 .firstOrNull()
+             val tvValue = TextView(requireContext()).apply {
+                 text = value?.let { "${it.first}=${it.second}" } ?: "—"
+                 textSize = 11f
+             }
+             row.addView(tvValue)
+
+             val color = when {
+                 confirmed -> R.color.green_text
+                 entry.attempts > 3 -> R.color.red_text
+                 else -> R.color.gray_200
+             }
+             tvName.setTextColor(getColor(color))
+             tvTime.setTextColor(getColor(if (confirmed) R.color.green_text else R.color.gray_400))
+             tvConfirmed.setTextColor(getColor(color))
+             tvAttempts.setTextColor(getColor(if (entry.attempts > 3) R.color.red_text else R.color.gray_500))
+             tvValue.setTextColor(getColor(color))
+
+             queueListContainer?.addView(row)
+         }
+     }
 
     private fun dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
     private fun getColor(id: Int) = requireContext().getColor(id)

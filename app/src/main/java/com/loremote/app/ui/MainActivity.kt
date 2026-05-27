@@ -250,15 +250,11 @@ class MainActivity : AppCompatActivity() {
             PacketType.STATUS -> {
                 if (id != null) {
                     DeviceStateManager.onConfirmed(id, extractStateValues(map))
-                    (supportFragmentManager.findFragmentById(R.id.contentContainer) as? ControlFragment)
-                        ?.onDeviceUpdate(id, map)
                 }
             }
             PacketType.PUSH -> {
                 if (id != null) {
                     DeviceStateManager.onConfirmed(id, extractStateValues(map))
-                    (supportFragmentManager.findFragmentById(R.id.contentContainer) as? ControlFragment)
-                        ?.onDeviceUpdate(id, map)
                 }
                 // Аларм если binary_sensor сработал
                 val s = map["s"]
