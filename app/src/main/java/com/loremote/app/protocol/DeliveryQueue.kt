@@ -41,8 +41,8 @@ class DeliveryQueue(
 
     private suspend fun processQueue() {
         val prefs = context.getSharedPreferences("loremote", Context.MODE_PRIVATE)
-        val maxRetries = prefs.getInt("retry_count", 0)
-        val intervalMs = prefs.getLong("retry_interval", 30) * 1000L
+        val maxRetries = prefs.getInt("retry_count", 0).toLong()
+        val intervalMs = prefs.getInt("retry_interval", 30).toLong() * 1000L
         val now = System.currentTimeMillis()
 
         val keys = synchronized(queue) { queue.keys.toList() }
