@@ -541,7 +541,7 @@ class ControlFragment : Fragment() {
             when (event.action) {
                 android.view.MotionEvent.ACTION_DOWN -> {
                     longPressRunnable = Runnable {
-                        DevicePopupDialog.newInstance(hash, { packet, changes, old ->
+                        DevicePopupDialog.newInstance(hash, { packet, old, changes ->
                             (activity as? MainActivity)?.sendPacket(packet, oldValue = old, newValue = changes)
                         }, this@ControlFragment)
                             .show(parentFragmentManager, "popup_$hash")
