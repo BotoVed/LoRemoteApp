@@ -18,6 +18,9 @@ import com.loremote.app.state.DeviceStateManager
 import com.loremote.app.state.DeviceStatus
 import org.json.JSONObject
 
+data class PillData(val text: String, val type: PillType, val icon: String)
+enum class PillType { OK, WARN, ERR, BLUE, NEUTRAL }
+
 class ControlFragment : Fragment() {
 
     private var zonesContainer: LinearLayout? = null
@@ -132,6 +135,12 @@ class ControlFragment : Fragment() {
             val card = buildZoneCard(zone, config, allDevices)
             zonesContainer?.addView(card)
         }
+
+        for (i in 0 until ar.length()) {
+            val zone = ar.getJSONObject(i)
+            refreshZonePills(zone.optString("id"))
+        }
+        refreshZonePills("ustroistva")
     }
 
     private fun buildZoneCard(zone: JSONObject, config: JSONObject, unassignedDevices: List<Pair<String, JSONObject>> = emptyList()): View {
@@ -595,6 +604,7 @@ class ControlFragment : Fragment() {
 
         val zoneId = configJson?.optJSONObject("mpg")
             ?.optJSONObject(hash)?.optString("a") ?: "ustroistva"
+        refreshZonePills(zoneId)
     }
 
     fun buildSubText(type: String, state: Map<String, Any?>, cfg: JSONObject): String = when (type) {
@@ -704,5 +714,112 @@ class ControlFragment : Fragment() {
             "tool" -> R.drawable.ic_zone_tool
             else -> R.drawable.ic_zone_home
         }
+    }
+
+    private fun buildZonePills(zoneId: String): List<PillData> {
+        val config = configJson ?: return emptyList()
+        val mpg = config.optJSONObject("mpg") ?: return emptyList()
+        val pills = mutableListOf<PillData>()
+
+        val zoneDevices = mpg.keys().asSequence()
+            .filter { hash ->
+                val dev = mpg.optJSONObject(hash) ?: return@filter false
+                val area = dev.optString("a", "null")
+                if (zoneId == "ustroistva") area == "null" || area.isBlank()
+                else area == zoneId
+            }
+            .map { hash -> hash to (mpg.optJSONObject(hash) ?: return@map null) }
+            .filterNotNull()
+            .toList()
+
+        val tempSensors = zoneDevices.filter { (_, dev) ->
+            dev.optString("t") == "S" && dev.optString("u") == "°C"
+        }
+        if (tempSensors.isNotEmpty()) {
+            val values = tempSensors.mapNotNull { (hash, _) ->
+                (DeviceStateManager.visible(hash)["v"] as? Number)?.toDouble()
+            }
+            if (values.isNotEmpty()) {
+                val text = if (values.size == 1)
+                    "${values[0]}°"
+                else
+                    "${values.min()}°..${values.max()}°"
+                pills.add(PillData(text, PillType.OK, "thermometer"))
+            }
+        }
+
+        val humSensors = zoneDevices.filter { (_, dev) ->
+            dev.optString("t") == "S" && dev.optString("u") == "%"
+        }
+        if (humSensors.isNotEmpty()) {
+            val values = humSensors.mapNotNull { (hash, _) ->
+                (DeviceStateManager.visible(hash)["v"] as? Number)?.toDouble()
+            }
+            if (values.isNotEmpty()) {
+                pills.add(PillData("${values.first()}%", PillType.OK, "humidity"))
+            }
+        }
+
+        val lights = zoneDevices.filter { (_, dev) -> dev.optString("t") == "L" }
+        if (lights.isNotEmpty()) {
+            val onLights = lights.filter { (hash, _) ->
+                DeviceStateManager.visible(hash)["s"] == 1L
+            }
+            if (onLights.isNotEmpty()) {
+                val briValues = onLights.mapNotNull { (hash, _) ->
+                    (DeviceStateManager.visible(hash)["bri"] as? Number)?.toInt()
+                }
+                val text = if (briValues.isNotEmpty())
+                    "${onLights.size} вкл · ${briValues.average().toInt()}%"
+                else
+                    "${onLights.size} вкл"
+                pills.add(PillData(text, PillType.WARN, "bulb"))
+            }
+        }
+
+        val alarms = zoneDevices.filter { (_, dev) -> dev.optString("t") == "BS" }
+            .filter { (hash, _) -> DeviceStateManager.visible(hash)["s"] == 1L }
+        alarms.forEach { (_, dev) ->
+            pills.add(PillData("⚠ ${dev.optString("n", "")}", PillType.ERR, "alert"))
+        }
+
+        return pills
+    }
+
+    private fun renderPills(container: LinearLayout, pills: List<PillData>) {
+        container.removeAllViews()
+        pills.forEach { pill ->
+            val tv = TextView(requireContext()).apply {
+                text = pill.text
+                textSize = 11f
+                setPadding(dpToPx(7), dpToPx(2), dpToPx(7), dpToPx(2))
+                val (bgColor, textColor, borderColor) = when (pill.type) {
+                    PillType.OK      -> Triple(R.color.green_soft, R.color.green_text, R.color.green_border)
+                    PillType.WARN    -> Triple(R.color.yellow_soft, R.color.yellow_text, R.color.yellow_border)
+                    PillType.ERR     -> Triple(R.color.red_soft, R.color.red_text, R.color.red_border)
+                    PillType.BLUE    -> Triple(R.color.blue_soft, R.color.blue_text, R.color.blue_border)
+                    PillType.NEUTRAL -> Triple(R.color.gray_800, R.color.gray_500, R.color.gray_700)
+                }
+                setTextColor(getColor(textColor))
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = dpToPx(99).toFloat()
+                    setColor(getColor(bgColor))
+                    setStroke(dpToPx(1), getColor(borderColor))
+                }
+            }
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { marginEnd = dpToPx(4) }
+            container.addView(tv, lp)
+        }
+    }
+
+    private fun refreshZonePills(zoneId: String) {
+        val container = zonesContainer
+            ?.findViewWithTag<LinearLayout>("zone_summary_$zoneId") ?: return
+        val pills = buildZonePills(zoneId)
+        requireActivity().runOnUiThread { renderPills(container, pills) }
     }
 }
