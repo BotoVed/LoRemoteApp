@@ -9,7 +9,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.loremote.app.R
 import com.loremote.app.protocol.OutPacket
 import com.loremote.app.protocol.PacketType
-import com.loremote.app.state.DeviceStateManager
+import com.loremote.app.state.DisplayStateManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -24,11 +24,13 @@ class DevicePopupDialog private constructor(
 
    private val debounceJobs = mutableMapOf<String, kotlinx.coroutines.Job>()
 
-    private var currentVisibleState: Map<String, Any?> = emptyMap()
-
-    private fun updateControls(newState: Map<String, Any?>) {
+    private fun updateControls(newState: Map<String, Any?>, enabled: Boolean = true) {
         val scroll = view?.parent as? ScrollView ?: return
         val layout = scroll.getChildAt(0) as? LinearLayout ?: return
+        layout.alpha = if (enabled) 1f else 0.5f
+        for (i in 0 until layout.childCount) {
+            layout.getChildAt(i)?.isEnabled = enabled
+        }
         for (i in 1 until layout.childCount) {
             val section = layout.getChildAt(i)
             if (section is LinearLayout) {
@@ -107,15 +109,15 @@ class DevicePopupDialog private constructor(
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        currentVisibleState = DeviceStateManager.visible(hash)
         lifecycleScope.launch {
-            DeviceStateManager.states.collect { states ->
-                val newState = DeviceStateManager.visible(hash)
-                if (newState != currentVisibleState) {
-                    currentVisibleState = newState
-                    updateControls(newState)
+            DisplayStateManager.states.collect { _ ->
+                if (!isAdded) return@collect
+                val newState = DisplayStateManager.getValues(hash)
+                val enabled = DisplayStateManager.isEnabled(hash)
+                requireActivity().runOnUiThread {
+                    updateControls(newState, enabled)
                 }
             }
         }
@@ -183,20 +185,20 @@ class DevicePopupDialog private constructor(
 
 private fun buildLightControls(layout: LinearLayout) {
         val ctx = requireContext()
-        val on = currentVisibleState["s"] == 1L
+        val on = DisplayStateManager.getValues(hash)["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            val old = DeviceStateManager.visible(hash)
+            val old = DisplayStateManager.getValues(hash)
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), old, mapOf("s" to if (checked) 1L else 0L))
         }
 
-        val bri = toLong(currentVisibleState["bri"])?.toInt() ?: 50
+        val bri = toLong(DisplayStateManager.getValues(hash)["bri"])?.toInt() ?: 50
         addSlider(layout, "Яркость", "%", 1, 100, bri, 1, "bri") { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, bri = v), DeviceStateManager.visible(hash), mapOf("bri" to v.toLong()))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, bri = v), DisplayStateManager.getValues(hash), mapOf("bri" to v.toLong()))
         }
 
-        val ct = toLong(currentVisibleState["ct"])?.toInt() ?: 4000
+        val ct = toLong(DisplayStateManager.getValues(hash)["ct"])?.toInt() ?: 4000
         addSlider(layout, "Температура цвета", "K", 2700, 6500, ct, 100, "ct") { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, ct = v), DeviceStateManager.visible(hash), mapOf("ct" to v.toLong()))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, ct = v), DisplayStateManager.getValues(hash), mapOf("ct" to v.toLong()))
         }
 
         addPresetsRow(layout)
@@ -234,7 +236,7 @@ private fun buildLightControls(layout: LinearLayout) {
                 text = name
                 textSize = 11f
                 setOnClickListener {
-                    onSend(OutPacket(tp = PacketType.CMD, id = hash, bri = bri, ct = ct), DeviceStateManager.visible(hash), emptyMap())
+                    onSend(OutPacket(tp = PacketType.CMD, id = hash, bri = bri, ct = ct), DisplayStateManager.getValues(hash), emptyMap())
                 }
             }
             btn.layoutParams = LinearLayout.LayoutParams(
@@ -249,13 +251,13 @@ private fun buildLightControls(layout: LinearLayout) {
 
 private fun buildClimateControls(layout: LinearLayout) {
         val ctx = requireContext()
-        val on = currentVisibleState["s"] == 1L
+        val on = DisplayStateManager.getValues(hash)["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            val old = DeviceStateManager.visible(hash)
+            val old = DisplayStateManager.getValues(hash)
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), old, mapOf("s" to if (checked) 1L else 0L))
         }
 
-        val tc = (currentVisibleState["tc"] as? Number)?.toInt()
+        val tc = (DisplayStateManager.getValues(hash)["tc"] as? Number)?.toInt()
         if (tc != null) {
             val tvCurr = TextView(ctx).apply {
                 text = "Текущая: $tc°C"
@@ -266,13 +268,13 @@ private fun buildClimateControls(layout: LinearLayout) {
             layout.addView(tvCurr)
         }
 
-        val th = (currentVisibleState["th"] as? Number)?.toInt() ?: 22
+        val th = (DisplayStateManager.getValues(hash)["th"] as? Number)?.toInt() ?: 22
         addTempControl(layout, "Целевая температура", "°C", 16, 30, th) { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()), DeviceStateManager.visible(hash), mapOf("th" to v.toDouble()))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()), DisplayStateManager.getValues(hash), mapOf("th" to v.toDouble()))
         }
 
         val modes = listOf("cool" to "❄", "heat" to "🔥", "fan" to "💨", "auto" to "🔄", "dry" to "💧")
-        val currentMode = (currentVisibleState["mode"] as? String) ?: "cool"
+        val currentMode = (DisplayStateManager.getValues(hash)["mode"] as? String) ?: "cool"
         val modeRow = LinearLayout(ctx).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = android.view.Gravity.CENTER_VERTICAL
@@ -290,7 +292,7 @@ private fun buildClimateControls(layout: LinearLayout) {
                 text = icon
                 textSize = 14f
                 setOnClickListener {
-                    onSend(OutPacket(tp = PacketType.CMD, id = hash, md = m), DeviceStateManager.visible(hash), mapOf("md" to m))
+                    onSend(OutPacket(tp = PacketType.CMD, id = hash, md = m), DisplayStateManager.getValues(hash), mapOf("md" to m))
                 }
                 if (m == currentMode) {
                     setTextColor(ctx.getColor(R.color.green_text))
@@ -305,7 +307,7 @@ private fun buildClimateControls(layout: LinearLayout) {
         layout.addView(modeRow)
 
 val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to "Высокая", "auto" to "Авто")
-        val currentFan = (currentVisibleState["fan"] as? String) ?: "auto"
+        val currentFan = (DisplayStateManager.getValues(hash)["fan"] as? String) ?: "auto"
         val fanRow = LinearLayout(ctx).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = android.view.Gravity.CENTER_VERTICAL
@@ -323,7 +325,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
                 text = name
                 textSize = 11f
                 setOnClickListener {
-                    onSend(OutPacket(tp = PacketType.CMD, id = hash, fn = f), DeviceStateManager.visible(hash), mapOf("fn" to f))
+                    onSend(OutPacket(tp = PacketType.CMD, id = hash, fn = f), DisplayStateManager.getValues(hash), mapOf("fn" to f))
                 }
                 if (f == currentFan) {
                     setTextColor(ctx.getColor(R.color.green_text))
@@ -340,13 +342,13 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
 
     private fun buildBoilerControls(layout: LinearLayout) {
         val ctx = requireContext()
-        val on = currentVisibleState["s"] == 1L
+        val on = DisplayStateManager.getValues(hash)["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            val old = DeviceStateManager.visible(hash)
+            val old = DisplayStateManager.getValues(hash)
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), old, mapOf("s" to if (checked) 1L else 0L))
         }
 
-        val tc = (currentVisibleState["tc"] as? Number)?.toInt()
+        val tc = (DisplayStateManager.getValues(hash)["tc"] as? Number)?.toInt()
         if (tc != null) {
             val tvCurr = TextView(ctx).apply {
                 text = "Текущая: $tc°C"
@@ -357,13 +359,13 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
             layout.addView(tvCurr)
         }
 
-        val th = (currentVisibleState["th"] as? Number)?.toInt() ?: 55
+        val th = (DisplayStateManager.getValues(hash)["th"] as? Number)?.toInt() ?: 55
         addTempControl(layout, "Целевая температура", "°C", 35, 75, th) { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()), DeviceStateManager.visible(hash), mapOf("th" to v.toDouble()))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()), DisplayStateManager.getValues(hash), mapOf("th" to v.toDouble()))
         }
 
         val modes = listOf("eco" to "Эко", "comfort" to "Комфорт", "power" to "Мощный", "vacation" to "Отпуск")
-        val currentMode = (currentVisibleState["mode"] as? String) ?: "comfort"
+        val currentMode = (DisplayStateManager.getValues(hash)["mode"] as? String) ?: "comfort"
         val modeRow = LinearLayout(ctx).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = android.view.Gravity.CENTER_VERTICAL
@@ -381,7 +383,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
                 text = name
                 textSize = 11f
                 setOnClickListener {
-                    onSend(OutPacket(tp = PacketType.CMD, id = hash, md = m), DeviceStateManager.visible(hash), mapOf("md" to m))
+                    onSend(OutPacket(tp = PacketType.CMD, id = hash, md = m), DisplayStateManager.getValues(hash), mapOf("md" to m))
                 }
                 if (m == currentMode) {
                     setTextColor(ctx.getColor(R.color.green_text))
@@ -398,27 +400,27 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
 
     private fun buildFanControls(layout: LinearLayout) {
         val ctx = requireContext()
-        val on = currentVisibleState["s"] == 1L
+        val on = DisplayStateManager.getValues(hash)["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            val old = DeviceStateManager.visible(hash)
+            val old = DisplayStateManager.getValues(hash)
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), old, mapOf("s" to if (checked) 1L else 0L))
         }
 
-        val speed = toLong(currentVisibleState["speed"])?.toInt() ?: 50
+        val speed = toLong(DisplayStateManager.getValues(hash)["speed"])?.toInt() ?: 50
         addSlider(layout, "Скорость", "%", 1, 100, speed, 1, "sp") { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, sp = v), DeviceStateManager.visible(hash), mapOf("sp" to v.toLong()))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, sp = v), DisplayStateManager.getValues(hash), mapOf("sp" to v.toLong()))
         }
     }
 
     private fun buildHumidifierControls(layout: LinearLayout) {
         val ctx = requireContext()
-        val on = currentVisibleState["s"] == 1L
+        val on = DisplayStateManager.getValues(hash)["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            val old = DeviceStateManager.visible(hash)
+            val old = DisplayStateManager.getValues(hash)
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), old, mapOf("s" to if (checked) 1L else 0L))
         }
 
-       val tc = (currentVisibleState["tc"] as? Number)?.toInt()
+       val tc = (DisplayStateManager.getValues(hash)["tc"] as? Number)?.toInt()
         if (tc != null) {
             val tvCurr = TextView(ctx).apply {
                 text = "Текущая: $tc%"
@@ -429,17 +431,17 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
             layout.addView(tvCurr)
         }
 
-        val th = (currentVisibleState["th"] as? Number)?.toInt() ?: 50
+        val th = (DisplayStateManager.getValues(hash)["th"] as? Number)?.toInt() ?: 50
         addTempControl(layout, "Целевая влажность", "%", 20, 80, th) { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()), DeviceStateManager.visible(hash), mapOf("th" to v.toDouble()))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, th = v.toDouble()), DisplayStateManager.getValues(hash), mapOf("th" to v.toDouble()))
         }
     }
 
    private fun buildCoverControls(layout: LinearLayout) {
         val ctx = requireContext()
-        val pos = toLong(currentVisibleState["pos"])?.toInt() ?: 0
+        val pos = toLong(DisplayStateManager.getValues(hash)["pos"])?.toInt() ?: 0
         addSlider(layout, "Позиция", "%", 0, 100, pos, 1, "pos") { v ->
-            onSend(OutPacket(tp = PacketType.CMD, id = hash, pos = v), DeviceStateManager.visible(hash), mapOf("pos" to v.toLong()))
+            onSend(OutPacket(tp = PacketType.CMD, id = hash, pos = v), DisplayStateManager.getValues(hash), mapOf("pos" to v.toLong()))
         }
 
         val btnRow = LinearLayout(ctx).apply {
@@ -451,7 +453,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         val openBtn = Button(ctx).apply {
             text = "Открыть"
             setTextColor(ctx.getColor(R.color.green_text))
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "open"), DeviceStateManager.visible(hash), emptyMap()) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "open"), DisplayStateManager.getValues(hash), emptyMap()) }
         }
         openBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         openBtn.layoutParams.height = dpToPx(44)
@@ -460,7 +462,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         val stopBtn = Button(ctx).apply {
             text = "Стоп"
             setTextColor(ctx.getColor(R.color.gray_400))
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "stop"), DeviceStateManager.visible(hash), emptyMap()) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "stop"), DisplayStateManager.getValues(hash), emptyMap()) }
         }
         stopBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         stopBtn.layoutParams.height = dpToPx(44)
@@ -469,7 +471,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         val closeBtn = Button(ctx).apply {
             text = "Закрыть"
             setTextColor(ctx.getColor(R.color.red_text))
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "close"), DeviceStateManager.visible(hash), emptyMap()) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "close"), DisplayStateManager.getValues(hash), emptyMap()) }
         }
         closeBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         closeBtn.layoutParams.height = dpToPx(44)
@@ -488,7 +490,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         val unlockBtn = Button(ctx).apply {
             text = "Открыть замок"
             textSize = 14f
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "unlock"), DeviceStateManager.visible(hash), emptyMap()) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "unlock"), DisplayStateManager.getValues(hash), emptyMap()) }
         }
         unlockBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         unlockBtn.layoutParams.height = dpToPx(44)
@@ -497,7 +499,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         val lockBtn = Button(ctx).apply {
             text = "Закрыть замок"
             textSize = 14f
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "lock"), DeviceStateManager.visible(hash), emptyMap()) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "lock"), DisplayStateManager.getValues(hash), emptyMap()) }
         }
         lockBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         lockBtn.layoutParams.height = dpToPx(44)
@@ -510,7 +512,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         val btn = Button(ctx).apply {
             text = "▶ Нажать"
             textSize = 14f
-            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "press"), DeviceStateManager.visible(hash), emptyMap()) }
+            setOnClickListener { onSend(OutPacket(tp = PacketType.CMD, id = hash, cmd = "press"), DisplayStateManager.getValues(hash), emptyMap()) }
         }
         btn.layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(44)
@@ -520,7 +522,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
 
     private fun buildBinarySensorControl(layout: LinearLayout) {
         val ctx = requireContext()
-        val active = currentVisibleState["s"] == 1L
+        val active = DisplayStateManager.getValues(hash)["s"] == 1L
 
         val badge = TextView(ctx).apply {
             text = if (active) "⚠️ ТРЕВОГА" else "✓ Норма"
@@ -532,7 +534,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         }
         layout.addView(badge)
 
-        val ts = currentVisibleState["ts"] as? String
+        val ts = DisplayStateManager.getValues(hash)["ts"] as? String
         val tvTime = TextView(ctx).apply {
             text = if (ts != null) "Обновлено: $ts" else "Нет данных"
             textSize = 13f
@@ -544,9 +546,9 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
 
     private fun buildSensorControl(layout: LinearLayout) {
         val ctx = requireContext()
-        val v = currentVisibleState["v"]
+        val v = DisplayStateManager.getValues(hash)["v"]
         val u = dev.optString("u", "")
-        val ts = currentVisibleState["ts"] as? String
+        val ts = DisplayStateManager.getValues(hash)["ts"] as? String
 
         val tvVal = TextView(ctx).apply {
             text = if (v != null) "$v" else "—"
@@ -578,7 +580,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
 
     private fun buildSirenControl(layout: LinearLayout) {
         val ctx = requireContext()
-        val active = currentVisibleState["s"] == 1L
+        val active = DisplayStateManager.getValues(hash)["s"] == 1L
 
         val warning = TextView(ctx).apply {
             text = "⚠️ Внимание: громкий звук"
@@ -591,16 +593,16 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
         }
         layout.addView(warning)
 
-        val on = currentVisibleState["s"] == 1L
+        val on = DisplayStateManager.getValues(hash)["s"] == 1L
         addToggleRow(layout, "Сирена", on) { checked ->
-            val old = DeviceStateManager.visible(hash)
+            val old = DisplayStateManager.getValues(hash)
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), old, mapOf("s" to if (checked) 1L else 0L))
         }
     }
 
     private fun buildAlarmControl(layout: LinearLayout) {
         val ctx = requireContext()
-        val mode = toLong(currentVisibleState["s"])
+        val mode = toLong(DisplayStateManager.getValues(hash)["s"])
 
         val status = TextView(ctx).apply {
             text = when (mode) {
@@ -626,7 +628,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
             text = "Уход"
             textSize = 13f
             setOnClickListener {
-                val old = DeviceStateManager.visible(hash)
+                val old = DisplayStateManager.getValues(hash)
                 onSend(OutPacket(tp = PacketType.CMD, id = hash, s = 1L), old, mapOf("s" to 1L))
             }
         }
@@ -638,7 +640,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
             text = "Дома"
             textSize = 13f
             setOnClickListener {
-                val old = DeviceStateManager.visible(hash)
+                val old = DisplayStateManager.getValues(hash)
                 onSend(OutPacket(tp = PacketType.CMD, id = hash, s = 2L), old, mapOf("s" to 2L))
             }
         }
@@ -650,7 +652,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
             text = "Ночь"
             textSize = 13f
             setOnClickListener {
-                val old = DeviceStateManager.visible(hash)
+                val old = DisplayStateManager.getValues(hash)
                 onSend(OutPacket(tp = PacketType.CMD, id = hash, s = 3L), old, mapOf("s" to 3L))
             }
         }
@@ -673,7 +675,7 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
             setOnClickListener {
                 val pin = pinInput.text.toString()
                 if (pin.isNotBlank()) {
-                    onSend(OutPacket(tp = PacketType.CMD, id = hash, pin = pin, s = 0L), DeviceStateManager.visible(hash), mapOf("s" to 0L))
+                    onSend(OutPacket(tp = PacketType.CMD, id = hash, pin = pin, s = 0L), DisplayStateManager.getValues(hash), mapOf("s" to 0L))
                 }
             }
         }
@@ -684,18 +686,18 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
     }
 
     private fun buildToggleControl(layout: LinearLayout) {
-        val on = currentVisibleState["s"] == 1L
+        val on = DisplayStateManager.getValues(hash)["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            val old = DeviceStateManager.visible(hash)
+            val old = DisplayStateManager.getValues(hash)
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), old, mapOf("s" to if (checked) 1L else 0L))
         }
     }
 
     private fun buildGenericControl(layout: LinearLayout) {
         val ctx = requireContext()
-        val on = currentVisibleState["s"] == 1L
+        val on = DisplayStateManager.getValues(hash)["s"] == 1L
         addToggleRow(layout, "Включить", on) { checked ->
-            val old = DeviceStateManager.visible(hash)
+            val old = DisplayStateManager.getValues(hash)
             onSend(OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0), old, mapOf("s" to if (checked) 1L else 0L))
         }
     }

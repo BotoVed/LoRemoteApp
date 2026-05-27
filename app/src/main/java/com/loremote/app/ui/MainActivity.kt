@@ -28,7 +28,7 @@ import com.loremote.app.databinding.ActivityMainBinding
  import com.loremote.app.protocol.OutPacket
 import com.loremote.app.protocol.PacketType
 import com.loremote.app.protocol.Protocol
-import com.loremote.app.state.DeviceStateManager
+import com.loremote.app.state.DisplayStateManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -243,18 +243,18 @@ class MainActivity : AppCompatActivity() {
         when (tp) {
             PacketType.CONFIRM -> {
                 if (id != null) {
-                    DeviceStateManager.onConfirmed(id, extractStateValues(map))
+                    DisplayStateManager.onConfirmed(id, extractStateValues(map))
                     bleService?.deliveryQueue?.confirm(id, extractStateValues(map))
                 }
             }
             PacketType.STATUS -> {
                 if (id != null) {
-                    DeviceStateManager.onConfirmed(id, extractStateValues(map))
+                    DisplayStateManager.onConfirmed(id, extractStateValues(map))
                 }
             }
             PacketType.PUSH -> {
                 if (id != null) {
-                    DeviceStateManager.onConfirmed(id, extractStateValues(map))
+                    DisplayStateManager.onConfirmed(id, extractStateValues(map))
                 }
                 // Аларм если binary_sensor сработал
                 val s = map["s"]
@@ -299,7 +299,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 if (packetWithTs.id != null) {
-                    DeviceStateManager.onSending(packetWithTs.id, newValue)
+                    DisplayStateManager.onSending(packetWithTs.id, newValue)
                     bleService?.deliveryQueue?.enqueue(packetWithTs.id, packetWithTs, oldValue, newValue)
                 } else {
                     val bytes = Protocol.encode(packetWithTs)

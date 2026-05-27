@@ -17,17 +17,21 @@ data class DeviceState(
     val status: DeviceStatus = DeviceStatus.OK
 )
 
-object DeviceStateManager {
-    private const val TAG = "DeviceStateManager"
+object DisplayStateManager {
+    private const val TAG = "DisplayStateManager"
 
     private val _states = MutableStateFlow<Map<String, DeviceState>>(emptyMap())
     val states: StateFlow<Map<String, DeviceState>> = _states
 
     fun get(hash: String): DeviceState? = _states.value[hash]
 
-    fun visible(hash: String): Map<String, Any?> {
+    fun getValues(hash: String): Map<String, Any?> {
         val s = _states.value[hash] ?: return emptyMap()
         return if (s.pending != null) s.current + s.pending else s.current
+    }
+
+    fun isEnabled(hash: String): Boolean {
+        return _states.value[hash] != null
     }
 
     fun onConfirmed(hash: String, values: Map<String, Any?>) {

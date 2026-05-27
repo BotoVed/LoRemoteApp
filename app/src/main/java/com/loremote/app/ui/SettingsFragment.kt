@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.loremote.app.R
  import com.loremote.app.protocol.DeliveryQueue.QueueEntry
 import com.loremote.app.protocol.Protocol
-import com.loremote.app.state.DeviceStateManager
+import com.loremote.app.state.DisplayStateManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -240,7 +240,7 @@ fun updateDeviceList(results: List<ScanResult>) {
              }
              row.addView(tvTime)
 
-             val state = DeviceStateManager.visible(entry.devId)
+             val state = DisplayStateManager.getValues(entry.devId)
              val confirmed = state["tp"] == 1L
              val tvConfirmed = TextView(requireContext()).apply {
                  text = if (confirmed) "✓" else "—"
@@ -256,7 +256,7 @@ fun updateDeviceList(results: List<ScanResult>) {
              }
              row.addView(tvAttempts)
 
-             val visible = DeviceStateManager.visible(entry.devId)
+             val visible = DisplayStateManager.getValues(entry.devId)
              val value = listOf("s", "bri", "ct", "th", "tc", "sp", "pos", "v")
                  .mapNotNull { k -> visible[k]?.let { k to it } }
                  .firstOrNull()

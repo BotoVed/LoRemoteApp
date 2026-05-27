@@ -2,7 +2,7 @@ package com.loremote.app.protocol
 
 import android.content.Context
 import android.util.Log
-import com.loremote.app.state.DeviceStateManager
+import com.loremote.app.state.DisplayStateManager
 import kotlinx.coroutines.*
 
 class DeliveryQueue(
@@ -53,7 +53,7 @@ class DeliveryQueue(
             when {
                 entry.confirmed -> {
                     synchronized(queue) { queue.remove(key) }
-                    DeviceStateManager.onConfirmed(entry.devId, entry.newValue)
+                    DisplayStateManager.onConfirmed(entry.devId, entry.newValue)
                     Log.d(TAG, "Confirmed and applied: ${entry.devId}")
                 }
 
@@ -69,7 +69,7 @@ class DeliveryQueue(
                         }
                     } else {
                         synchronized(queue) { queue.remove(key) }
-                        DeviceStateManager.onConfirmed(entry.devId, entry.oldValue)
+                        DisplayStateManager.onConfirmed(entry.devId, entry.oldValue)
                         withContext(Dispatchers.Main) { onFailed(entry.devId) }
                         Log.w(TAG, "Failed after ${entry.attempts} attempts: ${entry.devId}, rolling back")
                     }
@@ -104,7 +104,7 @@ class DeliveryQueue(
             synchronized(queue) { entry.confirmed = true }
             Log.d(TAG, "Marked confirmed: $devId")
         } else {
-            DeviceStateManager.onConfirmed(devId, confirmedValues)
+            DisplayStateManager.onConfirmed(devId, confirmedValues)
             Log.d(TAG, "Late confirm (no entry): $devId = $confirmedValues")
         }
     }

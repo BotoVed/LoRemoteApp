@@ -14,8 +14,8 @@ import com.loremote.app.R
 import kotlinx.coroutines.launch
 import com.loremote.app.protocol.OutPacket
 import com.loremote.app.protocol.PacketType
-import com.loremote.app.state.DeviceStateManager
 import com.loremote.app.state.DeviceStatus
+import com.loremote.app.state.DisplayStateManager
 import org.json.JSONObject
 
 data class PillData(val text: String, val type: PillType, val icon: String)
@@ -125,22 +125,30 @@ class ControlFragment : Fragment() {
 
         for (i in 0 until ar.length()) {
             val zone = ar.getJSONObject(i)
+            val zoneId = zone.optString("id")
+            if (zoneId == "ustroistva") continue
+            val devices = getDevicesForZone(zoneId, config, emptyList())
+            if (devices.isEmpty()) continue
             val card = buildZoneCard(zone, config, unassignedDevices)
             zonesContainer?.addView(card)
         }
 
-        if (unassignedDevices.isNotEmpty()) {
-            val allDevices = unassignedDevices
-            val zone = JSONObject().put("id", "ustroistva").put("n", "Устройства")
-            val card = buildZoneCard(zone, config, allDevices)
+        val unassigned = getDevicesForZone("ustroistva", config, emptyList())
+        if (unassigned.isNotEmpty()) {
+            val sysZone = JSONObject()
+                .put("id", "ustroistva")
+                .put("n", "")
+                .put("ic", "devices")
+                .put("ord", 99)
+            val card = buildZoneCard(sysZone, config, unassigned)
             zonesContainer?.addView(card)
+            refreshZonePills("ustroistva")
         }
 
         for (i in 0 until ar.length()) {
             val zone = ar.getJSONObject(i)
             refreshZonePills(zone.optString("id"))
         }
-        refreshZonePills("ustroistva")
     }
 
     private fun buildZoneCard(zone: JSONObject, config: JSONObject, unassignedDevices: List<Pair<String, JSONObject>> = emptyList()): View {
@@ -404,7 +412,7 @@ class ControlFragment : Fragment() {
 
     private fun buildDeviceRow(hash: String, dev: JSONObject, type: String): View {
         val ctx = requireContext()
-        val state = DeviceStateManager.visible(hash)
+        val state = DisplayStateManager.getValues(hash)
         val cfg = configJson?.optJSONObject("mpg")?.optJSONObject(hash) ?: dev
 
         val row = LinearLayout(ctx).apply {
@@ -451,7 +459,7 @@ class ControlFragment : Fragment() {
                     toggle.setOnCheckedChangeListener(null)
                     toggle.setOnCheckedChangeListener { _, checked ->
                         val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
-                        val old = DeviceStateManager.visible(hash)
+                        val old = DisplayStateManager.getValues(hash)
                         main.sendPacket(
                             OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0),
                             oldValue = old,
@@ -562,10 +570,10 @@ class ControlFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         lifecycleScope.launch {
-            DeviceStateManager.states.collect { states ->
+            DisplayStateManager.states.collect { states ->
                 if (!isAdded) return@collect
                 requireActivity().runOnUiThread {
-                    states.keys.forEach { hash -> refreshRow(hash) }
+                    states.keys.forEach { hash: String -> refreshRow(hash) }
                 }
             }
         }
@@ -577,12 +585,12 @@ class ControlFragment : Fragment() {
 
     private fun refreshRow(hash: String) {
         val row = zonesContainer?.findViewWithTag<View>(hash) as? LinearLayout ?: return
-        val state = DeviceStateManager.visible(hash)
+        val state = DisplayStateManager.getValues(hash)
         val cfg = configJson?.optJSONObject("mpg")?.optJSONObject(hash) ?: return
         val type = cfg.optString("t", "")
 
-        row.alpha = if (DeviceStateManager.get(hash)?.status != DeviceStatus.FAILED) 1f else 0.5f
-        for (i in 0 until row.childCount) row.getChildAt(i)?.isEnabled = DeviceStateManager.get(hash)?.status != DeviceStatus.FAILED
+        row.alpha = if (DisplayStateManager.get(hash)?.status != DeviceStatus.FAILED) 1f else 0.5f
+        for (i in 0 until row.childCount) row.getChildAt(i)?.isEnabled = DisplayStateManager.get(hash)?.status != DeviceStatus.FAILED
 
         val nameBlock = row.getChildAt(0) as? LinearLayout
         (nameBlock?.getChildAt(1) as? TextView)?.text = buildSubText(type, state, cfg)
@@ -593,7 +601,7 @@ class ControlFragment : Fragment() {
                 ctrl.isChecked = state["s"] == 1L
                 ctrl.setOnCheckedChangeListener { _, checked ->
                     val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
-                    val old = DeviceStateManager.visible(hash)
+                    val old = DisplayStateManager.getValues(hash)
                     main.sendPacket(
                         OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0),
                         oldValue = old,
@@ -719,6 +727,7 @@ class ControlFragment : Fragment() {
             "bed" -> R.drawable.ic_zone_bed
             "kitchen" -> R.drawable.ic_zone_kitchen
             "bathroom" -> R.drawable.ic_zone_bathroom
+"devices" -> R.drawable.ic_zone_devices
             "tool" -> R.drawable.ic_zone_tool
             else -> R.drawable.ic_zone_home
         }
@@ -745,7 +754,7 @@ class ControlFragment : Fragment() {
         }
         if (tempSensors.isNotEmpty()) {
             val values = tempSensors.mapNotNull { (hash, _) ->
-                (DeviceStateManager.visible(hash)["v"] as? Number)?.toDouble()
+                (DisplayStateManager.getValues(hash)["v"] as? Number)?.toDouble()
             }
             if (values.isNotEmpty()) {
                 val text = if (values.size == 1)
@@ -761,7 +770,7 @@ class ControlFragment : Fragment() {
         }
         if (humSensors.isNotEmpty()) {
             val values = humSensors.mapNotNull { (hash, _) ->
-                (DeviceStateManager.visible(hash)["v"] as? Number)?.toDouble()
+                (DisplayStateManager.getValues(hash)["v"] as? Number)?.toDouble()
             }
             if (values.isNotEmpty()) {
                 pills.add(PillData("${values.first()}%", PillType.OK, "humidity"))
@@ -771,11 +780,11 @@ class ControlFragment : Fragment() {
         val lights = zoneDevices.filter { (_, dev) -> dev.optString("t") == "L" }
         if (lights.isNotEmpty()) {
             val onLights = lights.filter { (hash, _) ->
-                DeviceStateManager.visible(hash)["s"] == 1L
+                DisplayStateManager.getValues(hash)["s"] == 1L
             }
             if (onLights.isNotEmpty()) {
                 val briValues = onLights.mapNotNull { (hash, _) ->
-                    (DeviceStateManager.visible(hash)["bri"] as? Number)?.toInt()
+                    (DisplayStateManager.getValues(hash)["bri"] as? Number)?.toInt()
                 }
                 val text = if (briValues.isNotEmpty())
                     "${onLights.size} вкл · ${briValues.average().toInt()}%"
@@ -786,7 +795,7 @@ class ControlFragment : Fragment() {
         }
 
         val alarms = zoneDevices.filter { (_, dev) -> dev.optString("t") == "BS" }
-            .filter { (hash, _) -> DeviceStateManager.visible(hash)["s"] == 1L }
+            .filter { (hash, _) -> DisplayStateManager.getValues(hash)["s"] == 1L }
         alarms.forEach { (_, dev) ->
             pills.add(PillData("⚠ ${dev.optString("n", "")}", PillType.ERR, "alert"))
         }
