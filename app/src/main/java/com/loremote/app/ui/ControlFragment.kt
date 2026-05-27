@@ -499,6 +499,62 @@ class ControlFragment : Fragment() {
         }
     }
 
+    private fun refreshRow(hash: String) {
+        val row = zonesContainer?.findViewWithTag<LinearLayout>(hash) ?: return
+        val state = DeviceStateManager.visible(hash)
+        val cfg = configJson?.optJSONObject("mpg")?.optJSONObject(hash) ?: return
+        val type = cfg.optString("t", "")
+
+        val nameBlock = row.getChildAt(0) as? LinearLayout
+        val tvSub = nameBlock?.getChildAt(1) as? TextView
+        tvSub?.text = subText(type, state)
+
+        val rightControl = row.getChildAt(1)
+        when (rightControl) {
+            is Switch -> {
+                rightControl.setOnCheckedChangeListener(null)
+                rightControl.isChecked = state["s"] == 1L
+                rightControl.setOnCheckedChangeListener { _, checked ->
+                    val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
+                    val old = DeviceStateManager.visible(hash)
+                    main.sendPacket(
+                        OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0),
+                        oldValue = old,
+                        newValue = mapOf("s" to if (checked) 1L else 0L)
+                    )
+                }
+            }
+            is TextView -> {
+                rightControl.text = when (type) {
+                    "CV"  -> {
+                        val pos = (state["pos"] as? Number)?.toInt() ?: 0
+                        if (pos != 0) "открыты·${pos}%" else "закрыты"
+                    }
+                    "SI"  -> {
+                        val v = state["v"]
+                        val u = cfg.optString("u", "")
+                        if (v != null) "$v$u" else "—"
+                    }
+                    "A"   -> when (state["s"]) {
+                        1L -> "armed"; 2L -> "stay"; 3L -> "night"; else -> "disarmed"
+                    }
+                    "S"   -> {
+                        val v = state["v"]
+                        val u = cfg.optString("u", "")
+                        if (v != null) "$v$u" else "—"
+                    }
+                    "BS"  -> if (state["s"] == 1L) "⚠️ Тревога" else "✓ Норма"
+                    else  -> state["s"]?.toString() ?: "—"
+                }
+            }
+        }
+
+        val inQueue = (activity as? MainActivity)?.bleService?.deliveryQueue
+            ?.getQueueEntries()?.any { it.devId == hash } ?: false
+        row.alpha = if (inQueue) 0.5f else 1f
+        row.isEnabled = !inQueue
+    }
+
     private fun divider(): View = View(requireContext()).apply {
         setBackgroundColor(requireContext().getColor(R.color.gray_700))
         layoutParams = LinearLayout.LayoutParams(
