@@ -18,17 +18,17 @@
     <color name="gray_900">#1A1A1A</color>
 
     <!-- Status colors -->
-    <color name="green_soft">#1A4ade80</color>
-    <color name="green_border">#404ade80</color>
+    <color name="green_soft">#1F4D2E</color>
+    <color name="green_border">#2D6A40</color>
     <color name="green_text">#86EFAC</color>
-    <color name="red_soft">#1AF87171</color>
-    <color name="red_border">#40F87171</color>
+    <color name="red_soft">#4D1A1A</color>
+    <color name="red_border">#6B2D2D</color>
     <color name="red_text">#FCA5A5</color>
-    <color name="yellow_soft">#1AFACC15</color>
-    <color name="yellow_border">#40FACC15</color>
+    <color name="yellow_soft">#4D3D00</color>
+    <color name="yellow_border">#6B5200</color>
     <color name="yellow_text">#FDE047</color>
-    <color name="blue_soft">#1A60A5FA</color>
-    <color name="blue_border">#4060A5FA</color>
+    <color name="blue_soft">#1A2D4D</color>
+    <color name="blue_border">#2D4A6B</color>
     <color name="blue_text">#93C5FD</color>
     <color name="coral_soft">#1AFB923C</color>
     <color name="coral_border">#40FB923C</color>

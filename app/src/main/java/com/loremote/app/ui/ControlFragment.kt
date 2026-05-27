@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.*
+import android.graphics.drawable.GradientDrawable
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.loremote.app.R
@@ -19,8 +20,10 @@ class ControlFragment : Fragment() {
 
     private var zonesContainer: LinearLayout? = null
     private var configJson: JSONObject? = null
+    private val zoneExpanded = mutableMapOf<String, Boolean>()
+    private val typeExpanded = mutableMapOf<String, Boolean>()
 
-     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val scroll = ScrollView(requireContext()).apply {
             setBackgroundColor(requireContext().getColor(R.color.bg_dark))
         }
@@ -98,33 +101,155 @@ class ControlFragment : Fragment() {
         configJson = config
         zonesContainer?.removeAllViews() ?: return
         val ctx = requireContext()
-        val areas = config.optJSONArray("ar") ?: return
+        val ar = config.optJSONArray("ar") ?: return
         val mpg = config.optJSONObject("mpg") ?: return
+        val prefs = ctx.getSharedPreferences("loremote", Context.MODE_PRIVATE)
 
-        var hasAny = false
-        Log.d("ControlFragment", "buildZones: ar=${areas.length()}, mpg=${mpg.length()}")
-        for (i in 0 until areas.length()) {
-            val area = areas.getJSONObject(i)
-            val areaId = area.getString("id")
-            val areaName = area.getString("n")
-            Log.d("ControlFragment", "  area=$areaId ($areaName)")
-
-            val devices = mutableListOf<Pair<String, JSONObject>>()
-            mpg.keys().forEach { hash ->
-                val dev = mpg.getJSONObject(hash)
-                val devArea = dev.optString("a")
-                val noArea = devArea == "" || devArea == "null" || dev.opt("a") == null
-                Log.d("ControlFragment", "    device=$hash a='$devArea' noArea=$noArea -> match=${devArea == areaId || (noArea && areaId == "ustroistva")}")
-                if (devArea == areaId || (noArea && areaId == "ustroistva")) {
-                    devices.add(Pair(hash, dev))
-                }
-            }
-            Log.d("ControlFragment", "  area $areaId: ${devices.size} devices")
-            if (devices.isEmpty()) continue
-            hasAny = true
-            val zoneCard = buildZoneCard(areaName, devices, mpg)
-            zonesContainer?.addView(zoneCard)
+        for (i in 0 until ar.length()) {
+            val zone = ar.getJSONObject(i)
+            val card = buildZoneCard(zone, config)
+            zonesContainer?.addView(card)
         }
+    }
+
+    private fun buildZoneCard(zone: JSONObject, config: JSONObject): View {
+        val ctx = requireContext()
+        val prefs = ctx.getSharedPreferences("loremote", Context.MODE_PRIVATE)
+        val zoneId = zone.getString("id")
+        val zoneName = zone.getString("n")
+        val zoneIcon = zone.optString("ic", "home")
+        val expanded = prefs.getBoolean("zone_exp_$zoneId", true)
+
+        val card = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setStroke(1, ctx.getColor(R.color.gray_700))
+                setCornerRadius(dpToPx(12).toFloat())
+                setColor(ctx.getColor(R.color.gray_900))
+            }
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = dpToPx(10) }
+            layoutParams = lp
+        }
+
+        val header = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(dpToPx(12), dpToPx(14), dpToPx(12), dpToPx(14))
+            isClickable = true
+            isFocusable = true
+        }
+
+        val iconContainer = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = android.view.Gravity.CENTER
+            val lp = LinearLayout.LayoutParams(dpToPx(30), dpToPx(30))
+            layoutParams = lp
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setStroke(1, ctx.getColor(R.color.gray_700))
+                setCornerRadius(dpToPx(8).toFloat())
+                setColor(ctx.getColor(R.color.gray_800))
+            }
+        }
+
+        val iconView = ImageView(ctx).apply {
+            val resId = resolveZoneIcon(zoneIcon)
+            setImageResource(resId)
+            val lp = LinearLayout.LayoutParams(dpToPx(18), dpToPx(18))
+            layoutParams = lp
+            setColorFilter(ctx.getColor(R.color.gray_400))
+        }
+        iconContainer.addView(iconView)
+        header.addView(iconContainer)
+
+        val titleBlock = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            setPadding(dpToPx(10), 0, 0, 0)
+        }
+
+        val nameRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+
+        val tvName = TextView(ctx).apply {
+            text = zoneName
+            textSize = 15f
+            setTextColor(ctx.getColor(R.color.gray_200))
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+        nameRow.addView(tvName)
+
+        val devices = getDevicesForZone(zoneId, config)
+        val countBadge = TextView(ctx).apply {
+            text = devices.size.toString()
+            textSize = 11f
+            setTextColor(ctx.getColor(R.color.gray_500))
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setCornerRadius(dpToPx(4).toFloat())
+                setColor(ctx.getColor(R.color.gray_800))
+            }
+            setPadding(dpToPx(6), dpToPx(2), dpToPx(6), dpToPx(2))
+            setGravity(android.view.Gravity.CENTER)
+            setPadding(dpToPx(6), dpToPx(2), dpToPx(6), dpToPx(2))
+        }
+        nameRow.addView(countBadge)
+        titleBlock.addView(nameRow)
+
+        val summaryRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, dpToPx(5), 0, 0)
+        }
+        summaryRow.tag = "zone_summary_$zoneId"
+        titleBlock.addView(summaryRow)
+
+        header.addView(titleBlock)
+
+        val chevron = TextView(ctx).apply {
+            text = "▾"
+            textSize = 16f
+            setTextColor(ctx.getColor(R.color.gray_500))
+            tag = "chevron_$zoneId"
+        }
+        header.addView(chevron)
+
+        card.addView(header)
+
+        val body = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            tag = "zone_body_$zoneId"
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            if (expanded) {
+                visibility = View.VISIBLE
+            } else {
+                visibility = View.GONE
+            }
+        }
+        val borderTop = View(ctx).apply {
+            setBackgroundColor(ctx.getColor(R.color.gray_700))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(1)
+            )
+        }
+        body.addView(borderTop)
+        card.addView(body)
+
+        header.setOnClickListener {
+            val newExpanded = !expanded
+            zoneExpanded[zoneId] = newExpanded
+            body.visibility = if (!newExpanded) View.GONE else View.VISIBLE
+            chevron.rotation = if (!newExpanded) 0f else 180f
+            prefs.edit().putBoolean("zone_exp_$zoneId", newExpanded).apply()
+        }
+
+        return card
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -140,7 +265,7 @@ class ControlFragment : Fragment() {
         val row = zonesContainer?.findViewWithTag<LinearLayout>(hash) ?: return
         val state = DeviceStateManager.visible(hash)
         val cfg = configJson?.optJSONObject("mpg")?.optJSONObject(hash) ?: return
-        val type = cfg.optString("tp", "")
+        val type = cfg.optString("t", "")
 
         val leftCol = row.getChildAt(0) as? LinearLayout ?: return
         val subText = leftCol.getChildAt(1) as? TextView
@@ -438,7 +563,7 @@ class ControlFragment : Fragment() {
         // PONG получен
     }
 
-     private fun openDevicePopup(hash: String, dev: JSONObject, type: String) {
+    private fun openDevicePopup(hash: String, dev: JSONObject, type: String) {
         val dialog = DevicePopupDialog(hash, dev, type) { packet, changes, old ->
             (activity as? MainActivity)?.sendPacket(packet, oldValue = old, newValue = changes)
         }
@@ -499,62 +624,6 @@ class ControlFragment : Fragment() {
         }
     }
 
-    private fun refreshRow(hash: String) {
-        val row = zonesContainer?.findViewWithTag<LinearLayout>(hash) ?: return
-        val state = DeviceStateManager.visible(hash)
-        val cfg = configJson?.optJSONObject("mpg")?.optJSONObject(hash) ?: return
-        val type = cfg.optString("t", "")
-
-        val nameBlock = row.getChildAt(0) as? LinearLayout
-        val tvSub = nameBlock?.getChildAt(1) as? TextView
-        tvSub?.text = subText(type, state)
-
-        val rightControl = row.getChildAt(1)
-        when (rightControl) {
-            is Switch -> {
-                rightControl.setOnCheckedChangeListener(null)
-                rightControl.isChecked = state["s"] == 1L
-                rightControl.setOnCheckedChangeListener { _, checked ->
-                    val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
-                    val old = DeviceStateManager.visible(hash)
-                    main.sendPacket(
-                        OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0),
-                        oldValue = old,
-                        newValue = mapOf("s" to if (checked) 1L else 0L)
-                    )
-                }
-            }
-            is TextView -> {
-                rightControl.text = when (type) {
-                    "CV"  -> {
-                        val pos = (state["pos"] as? Number)?.toInt() ?: 0
-                        if (pos != 0) "открыты·${pos}%" else "закрыты"
-                    }
-                    "SI"  -> {
-                        val v = state["v"]
-                        val u = cfg.optString("u", "")
-                        if (v != null) "$v$u" else "—"
-                    }
-                    "A"   -> when (state["s"]) {
-                        1L -> "armed"; 2L -> "stay"; 3L -> "night"; else -> "disarmed"
-                    }
-                    "S"   -> {
-                        val v = state["v"]
-                        val u = cfg.optString("u", "")
-                        if (v != null) "$v$u" else "—"
-                    }
-                    "BS"  -> if (state["s"] == 1L) "⚠️ Тревога" else "✓ Норма"
-                    else  -> state["s"]?.toString() ?: "—"
-                }
-            }
-        }
-
-        val inQueue = (activity as? MainActivity)?.bleService?.deliveryQueue
-            ?.getQueueEntries()?.any { it.devId == hash } ?: false
-        row.alpha = if (inQueue) 0.5f else 1f
-        row.isEnabled = !inQueue
-    }
-
     private fun divider(): View = View(requireContext()).apply {
         setBackgroundColor(requireContext().getColor(R.color.gray_700))
         layoutParams = LinearLayout.LayoutParams(
@@ -568,5 +637,31 @@ class ControlFragment : Fragment() {
     private fun toLong(v: Any?): Long? = when (v) {
         is Number -> (v as? Number)?.toLong() ?: 0L
         else -> null
+    }
+
+    private fun resolveZoneIcon(zoneIcon: String): Int {
+        return when (zoneIcon) {
+            "home" -> R.drawable.ic_zone_home
+            "sofa" -> R.drawable.ic_zone_sofa
+            "bed" -> R.drawable.ic_zone_bed
+            "kitchen" -> R.drawable.ic_zone_kitchen
+            "bathroom" -> R.drawable.ic_zone_bathroom
+            "tool" -> R.drawable.ic_zone_tool
+            else -> R.drawable.ic_zone_home
+        }
+    }
+
+    private fun getDevicesForZone(zoneId: String, config: JSONObject): List<Pair<String, JSONObject>> {
+        val mpg = config.optJSONObject("mpg") ?: return emptyList()
+        val devices = mutableListOf<Pair<String, JSONObject>>()
+        mpg.keys().forEach { hash ->
+            val dev = mpg.getJSONObject(hash)
+            val devArea = dev.optString("a")
+            val noArea = devArea == "" || devArea == "null" || dev.opt("a") == null
+            if (devArea == zoneId || (noArea && zoneId == "ustroistva")) {
+                devices.add(Pair(hash, dev))
+            }
+        }
+        return devices
     }
 }
