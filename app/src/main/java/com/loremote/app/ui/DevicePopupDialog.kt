@@ -3,6 +3,7 @@ package com.loremote.app.ui
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.loremote.app.R
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
-class DevicePopupDialog(
+class DevicePopupDialog private constructor(
     private val hash: String,
     private val dev: JSONObject,
     private val type: String,
@@ -828,5 +829,24 @@ val fans = listOf("low" to "Низкая", "med" to "Средняя", "high" to 
     private fun toLong(v: Any?): Long? = when (v) {
         is Number -> (v as? Number)?.toLong() ?: 0L
         else -> null
+    }
+
+    companion object {
+        fun newInstance(hash: String, onSend: (OutPacket, Map<String, Any?>, Map<String, Any?>) -> Unit, parentFragment: Fragment): DevicePopupDialog {
+            val config = (parentFragment.activity as? MainActivity)?.let { it ->
+                try {
+                    val prefs = it.getSharedPreferences("loremote", android.content.Context.MODE_PRIVATE)
+                    val saved = prefs.getString("config_json", null)
+                    if (saved != null) {
+                        val cleaned = saved.replace(Regex("^.*window\\.LORA_CONFIG\\s*=\\s*"), "").trimEnd(';', ' ', '\n')
+                        org.json.JSONObject(cleaned)
+                    } else null
+                } catch (e: Exception) { null }
+            }
+            val mpg = config?.optJSONObject("mpg")
+            val dev = mpg?.optJSONObject(hash) ?: JSONObject()
+            val type = dev.optString("t", "")
+            return DevicePopupDialog(hash, dev, type, onSend)
+        }
     }
 }

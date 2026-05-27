@@ -2,6 +2,8 @@ package com.loremote.app.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.*
 import android.widget.*
@@ -22,6 +24,8 @@ class ControlFragment : Fragment() {
     private var configJson: JSONObject? = null
     private val zoneExpanded = mutableMapOf<String, Boolean>()
     private val typeExpanded = mutableMapOf<String, Boolean>()
+    private val handler = Handler(Looper.getMainLooper())
+    private var longPressRunnable: Runnable? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val scroll = ScrollView(requireContext()).apply {
@@ -105,14 +109,32 @@ class ControlFragment : Fragment() {
         val mpg = config.optJSONObject("mpg") ?: return
         val prefs = ctx.getSharedPreferences("loremote", Context.MODE_PRIVATE)
 
+        // Collect devices without a zone
+        val unassignedDevices = mutableListOf<Pair<String, JSONObject>>()
+        mpg.keys().forEach { hash ->
+            val dev = mpg.getJSONObject(hash)
+            val devArea = dev.optString("a")
+            val noArea = devArea == "" || devArea == "null" || dev.opt("a") == null
+            if (noArea) {
+                unassignedDevices.add(Pair(hash, dev))
+            }
+        }
+
         for (i in 0 until ar.length()) {
             val zone = ar.getJSONObject(i)
-            val card = buildZoneCard(zone, config)
+            val card = buildZoneCard(zone, config, unassignedDevices)
+            zonesContainer?.addView(card)
+        }
+
+        if (unassignedDevices.isNotEmpty()) {
+            val allDevices = unassignedDevices
+            val zone = JSONObject().put("id", "ustroistva").put("n", "Устройства")
+            val card = buildZoneCard(zone, config, allDevices)
             zonesContainer?.addView(card)
         }
     }
 
-    private fun buildZoneCard(zone: JSONObject, config: JSONObject): View {
+    private fun buildZoneCard(zone: JSONObject, config: JSONObject, unassignedDevices: List<Pair<String, JSONObject>> = emptyList()): View {
         val ctx = requireContext()
         val prefs = ctx.getSharedPreferences("loremote", Context.MODE_PRIVATE)
         val zoneId = zone.getString("id")
@@ -183,7 +205,7 @@ class ControlFragment : Fragment() {
         }
         nameRow.addView(tvName)
 
-        val devices = getDevicesForZone(zoneId, config)
+        val devices = getDevicesForZone(zoneId, config, unassignedDevices)
         val countBadge = TextView(ctx).apply {
             text = devices.size.toString()
             textSize = 11f
@@ -241,6 +263,18 @@ class ControlFragment : Fragment() {
         body.addView(borderTop)
         card.addView(body)
 
+        // Build type sections
+        val byType = devices.groupBy { it.second.optString("t", "?") }
+        val typeOrder = listOf("L", "SW", "C", "WH", "F", "CV", "LK", "BS", "S", "SI", "A", "H", "B")
+
+        val sortedTypes = typeOrder.filter { byType.containsKey(it) }
+        for (tIdx in sortedTypes.indices) {
+            val type = sortedTypes[tIdx]
+            val typeDevices = byType[type] ?: continue
+            val typeSection = buildTypeSection(zoneId, type, typeDevices, tIdx < sortedTypes.size - 1)
+            body.addView(typeSection)
+        }
+
         header.setOnClickListener {
             val newExpanded = !expanded
             zoneExpanded[zoneId] = newExpanded
@@ -252,247 +286,196 @@ class ControlFragment : Fragment() {
         return card
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        lifecycleScope.launch {
-            DeviceStateManager.states.collect { states ->
-                states.keys.forEach { hash -> refreshRow(hash) }
-            }
-        }
-    }
-
-    fun refreshRow(hash: String) {
-        val row = zonesContainer?.findViewWithTag<LinearLayout>(hash) ?: return
-        val state = DeviceStateManager.visible(hash)
-        val cfg = configJson?.optJSONObject("mpg")?.optJSONObject(hash) ?: return
-        val type = cfg.optString("t", "")
-
-        val leftCol = row.getChildAt(0) as? LinearLayout ?: return
-        val subText = leftCol.getChildAt(1) as? TextView
-        subText?.text = subText(type, state)
-
-        val rightCol = row.getChildAt(1) as? LinearLayout ?: row
-        for (i in 0 until (rightCol as LinearLayout).childCount) {
-            val child = rightCol.getChildAt(i)
-            if (child is Switch) {
-                child.setOnCheckedChangeListener(null)
-                child.isChecked = state["s"] == 1L
-                child.setOnCheckedChangeListener { _, checked ->
-                    val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
-                    val old = DeviceStateManager.visible(hash)
-                    val newVal = mapOf("s" to if (checked) 1L else 0L)
-                    main.sendPacket(
-                        OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0),
-                        oldValue = old,
-                        newValue = newVal
-                    )
-                }
-                break
-            }
-        }
-
-        val inQueue = (activity as? MainActivity)?.bleService?.deliveryQueue
-            ?.getQueueEntries()?.any { it.devId == hash } ?: false
-        row.alpha = if (inQueue) 0.5f else 1f
-        row.isEnabled = !inQueue
-    }
-
-    private fun applyRowStatus(row: View, status: DeviceStatus) {
-        when (status) {
-            DeviceStatus.PENDING -> {
-                (row as? LinearLayout)?.alpha = 0.5f
-            }
-            DeviceStatus.FAILED -> {
-                (row as? LinearLayout)?.setBackgroundColor(0x15F87171.toInt())
-            }
-            DeviceStatus.OK -> {
-                (row as? LinearLayout)?.alpha = 1f
-                (row as? LinearLayout)?.setBackgroundColor(0)
-            }
-        }
-    }
-
-    private fun buildZoneCard(zoneName: String, devices: List<Pair<String, JSONObject>>, mpg: JSONObject): View {
+    private fun buildTypeSection(zoneId: String, type: String, devices: List<Pair<String, JSONObject>>, hasBorder: Boolean): View {
         val ctx = requireContext()
-        val card = LinearLayout(ctx).apply {
-            orientation = LinearLayout.VERTICAL
-            setBackgroundResource(R.drawable.bg_zone_card)
-            val lp = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = dpToPx(10) }
-            layoutParams = lp
-        }
+        val prefs = ctx.getSharedPreferences("loremote", Context.MODE_PRIVATE)
+        val key = "$zoneId" + "_" + type
+        val expanded = prefs.getBoolean("type_exp_$key", true)
 
-        val header = TextView(ctx).apply {
-            text = zoneName
-            textSize = 11f
-            setTextColor(ctx.getColor(R.color.gray_400))
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            letterSpacing = 0.08f
-            setAllCaps(true)
-            gravity = android.view.Gravity.CENTER
-            setPadding(dpToPx(20), dpToPx(10), dpToPx(20), dpToPx(10))
-        }
-        card.addView(header)
-
-        card.addView(divider())
-
-        val byType = devices.groupBy { it.second.optString("t", "?") }
-        val typeOrder = listOf("L","SW","C","WH","F","CV","LK","BS","S","SI","A","H","B")
-
-        typeOrder.filter { byType.containsKey(it) }.forEach { type ->
-            val typeDevices = byType[type] ?: return@forEach
-            val typeSection = buildTypeSection(type, typeDevices)
-            card.addView(typeSection)
-        }
-
-        return card
-    }
-
-    private fun buildTypeSection(type: String, devices: List<Pair<String, JSONObject>>): View {
-        val ctx = requireContext()
         val section = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
-        }
-
-        val typeName = getTypeName(type)
-        if (typeName != null) {
-            val label = TextView(ctx).apply {
-                text = typeName
-                textSize = 11f
-                setTextColor(ctx.getColor(R.color.gray_400))
-                setTextSize(11f)
-                letterSpacing = 0.08f
-                setAllCaps(true)
-                gravity = android.view.Gravity.CENTER
-                setPadding(dpToPx(20), dpToPx(10), dpToPx(20), dpToPx(4))
+            if (hasBorder) {
+                val bottomBorder = View(ctx).apply {
+                    setBackgroundColor(ctx.getColor(R.color.gray_700))
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(1)
+                    )
+                }
+                addView(bottomBorder)
             }
-            section.addView(label)
         }
 
-        val devList = LinearLayout(ctx).apply {
+        val typeIconRes = resolveTypeIcon(type)
+        val typeName = getTypeName(type)
+
+        val header = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(dpToPx(9), dpToPx(14), dpToPx(9), dpToPx(14))
+            isClickable = true
+            isFocusable = true
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setCornerRadius(dpToPx(8).toFloat())
+                setColor(ctx.getColor(R.color.gray_800))
+            }
+        }
+
+        val iconView = ImageView(ctx).apply {
+            setImageResource(typeIconRes)
+            val lp = LinearLayout.LayoutParams(dpToPx(16), dpToPx(16))
+            layoutParams = lp
+            setColorFilter(ctx.getColor(R.color.gray_500))
+        }
+        header.addView(iconView)
+
+        val nameTv = TextView(ctx).apply {
+            text = typeName
+            textSize = 13f
+            setTextColor(ctx.getColor(R.color.gray_500))
+            val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            lp.leftMargin = dpToPx(7)
+            layoutParams = lp
+        }
+        header.addView(nameTv)
+
+        val countBadge = TextView(ctx).apply {
+            text = "×${devices.size}"
+            textSize = 11f
+            setTextColor(ctx.getColor(R.color.gray_500))
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setCornerRadius(dpToPx(99).toFloat())
+                setColor(ctx.getColor(R.color.gray_900))
+            }
+            setPadding(dpToPx(7), dpToPx(2), dpToPx(7), dpToPx(2))
+        }
+        header.addView(countBadge)
+
+        val chevron = TextView(ctx).apply {
+            text = "▾"
+            textSize = 14f
+            setTextColor(ctx.getColor(R.color.gray_500))
+            val lp = layoutParams as? LinearLayout.LayoutParams ?: LinearLayout.LayoutParams(0, 0)
+            lp.setMarginStart(dpToPx(8))
+            layoutParams = lp
+            tag = "tc_$key"
+        }
+        header.addView(chevron)
+
+        section.addView(header)
+
+        val devicesList = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dpToPx(14), dpToPx(6), dpToPx(14), dpToPx(10))
+            setPadding(dpToPx(8), dpToPx(14), dpToPx(8), dpToPx(10))
+            visibility = if (expanded) View.VISIBLE else View.GONE
         }
 
-        devices.forEach { (hash, dev) ->
+        for (i in devices.indices) {
+            val (hash, dev) = devices[i]
             val row = buildDeviceRow(hash, dev, type)
-            devList.addView(row)
+            devicesList.addView(row)
+            if (i < devices.size - 1) {
+                devicesList.addView(createDivider(ctx))
+            }
+        }
+        section.addView(devicesList)
+
+        header.setOnClickListener {
+            val newExpanded = !expanded
+            typeExpanded[key] = newExpanded
+            devicesList.visibility = if (newExpanded) View.GONE else View.VISIBLE
+            chevron.rotation = if (newExpanded) 180f else 0f
+            prefs.edit().putBoolean("type_exp_$key", newExpanded).apply()
         }
 
-        section.addView(devList)
         return section
     }
 
     private fun buildDeviceRow(hash: String, dev: JSONObject, type: String): View {
         val ctx = requireContext()
         val state = DeviceStateManager.visible(hash)
-        val deviceStatus = DeviceStateManager.get(hash)?.status ?: DeviceStatus.OK
+        val cfg = configJson?.optJSONObject("mpg")?.optJSONObject(hash) ?: dev
 
         val row = LinearLayout(ctx).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = android.view.Gravity.CENTER_VERTICAL
-            setPadding(dpToPx(6), dpToPx(8), dpToPx(6), dpToPx(8))
+            setPadding(dpToPx(8), dpToPx(6), dpToPx(8), dpToPx(6))
+            minimumHeight = dpToPx(48)
+            isClickable = true
+            isFocusable = true
             tag = hash
-            val lp = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            layoutParams = lp
         }
 
-        applyRowStatus(row, deviceStatus)
-
-        val nameBlock = LinearLayout(ctx).apply {
+        val leftBlock = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
+
         val tvName = TextView(ctx).apply {
             text = dev.optString("n", hash)
             textSize = 14f
-            setTextColor(getColor(R.color.gray_200))
+            setTextColor(ctx.getColor(R.color.gray_200))
         }
-        val tvSub = TextView(ctx).apply {
-            id = View.generateViewId()
-            text = subText(type, state)
-            textSize = 11f
-            setTextColor(getColor(R.color.gray_500))
-        }
-        nameBlock.addView(tvName)
-        nameBlock.addView(tvSub)
-        row.addView(nameBlock)
+        leftBlock.addView(tvName)
 
-        when (type) {
-            "L", "SW", "C", "WH", "F", "H" -> {
-                val toggle = Switch(ctx).apply {
-                    isChecked = state["s"] == 1L
-                    setOnCheckedChangeListener { _, isChecked ->
+        val tvSub = TextView(ctx).apply {
+            text = buildSubText(type, state, cfg)
+            textSize = 11f
+            setTextColor(ctx.getColor(R.color.gray_500))
+        }
+        leftBlock.addView(tvSub)
+        row.addView(leftBlock)
+
+        val rightControl = when (type) {
+            "L", "SW", "C", "WH", "F", "H", "LK" -> {
+                LinearLayout(ctx).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+
+                    val toggle = Switch(ctx).apply {
+                        isChecked = state["s"] == 1L
+                    }
+                    addView(toggle)
+
+                    toggle.setOnCheckedChangeListener(null)
+                    toggle.setOnCheckedChangeListener { _, checked ->
                         val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
                         val old = DeviceStateManager.visible(hash)
-                        val changes = mapOf("s" to if (isChecked) 1L else 0L)
                         main.sendPacket(
-                            OutPacket(tp = PacketType.CMD, id = hash, s = if (isChecked) 1 else 0),
+                            OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0),
                             oldValue = old,
-                            newValue = changes
+                            newValue = mapOf("s" to if (checked) 1L else 0L)
                         )
                     }
                 }
-                row.addView(toggle)
             }
-            "LK" -> {
-                val toggle = Switch(ctx).apply {
-                    isChecked = state["s"] == 1L
-                    setOnCheckedChangeListener { _, isChecked ->
-                        val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
-                        val old = DeviceStateManager.visible(hash)
-                        val changes = mapOf("s" to if (isChecked) 1L else 0L)
-                        val cmd = if (isChecked) "lock" else "unlock"
-                        main.sendPacket(
-                            OutPacket(tp = PacketType.CMD, id = hash, cmd = cmd),
-                            oldValue = old,
-                            newValue = changes
-                        )
+            "S", "SI" -> {
+                val tvVal = TextView(ctx).apply {
+                    text = buildRightText(type, state, cfg)
+                    textSize = 13f
+                    val hasValue = state["v"] != null
+                    setTextColor(ctx.getColor(if (hasValue) R.color.green_text else R.color.gray_500))
+                }
+                tvVal
+            }
+            "BS" -> {
+                val isActive = state["s"] == 1L
+                val tvBadge = TextView(ctx).apply {
+                    text = if (isActive) "⚠ Тревога" else "✓ Норма"
+                    textSize = 12f
+                    setTextColor(ctx.getColor(if (isActive) R.color.red_text else R.color.gray_500))
+                    setPadding(dpToPx(8), dpToPx(3), dpToPx(8), dpToPx(3))
+                    background = GradientDrawable().apply {
+                        shape = GradientDrawable.RECTANGLE
+                        setCornerRadius(dpToPx(8).toFloat())
+                        setColor(ctx.getColor(if (isActive) R.color.red_soft else R.color.gray_800))
+                        setStroke(1, ctx.getColor(if (isActive) R.color.red_border else R.color.gray_700))
                     }
                 }
-                row.addView(toggle)
-            }
-            "B" -> {
-                val btn = Button(ctx).apply {
-                    text = "▶"
-                    setTextSize(16f)
-                    setOnClickListener {
-                        val main = activity as? MainActivity ?: return@setOnClickListener
-                        main.sendPacket(OutPacket(tp = PacketType.CMD, id = hash, cmd = "press"))
-                    }
-                }
-                row.addView(btn)
-            }
-            "CV" -> {
-                val state = DeviceStateManager.visible(hash)
-                val pos = toLong(state?.get("pos"))?.toInt() ?: 0
-                val st = state?.get("st")
-                val tvVal = TextView(ctx).apply {
-                    text = if (pos != 0) "открыты·${pos}%" else "закрыты"
-                    textSize = 13f
-                    setTextColor(getColor(R.color.green_text))
-                }
-                row.addView(tvVal)
-            }
-            "SI" -> {
-                val state = DeviceStateManager.visible(hash)
-                val v = state?.get("v")
-                val u = dev.optString("u", "")
-                val tvVal = TextView(ctx).apply {
-                    text = if (v != null) "$v$u" else "—"
-                    textSize = 13f
-                    setTextColor(getColor(if (v != null) R.color.green_text else R.color.gray_500))
-                }
-                row.addView(tvVal)
+                tvBadge
             }
             "A" -> {
-                val state = DeviceStateManager.visible(hash)
-                val mode = state?.get("s")
+                val mode = state["s"] as? Long
                 val tvBadge = TextView(ctx).apply {
                     text = when (mode) {
                         1L -> "armed"
@@ -501,131 +484,194 @@ class ControlFragment : Fragment() {
                         else -> "disarmed"
                     }
                     textSize = 12f
-                    setTextColor(getColor(R.color.yellow_text))
+                    setTextColor(ctx.getColor(if (mode != null && mode != 0L) R.color.yellow_text else R.color.gray_500))
                     setPadding(dpToPx(8), dpToPx(3), dpToPx(8), dpToPx(3))
-                    setBackgroundResource(R.drawable.badge_yellow)
+                    background = GradientDrawable().apply {
+                        shape = GradientDrawable.RECTANGLE
+                        setCornerRadius(dpToPx(8).toFloat())
+                        setColor(ctx.getColor(if (mode != null && mode != 0L) R.color.yellow_soft else R.color.gray_800))
+                        setStroke(1, ctx.getColor(if (mode != null && mode != 0L) R.color.yellow_border else R.color.gray_700))
+                    }
                 }
-                row.addView(tvBadge)
+                tvBadge
             }
-            "S" -> {
-                val state = DeviceStateManager.visible(hash)
-                val v = state?.get("v")
-                val u = dev.optString("u", "")
+            "CV" -> {
+                val pos = (state["pos"] as? Number)?.toInt() ?: 0
                 val tvVal = TextView(ctx).apply {
-                    text = if (v != null) "$v$u" else "—"
+                    text = if (pos > 0) "открыты·$pos%" else "закрыты"
                     textSize = 13f
-                    setTextColor(getColor(R.color.green_text))
-                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    setTextColor(ctx.getColor(R.color.green_text))
                 }
-                row.addView(tvVal)
+                tvVal
             }
-            "BS" -> {
-                val active = DeviceStateManager.visible(hash)["s"] == 1L
-                val tvBadge = TextView(ctx).apply {
-                    text = if (active) "⚠️ Тревога" else "✓ Норма"
-                    textSize = 12f
-                    setTextColor(getColor(if (active) R.color.red_text else R.color.green_text))
-                    setPadding(dpToPx(8), dpToPx(3), dpToPx(8), dpToPx(3))
-                    setBackgroundResource(if (active) R.drawable.badge_red else R.drawable.badge_green)
+            "B" -> {
+                val btn = Button(ctx).apply {
+                    text = "▶"
+                    textSize = 16f
+                    setOnClickListener {
+                        val main = activity as? MainActivity ?: return@setOnClickListener
+                        main.sendPacket(OutPacket(tp = PacketType.CMD, id = hash, cmd = "press"))
+                    }
                 }
-                row.addView(tvBadge)
+                btn
             }
             else -> {
-                val state = DeviceStateManager.visible(hash)
-                val s = state?.get("s")
-                if (s is Long && s != 0L) {
-                    val tvVal = TextView(ctx).apply {
-                        text = s.toString()
-                        textSize = 13f
-                        setTextColor(getColor(R.color.green_text))
+                val tvVal = TextView(ctx).apply {
+                    text = state["s"]?.toString() ?: "—"
+                    textSize = 13f
+                    setTextColor(ctx.getColor(R.color.green_text))
+                }
+                tvVal
+            }
+        }
+        row.addView(rightControl)
+
+        // Long press → popup
+        row.setOnTouchListener { _, event ->
+            when (event.action) {
+                android.view.MotionEvent.ACTION_DOWN -> {
+                    longPressRunnable = Runnable {
+                        DevicePopupDialog.newInstance(hash, { packet, changes, old ->
+                            (activity as? MainActivity)?.sendPacket(packet, oldValue = old, newValue = changes)
+                        }, this@ControlFragment)
+                            .show(parentFragmentManager, "popup_$hash")
                     }
-                    row.addView(tvVal)
+                    handler.postDelayed(longPressRunnable!!, 500)
+                }
+                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                    handler.removeCallbacks(longPressRunnable ?: return@setOnTouchListener false)
                 }
             }
-        }
-
-        row.setOnLongClickListener {
-            openDevicePopup(hash, dev, type)
-            true
-        }
-
-        row.setOnClickListener {
-            val popupTypes = listOf("L", "SW", "C", "WH", "F", "H", "CV", "SI", "A", "S", "BS")
-            if (popupTypes.contains(type)) {
-                openDevicePopup(hash, dev, type)
-            }
+            false
         }
 
         return row
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        lifecycleScope.launch {
+            DeviceStateManager.states.collect { states ->
+                if (!isAdded) return@collect
+                requireActivity().runOnUiThread {
+                    states.keys.forEach { hash -> refreshRow(hash) }
+                }
+            }
+        }
     }
 
     fun onPong(cfgh: String?) {
         // PONG получен
     }
 
-    private fun openDevicePopup(hash: String, dev: JSONObject, type: String) {
-        val dialog = DevicePopupDialog(hash, dev, type) { packet, changes, old ->
-            (activity as? MainActivity)?.sendPacket(packet, oldValue = old, newValue = changes)
-        }
-        dialog.show(parentFragmentManager, "device_popup")
-    }
+    private fun refreshRow(hash: String) {
+        val row = zonesContainer?.findViewWithTag<View>(hash) as? LinearLayout ?: return
+        val state = DeviceStateManager.visible(hash)
+        val cfg = configJson?.optJSONObject("mpg")?.optJSONObject(hash) ?: return
+        val type = cfg.optString("t", "")
 
-    private fun getTypeName(type: String): String? {
-        return when (type) {
-            "L" -> "СВЕТ"
-            "SW", "SI" -> "ПЕРЕКЛЮЧАТЕЛИ"
-            "C" -> "КЛИМАТ"
-            "WH" -> "ВОДОНАГРЕВАТЕЛЬ"
-            "F" -> "ВЕНТИЛЯЦИЯ"
-            "H" -> "УВЛАЖНЕНИЕ"
-            "CV" -> "ЖАЛЮЗИ"
-            "LK" -> "ЗАМКИ"
-            "A" -> "БЕЗОПАСНОСТЬ"
-            "BS", "S" -> "ДАТЧИКИ"
-            "B" -> "КНОПКИ И СЦЕНЫ"
-            else -> null
-        }
-    }
+        row.alpha = if (DeviceStateManager.get(hash)?.status != DeviceStatus.FAILED) 1f else 0.5f
+        for (i in 0 until row.childCount) row.getChildAt(i)?.isEnabled = DeviceStateManager.get(hash)?.status != DeviceStatus.FAILED
 
-    private fun subText(type: String, state: Map<String, Any?>?): String {
-        if (state == null) return "—"
-        return when (type) {
-            "L"  -> if (state["s"] == 1L) "${state["bri"] ?: 0}% · ${(state["ct"] as? Number)?.toInt() ?: 0}K" else "выкл"
-            "SW" -> if (state["s"] == 1L) "включён" else "выкл"
-            "C"  -> if (state["s"] == 1L) {
-                val th = (state["th"] as? Number)?.toInt() ?: 0
-                val tc = (state["tc"] as? Number)?.toInt() ?: 0
-                val mode = (state["mode"] as? String) ?: ""
-                "→$th° · $tc° · $mode"
-            } else "выкл"
-            "WH" -> if (state["s"] == 1L) {
-                val th = (state["th"] as? Number)?.toInt() ?: 0
-                val tc = (state["tc"] as? Number)?.toInt() ?: 0
-                "→$th° · сейчас $tc°"
-            } else "выкл"
-            "F"  -> if (state["s"] == 1L) "${state["speed"] ?: 0}%" else "выкл"
-            "H"  -> if (state["s"] == 1L) {
-                val th = (state["th"] as? Number)?.toInt() ?: 0
-                val tc = (state["tc"] as? Number)?.toInt() ?: 0
-                "→$th% · сейчас $tc%"
-            } else "выкл"
-            "CV" -> ""
-            "LK" -> if (state["s"] == 1L) "locked" else "unlocked"
-            "BS" -> if (state["s"] == 1L) "Сработал" else "Норма"
-            "SI" -> state["v"]?.toString() ?: "—"
-            "A"  -> when (state["s"]) {
-                1L -> "armed"
-                2L -> "stay"
-                3L -> "night"
-                else -> "disarmed"
+        val nameBlock = row.getChildAt(0) as? LinearLayout
+        (nameBlock?.getChildAt(1) as? TextView)?.text = buildSubText(type, state, cfg)
+
+        when (val ctrl = row.getChildAt(1)) {
+            is Switch -> {
+                ctrl.setOnCheckedChangeListener(null)
+                ctrl.isChecked = state["s"] == 1L
+                ctrl.setOnCheckedChangeListener { _, checked ->
+                    val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
+                    val old = DeviceStateManager.visible(hash)
+                    main.sendPacket(
+                        OutPacket(tp = PacketType.CMD, id = hash, s = if (checked) 1 else 0),
+                        oldValue = old,
+                        newValue = mapOf("s" to if (checked) 1L else 0L)
+                    )
+                }
             }
-            "S"  -> state["v"]?.toString() ?: "—"
-            else -> ""
+            is TextView -> ctrl.text = buildRightText(type, state, cfg)
+        }
+
+        val zoneId = configJson?.optJSONObject("mpg")
+            ?.optJSONObject(hash)?.optString("a") ?: "ustroistva"
+    }
+
+    fun buildSubText(type: String, state: Map<String, Any?>, cfg: JSONObject): String = when (type) {
+        "L" -> if (state["s"] == 1L) "${state["bri"] ?: ""}% · ${state["ct"] ?: ""}K" else "выкл"
+        "C", "WH" -> {
+            val th = state["th"]
+            val tc = state["tc"]
+            if (th != null && tc != null) "цель ${th}°C · сейчас ${tc}°C"
+            else if (tc != null) "сейчас ${tc}°C" else "—"
+        }
+        "S", "SI" -> "${state["v"] ?: "—"}${cfg.optString("u", "")}"
+        "CV" -> "${state["pos"] ?: 0}%"
+        "BS" -> if (state["s"] == 1L) "Тревога!" else "Норма"
+        "SW", "H", "F" -> if (state["s"] == 1L) "вкл" else "выкл"
+        else -> ""
+    }
+
+    fun buildRightText(type: String, state: Map<String, Any?>, cfg: JSONObject): String = when (type) {
+        "S", "SI" -> "${state["v"] ?: "—"}${cfg.optString("u", "")}"
+        "BS" -> if (state["s"] == 1L) "⚠ Тревога" else "✓ Норма"
+        "A" -> when (state["s"]) {
+            1L -> "armed"
+            2L -> "stay"
+            3L -> "night"
+            else -> "disarmed"
+        }
+        "CV" -> {
+            val p = (state["pos"] as? Number)?.toInt() ?: 0
+            if (p > 0) "открыты·$p%" else "закрыты"
+        }
+        else -> state["s"]?.toString() ?: "—"
+    }
+
+    private fun getTypeName(type: String): String {
+        return when (type) {
+            "L" -> "Свет"
+            "SW" -> "Выключатели"
+            "C" -> "Климат"
+            "WH" -> "Бойлер"
+            "F" -> "Вентиляция"
+            "CV" -> "Жалюзи"
+            "LK" -> "Замки"
+            "BS" -> "Датчики безопасности"
+            "S" -> "Датчики"
+            "SI" -> "Сирена"
+            "A" -> "Охрана"
+            "H" -> "Реле"
+            "B" -> "Кнопки"
+            else -> "Устройства"
         }
     }
 
-    private fun divider(): View = View(requireContext()).apply {
-        setBackgroundColor(requireContext().getColor(R.color.gray_700))
+    private fun resolveTypeIcon(type: String): Int {
+        return when (type) {
+            "L" -> R.drawable.ic_type_bulb
+            "SW", "H" -> R.drawable.ic_type_toggle
+            "C" -> R.drawable.ic_type_ac
+            "WH" -> R.drawable.ic_type_water
+            "F" -> R.drawable.ic_type_fan
+            "CV" -> R.drawable.ic_type_blinds
+            "LK" -> R.drawable.ic_type_lock
+            "BS" -> R.drawable.ic_type_sensor
+            "S" -> R.drawable.ic_type_thermostat
+            "SI" -> R.drawable.ic_type_info
+            "A" -> R.drawable.ic_type_security
+            "B" -> R.drawable.ic_type_button
+            else -> R.drawable.ic_type_info
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        handler.removeCallbacks(longPressRunnable ?: return)
+    }
+
+    private fun createDivider(ctx: Context): View = View(ctx).apply {
+        setBackgroundColor(ctx.getColor(R.color.gray_700))
         layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(1)
         )
@@ -634,9 +680,18 @@ class ControlFragment : Fragment() {
     private fun dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
     private fun getColor(id: Int) = requireContext().getColor(id)
 
-    private fun toLong(v: Any?): Long? = when (v) {
-        is Number -> (v as? Number)?.toLong() ?: 0L
-        else -> null
+    private fun getDevicesForZone(zoneId: String, config: JSONObject, unassignedDevices: List<Pair<String, JSONObject>> = emptyList()): List<Pair<String, JSONObject>> {
+        val mpg = config.optJSONObject("mpg") ?: return emptyList()
+        val devices = mutableListOf<Pair<String, JSONObject>>()
+        mpg.keys().forEach { hash ->
+            val dev = mpg.getJSONObject(hash)
+            val devArea = dev.optString("a")
+            val noArea = devArea == "" || devArea == "null" || dev.opt("a") == null
+            if (devArea == zoneId) {
+                devices.add(Pair(hash, dev))
+            }
+        }
+        return devices
     }
 
     private fun resolveZoneIcon(zoneIcon: String): Int {
@@ -649,19 +704,5 @@ class ControlFragment : Fragment() {
             "tool" -> R.drawable.ic_zone_tool
             else -> R.drawable.ic_zone_home
         }
-    }
-
-    private fun getDevicesForZone(zoneId: String, config: JSONObject): List<Pair<String, JSONObject>> {
-        val mpg = config.optJSONObject("mpg") ?: return emptyList()
-        val devices = mutableListOf<Pair<String, JSONObject>>()
-        mpg.keys().forEach { hash ->
-            val dev = mpg.getJSONObject(hash)
-            val devArea = dev.optString("a")
-            val noArea = devArea == "" || devArea == "null" || dev.opt("a") == null
-            if (devArea == zoneId || (noArea && zoneId == "ustroistva")) {
-                devices.add(Pair(hash, dev))
-            }
-        }
-        return devices
     }
 }
