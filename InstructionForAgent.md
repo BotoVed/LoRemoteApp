@@ -202,8 +202,10 @@ appcompat: 1.6.1, material: 1.11.0
 | Жёлтая иконка BLE | При fail автоконнекта иконка остаётся yellow — fix: connectTo(device.device) |
 | tryAutoConnect() рвёт соединение при включении экрана | Проверять state перед connectTo(), убрать вызов из onStart() |
 | retryCount=0 вызывал onFailed() после первой отправки | При retryCount=0 считать delivered после первого send |
+| Switch обёрнут в LinearLayout — refreshRow не находил его | Switch добавлять напрямую в row без LinearLayout-обёртки |
+| Строка ленты не обновлялась после изменения в карточке | Callback `{ packet, old, changes }` — порядок аргументов важен, old=second, changes=third |
 
-## Статус v0.6.4 ✅ (текущий)
+## Статус v0.6.6 ✅ (текущий)
 
 ### Исправления
 - [x] DeliveryQueue — полная переделка: loop-based, без рекурсии, oldValue/newValue
@@ -233,6 +235,8 @@ appcompat: 1.6.1, material: 1.11.0
 - [x] v0.6.1 — pills в заголовках зон: температура(S °C), влажность(S %), свет(L вкл), тревоги(BS)
 - [x] v0.6.2 — fix zone devices filter, fix expand/collapse toggle logic
 - [x] v0.6.4 — DisplayStateManager rename (DeviceStateManager → DisplayStateManager), getValues() + isEnabled(), DevicePopupDialog sync fix, empty zones skip, sys zone "devices" icon
+- [x] v0.6.5 — refreshRow: убран DeviceStatus, isEnabled(); Switch напрямую в row без LinearLayout-обёртки
+- [x] v0.6.6 — исправлен порядок аргументов callback попапа old/changes — строка ленты теперь обновляется при изменении в карточке
 
 ### Полная версия v0.5.0 ✅
 - [x] BLE сканирование + фильтрация Meshtastic устройств
@@ -313,3 +317,4 @@ appcompat: 1.6.1, material: 1.11.0
     getValues(hash) → current + pending merged
     isEnabled(hash) → device exists
     states: StateFlow<Map<String, DeviceState>>
+
