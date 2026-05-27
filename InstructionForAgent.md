@@ -203,7 +203,7 @@ appcompat: 1.6.1, material: 1.11.0
 | tryAutoConnect() рвёт соединение при включении экрана | Проверять state перед connectTo(), убрать вызов из onStart() |
 | retryCount=0 вызывал onFailed() после первой отправки | При retryCount=0 считать delivered после первого send |
 
-## Статус v0.6.1 ✅ (текущий)
+## Статус v0.6.4 ✅ (текущий)
 
 ### Исправления
 - [x] DeliveryQueue — полная переделка: loop-based, без рекурсии, oldValue/newValue
@@ -231,6 +231,8 @@ appcompat: 1.6.1, material: 1.11.0
 - [x] v0.5.8 — SettingsFragment queue table rewrite, unify DeviceStateManager, fix slider updates
 - [x] v0.5.9 — refreshRow() rewrite with correct row structure, remove remaining devStates
 - [x] v0.6.1 — pills в заголовках зон: температура(S °C), влажность(S %), свет(L вкл), тревоги(BS)
+- [x] v0.6.2 — fix zone devices filter, fix expand/collapse toggle logic
+- [x] v0.6.4 — DisplayStateManager rename (DeviceStateManager → DisplayStateManager), getValues() + isEnabled(), DevicePopupDialog sync fix, empty zones skip, sys zone "devices" icon
 
 ### Полная версия v0.5.0 ✅
 - [x] BLE сканирование + фильтрация Meshtastic устройств
@@ -305,3 +307,9 @@ appcompat: 1.6.1, material: 1.11.0
   Pills: температура(S °C), влажность(S %), свет(L вкл), тревоги(BS s==1)
   refreshRow(hash) → refreshZonePills(zoneId)
   Состояние: zoneExpanded/typeExpanded + SharedPreferences
+
+## State
+  DisplayStateManager (переименован из DeviceStateManager):
+    getValues(hash) → current + pending merged
+    isEnabled(hash) → device exists
+    states: StateFlow<Map<String, DeviceState>>
