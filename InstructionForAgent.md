@@ -203,7 +203,7 @@ appcompat: 1.6.1, material: 1.11.0
 | tryAutoConnect() рвёт соединение при включении экрана | Проверять state перед connectTo(), убрать вызов из onStart() |
 | retryCount=0 вызывал onFailed() после первой отправки | При retryCount=0 считать delivered после первого send |
 
-## Статус v0.5.9 ✅ (текущий)
+## Статус v0.6.1 ✅ (текущий)
 
 ### Исправления
 - [x] DeliveryQueue — полная переделка: loop-based, без рекурсии, oldValue/newValue
@@ -230,6 +230,7 @@ appcompat: 1.6.1, material: 1.11.0
 - [x] v0.5.6 — tryAutoConnect() state check, retryCount=0 → delivered
 - [x] v0.5.8 — SettingsFragment queue table rewrite, unify DeviceStateManager, fix slider updates
 - [x] v0.5.9 — refreshRow() rewrite with correct row structure, remove remaining devStates
+- [x] v0.6.1 — pills в заголовках зон: температура(S °C), влажность(S %), свет(L вкл), тревоги(BS)
 
 ### Полная версия v0.5.0 ✅
 - [x] BLE сканирование + фильтрация Meshtastic устройств
@@ -298,3 +299,9 @@ appcompat: 1.6.1, material: 1.11.0
 ## TODO (следующие шаги)
 
 1. **Авторизация** — SHA-256 пароль, несколько пользователей
+
+## UI архитектура ленты:
+  ZoneCard (сворачиваемая, prefs) → TypeSection (сворачиваемая, prefs) → DeviceRow (tag=hash)
+  Pills: температура(S °C), влажность(S %), свет(L вкл), тревоги(BS s==1)
+  refreshRow(hash) → refreshZonePills(zoneId)
+  Состояние: zoneExpanded/typeExpanded + SharedPreferences

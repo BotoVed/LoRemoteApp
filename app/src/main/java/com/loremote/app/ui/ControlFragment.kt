@@ -284,13 +284,14 @@ class ControlFragment : Fragment() {
             body.addView(typeSection)
         }
 
-        header.setOnClickListener {
-            val newExpanded = !expanded
-            zoneExpanded[zoneId] = newExpanded
-            body.visibility = if (!newExpanded) View.GONE else View.VISIBLE
-            chevron.rotation = if (!newExpanded) 0f else 180f
-            prefs.edit().putBoolean("zone_exp_$zoneId", newExpanded).apply()
-        }
+  header.setOnClickListener {
+        val isCurrentlyExpanded = zoneExpanded[zoneId] ?: expanded
+        val newExpanded = !isCurrentlyExpanded
+        zoneExpanded[zoneId] = newExpanded
+        body.visibility = if (newExpanded) View.VISIBLE else View.GONE
+        chevron.rotation = if (newExpanded) 180f else 0f
+        prefs.edit().putBoolean("zone_exp_$zoneId", newExpanded).apply()
+    }
 
         return card
     }
@@ -389,13 +390,14 @@ class ControlFragment : Fragment() {
         }
         section.addView(devicesList)
 
-        header.setOnClickListener {
-            val newExpanded = !expanded
-            typeExpanded[key] = newExpanded
-            devicesList.visibility = if (newExpanded) View.GONE else View.VISIBLE
-            chevron.rotation = if (newExpanded) 180f else 0f
-            prefs.edit().putBoolean("type_exp_$key", newExpanded).apply()
-        }
+     header.setOnClickListener {
+        val isCurrentlyExpanded = typeExpanded[key] ?: expanded
+        val newExpanded = !isCurrentlyExpanded
+        typeExpanded[key] = newExpanded
+        devicesList.visibility = if (newExpanded) View.VISIBLE else View.GONE
+        chevron.rotation = if (newExpanded) 180f else 0f
+        prefs.edit().putBoolean("type_exp_$key", newExpanded).apply()
+    }
 
         return section
     }
@@ -690,15 +692,21 @@ class ControlFragment : Fragment() {
     private fun dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
     private fun getColor(id: Int) = requireContext().getColor(id)
 
-    private fun getDevicesForZone(zoneId: String, config: JSONObject, unassignedDevices: List<Pair<String, JSONObject>> = emptyList()): List<Pair<String, JSONObject>> {
+    private fun getDevicesForZone(
+        zoneId: String,
+        config: JSONObject,
+        unassignedDevices: List<Pair<String, JSONObject>> = emptyList()
+    ): List<Pair<String, JSONObject>> {
         val mpg = config.optJSONObject("mpg") ?: return emptyList()
         val devices = mutableListOf<Pair<String, JSONObject>>()
         mpg.keys().forEach { hash ->
-            val dev = mpg.getJSONObject(hash)
-            val devArea = dev.optString("a")
+            val dev = mpg.optJSONObject(hash) ?: return@forEach
+            val devArea = dev.optString("a", "")
             val noArea = devArea == "" || devArea == "null" || dev.opt("a") == null
-            if (devArea == zoneId) {
-                devices.add(Pair(hash, dev))
+            if (zoneId == "ustroistva") {
+                if (noArea) devices.add(hash to dev)
+            } else {
+                if (devArea == zoneId) devices.add(hash to dev)
             }
         }
         return devices
