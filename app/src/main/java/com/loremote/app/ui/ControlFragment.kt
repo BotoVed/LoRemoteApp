@@ -610,7 +610,7 @@ class ControlFragment : Fragment() {
     }
 
     fun buildSubText(type: String, state: Map<String, Any?>, cfg: JSONObject): String = when (type) {
-        "L" -> if (state["s"] == 1L) "${state["bri"] ?: ""}% · ${state["ct"] ?: ""}K" else "выкл"
+        "L" -> if (state["s"] == 1L) "${state["bri"] ?: ""}% · ${state["ct"] ?: ""}K" else ""
         "C", "WH" -> {
             val th = state["th"]
             val tc = state["tc"]
@@ -619,8 +619,6 @@ class ControlFragment : Fragment() {
         }
         "S", "SI" -> "${state["v"] ?: "—"}${cfg.optString("u", "")}"
         "CV" -> "${state["pos"] ?: 0}%"
-        "BS" -> if (state["s"] == 1L) "Тревога!" else "Норма"
-        "SW", "H", "F" -> if (state["s"] == 1L) "вкл" else "выкл"
         else -> ""
     }
 
