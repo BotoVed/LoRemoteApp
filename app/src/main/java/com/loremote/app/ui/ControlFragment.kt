@@ -14,7 +14,6 @@ import com.loremote.app.R
 import kotlinx.coroutines.launch
 import com.loremote.app.protocol.OutPacket
 import com.loremote.app.protocol.PacketType
-import com.loremote.app.state.DeviceStatus
 import com.loremote.app.state.DisplayStateManager
 import org.json.JSONObject
 
@@ -447,17 +446,9 @@ class ControlFragment : Fragment() {
 
         val rightControl = when (type) {
             "L", "SW", "C", "WH", "F", "H", "LK" -> {
-                LinearLayout(ctx).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    gravity = android.view.Gravity.CENTER_VERTICAL
-
-                    val toggle = Switch(ctx).apply {
-                        isChecked = state["s"] == 1L
-                    }
-                    addView(toggle)
-
-                    toggle.setOnCheckedChangeListener(null)
-                    toggle.setOnCheckedChangeListener { _, checked ->
+                Switch(ctx).apply {
+                    isChecked = state["s"] == 1L
+                    setOnCheckedChangeListener { _, checked ->
                         val main = activity as? MainActivity ?: return@setOnCheckedChangeListener
                         val old = DisplayStateManager.getValues(hash)
                         main.sendPacket(
@@ -589,8 +580,9 @@ class ControlFragment : Fragment() {
         val cfg = configJson?.optJSONObject("mpg")?.optJSONObject(hash) ?: return
         val type = cfg.optString("t", "")
 
-        row.alpha = if (DisplayStateManager.get(hash)?.status != DeviceStatus.FAILED) 1f else 0.5f
-        for (i in 0 until row.childCount) row.getChildAt(i)?.isEnabled = DisplayStateManager.get(hash)?.status != DeviceStatus.FAILED
+        val enabled = DisplayStateManager.isEnabled(hash)
+        row.alpha = if (enabled) 1f else 0.5f
+        for (i in 0 until row.childCount) row.getChildAt(i)?.isEnabled = enabled
 
         val nameBlock = row.getChildAt(0) as? LinearLayout
         (nameBlock?.getChildAt(1) as? TextView)?.text = buildSubText(type, state, cfg)
